@@ -4,13 +4,12 @@ using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrint3dServer
+    public interface IPrint3dClient : IPrint3dBase
     {
         #region Properties
 
         #region General
         public Print3dServerTarget Target { get; set; }
-        public Guid Id { get; set; }
         #endregion
 
         #region Connection
@@ -98,7 +97,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Instance
-        public static IPrint3dServer Instance { get; set; }
+        public static IPrint3dClient Instance { get; set; }
         #endregion
 
         #endregion
@@ -107,6 +106,16 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public IObservable<IPrinter3d> Printers { get; set; }
         public IObservable<IGcode> Files { get; set; }
         public IObservable<IPrint3dJob> Jobs { get; set; }
+        #endregion
+
+        #region Methods
+
+        public Task RefreshAsync();
+        public Task<bool> CheckOnlineAsync(int timeout);
+
+        public Task<IGcode> GetFilesAsync();
+        public Task<IPrinter3d> GetPrintersAsync();
+        public Task<IPrint3dJob> GetJobQueueAsync();
         #endregion
     }
 }

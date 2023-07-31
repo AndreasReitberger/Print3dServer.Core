@@ -2,10 +2,9 @@
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrint3dJobStatus
+    public interface IPrint3dJobStatus : IPrint3dBase
     {
         #region Properties
-        public Guid Id { get; set; }
         public string JobId { get; set; }
         public double? StartTime { get; set; }
         public double? EndTime { get; set; }
