@@ -1,10 +1,11 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrint3dServer
+    public interface IPrint3dServerClient
     {
         #region Properties
 
@@ -15,8 +16,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Connection
         public string SessionId { get; set; }
-        public string HostName { get; set; }
-        public string Host { get; set; }
+        public string ServerName { get; set; }
+        public string ServerAddress { get; set; }
         public string ApiKey { get; set; }
         public int Port { get; set; }
         public int DefaultTimeout { get; set; }
@@ -74,8 +75,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double SpeedFactorTarget { get; set; }
         public double FlowFactor { get; set; }
         public double FlowFactorTarget { get; set; }
-        public int NumberOfToolHeads { get; set; }
-        public int ActiveToolHead { get; set; }
+        public long NumberOfToolHeads { get; set; }
+        public long ActiveToolHead { get; set; }
         public bool HasHeatedBed { get; set; }
         public bool HasFan { get; set; }
         public bool HasHeatedChamber { get; set; }
@@ -90,6 +91,17 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public int Layers { get; set; }
         #endregion
 
+        #region WebCam
+        public bool HasWebCam { get; set; }
+
+        #endregion
+
+        #region Printer
+
+        public IPrinter3d ActivePrinter { get; set; }
+
+        #endregion
+
         #region Data Convertion
 
         public ConcurrentDictionary<string, string> IgnoredJsonResults { get;set; }
@@ -98,15 +110,16 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Instance
-        public static IPrint3dServer Instance { get; set; }
+        public static IPrint3dServerClient Instance { get; set; }
         #endregion
 
         #endregion
 
         #region Collections
-        public IObservable<IPrinter3d> Printers { get; set; }
-        public IObservable<IGcode> Files { get; set; }
-        public IObservable<IPrint3dJob> Jobs { get; set; }
+        public ObservableCollection<IPrinter3d> Printers { get; set; }
+        public ObservableCollection<IGcodeGroup> Groups { get; set; }
+        public ObservableCollection<IGcode> Files { get; set; }
+        public ObservableCollection<IPrint3dJob> Jobs { get; set; }
         #endregion
     }
 }

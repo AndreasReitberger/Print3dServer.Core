@@ -2,7 +2,7 @@
 
   <Import Project="..\..\common.props" />
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
+	<TargetFrameworks>netstandard2.1;net6</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<RootNamespace>AndreasReitberger.API.Print3dServer.Core</RootNamespace>

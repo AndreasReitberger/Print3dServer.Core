@@ -21,7 +21,7 @@
         public long? TotalLines { get; set; }
         public double? PrintStarted { get; set; }
         public double? PrintDuration { get; set; }
-        public double? PrintDudationEstimated { get; set; }
+        public double? PrintDurationEstimated { get; set; }
         public double? Extruder1Temperature { get; set; }
         public double? Extruder2Temperature { get; set; }
         public double? Extruder3Temperature { get; set; }
