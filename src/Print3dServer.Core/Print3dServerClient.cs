@@ -4,7 +4,6 @@ using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.Core.Utilities;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 using System.Net;
 using System.Security;
 using System.Text.RegularExpressions;
@@ -14,8 +13,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
     {
         #region Variables
-        RestClient restClient;
-        HttpClient httpClient;
+        RestClient? restClient;
+        HttpClient? httpClient;
         int _retries = 0;
         #endregion
 
@@ -87,7 +86,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             if (IsListening)
             {
-                StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunctions: refreshTasks);
+                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunctions: refreshTasks);
             }
         }
 
@@ -126,7 +125,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Connection
 
         [ObservableProperty]
-        Dictionary<string, string> authHeaders = new();
+        Dictionary<string, IAuthenticationHeader> authHeaders = new();
 
         [ObservableProperty]
         [property: JsonIgnore, XmlIgnore]
@@ -707,7 +706,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             string commandBase,
             Method method,
             string command,
-            Dictionary<string, string> authHeaders,
+            Dictionary<string, IAuthenticationHeader> authHeaders,
             object jsonObject = null,
             CancellationTokenSource cts = default,
             Dictionary<string, string> urlSegments = null,
@@ -735,16 +734,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     Method = method
                 };
 
-                bool validHeader = false;
                 if(authHeaders?.Count > 0)
                 {
-                    foreach(var header in authHeaders)
+                    foreach (var header in authHeaders)
                     {
                         //  "Authorization", $"Bearer {UserToken}"
                         //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value);
+                        request.AddHeader(header.Key, header.Value.Token);
                     }
-                    validHeader = true;
                 }
                 if (urlSegments != null)
                 {
@@ -799,7 +796,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
             string commandBase,
             string command,
-            Dictionary<string, string> authHeaders,
+            Dictionary<string, IAuthenticationHeader> authHeaders,
             CancellationTokenSource cts,
             string requestTargetUri = ""
             )
@@ -828,7 +825,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     {
                         //  "Authorization", $"Bearer {UserToken}"
                         //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value);
+                        request.AddHeader(header.Key, header.Value.Token);
                     }
                 }
                 Uri fullUri = restClient.BuildUri(request);
@@ -958,7 +955,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
             try
             {
-                if (restClient == null)
+                if (restClient is null)
                 {
                     UpdateRestClientInstance();
                 }
@@ -1109,13 +1106,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Rest Api
-        public async Task CheckOnlineAsync(string commandBase,Dictionary<string, string> authHeaders, string? command = null, int timeout = 10000)
+        public async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
         }
 
-        public async Task CheckOnlineAsync(string commandBase, Dictionary<string, string> authHeaders, string? command = null, CancellationTokenSource cts = default)
+        public async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default)
         {
             if (IsConnecting) return; // Avoid multiple calls
             IsConnecting = true;
@@ -1168,7 +1165,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, string> authHeaders, string? command = null, int timeout = 10000)
+        public async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             try
             {
@@ -1212,7 +1209,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                if (restClient == null)
+                if (restClient is null)
                 {
                     UpdateRestClientInstance();
                 }
@@ -1348,7 +1345,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return string.Empty;
             }
         }
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             if (obj is not Print3dServerClient item)
                 return false;
@@ -1374,8 +1371,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             // Release disposable objects.
             if (disposing)
             {
-                StopListeningAsync();
-                DisconnectWebSocketAsync();
+                _ = StopListeningAsync();
+                _ = DisconnectWebSocketAsync();
             }
         }
         #endregion
