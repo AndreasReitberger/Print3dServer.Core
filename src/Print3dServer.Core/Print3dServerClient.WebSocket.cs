@@ -13,7 +13,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Properties
         [ObservableProperty]
         [property: JsonIgnore, XmlIgnore]
-        WebSocket webSocket;
+        WebSocket? webSocket;
 
         [ObservableProperty]
         [property: JsonIgnore, XmlIgnore]
@@ -200,7 +200,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected void WebSocket_Error(object sender, ErrorEventArgs e)
+        protected void WebSocket_Error(object? sender, ErrorEventArgs e)
         {
             try
             {
@@ -214,11 +214,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
             finally
             {
-                DisconnectWebSocketAsync();
+                _ =  DisconnectWebSocketAsync();
             }
         }
 
-        protected void WebSocket_MessageReceived(object sender, MessageReceivedEventArgs e)
+        protected void WebSocket_MessageReceived(object? sender, MessageReceivedEventArgs e)
         {
             try
             {
@@ -246,7 +246,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected void WebSocket_Closed(object sender, EventArgs e)
+        protected void WebSocket_Closed(object? sender, EventArgs e)
         {
             try
             {
@@ -264,7 +264,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected void WebSocket_Opened(object sender, EventArgs e)
+        protected void WebSocket_Opened(object? sender, EventArgs e)
         {
             try
             {
@@ -286,7 +286,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        void WebSocket_DataReceived(object sender, DataReceivedEventArgs e)
+        void WebSocket_DataReceived(object? sender, DataReceivedEventArgs e)
         {
             try
             {

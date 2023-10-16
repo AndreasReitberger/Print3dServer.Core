@@ -32,7 +32,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Auth
-        Dictionary<string, string> AuthHeaders { get; set; }
+        Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; }
         #endregion
 
         #region States
