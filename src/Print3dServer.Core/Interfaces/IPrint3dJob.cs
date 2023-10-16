@@ -11,10 +11,10 @@
 
         #region Methods
 
-        public Task<bool> StartJobAsync();
-        public Task<bool> PauseJobAsync();
-        public Task<bool> StopJobAsync();
-        public Task<bool> RemoveFromQueueAsync();
+        public Task<bool> StartJobAsync(IPrint3dServerClient client, string command, object? data);
+        public Task<bool> PauseJobAsync(IPrint3dServerClient client, string command, object? data);
+        public Task<bool> StopJobAsync(IPrint3dServerClient client, string command, object? data);
+        public Task<bool> RemoveFromQueueAsync(IPrint3dServerClient client, string command, object? data);
 
         #endregion
     }

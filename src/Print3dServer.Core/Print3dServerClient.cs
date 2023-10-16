@@ -122,6 +122,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
+        #region Api
+
+        [ObservableProperty]
+        string apiVersion = string.Empty;
+
+        [ObservableProperty]
+        string apiTargetPath = string.Empty;
+        #endregion
+
         #region Connection
 
         [ObservableProperty]
@@ -159,9 +168,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         string apiKeyRegexPattern = string.Empty;
-
-        [ObservableProperty]
-        string apiVersion = string.Empty;
 
         [ObservableProperty]
         int port = 3344;
@@ -703,14 +709,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Rest Api
         protected async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
-            string commandBase,
+            string requestTargetUri,
             Method method,
             string command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             object jsonObject = null,
             CancellationTokenSource cts = default,
-            Dictionary<string, string> urlSegments = null,
-            string requestTargetUri = ""
+            Dictionary<string, string> urlSegments = null
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
@@ -727,8 +732,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     UpdateRestClientInstance();
                 }
-                RestRequest request = new(
-                    $"{(string.IsNullOrEmpty(requestTargetUri) ? commandBase.ToString() : requestTargetUri)}/{command}")
+                RestRequest request = new($"{requestTargetUri}/{command}")
                 {
                     RequestFormat = DataFormat.Json,
                     Method = method
@@ -794,11 +798,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
-            string commandBase,
+            string requestTargetUri,
             string command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
-            CancellationTokenSource cts,
-            string requestTargetUri = ""
+            CancellationTokenSource cts
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = false };
@@ -808,13 +811,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     cts = new(DefaultTimeout);
                 }
-                // https://github.com/Arksine/moonraker/blob/master/docs/web_api.md
                 if (restClient == null)
                 {
                     UpdateRestClientInstance();
                 }
-                RestRequest request = new(
-                    $"{(string.IsNullOrEmpty(requestTargetUri) ? commandBase.ToString() : requestTargetUri)}/{command}")
+                RestRequest request = new( $"{requestTargetUri}/{command}")
                 {
                     RequestFormat = DataFormat.Json,
                     Method = Method.Get
@@ -1197,6 +1198,31 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return false;
             }
         }
+        
+        public async Task<bool> SendGcodeAsync(string command = "send", object? data = null)
+        {
+            try
+            {
+                data ??= new
+                {
+                    cmd = "",
+                };
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "continueJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
         #endregion
 
         #region Download
@@ -1321,6 +1347,149 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
+        #region Toolheads
+        public async Task<bool> HomeAsync(bool x, bool y, bool z)
+        {
+            try
+            {
+                bool result;
+                if (x && y && z)
+                {
+                    result = await SendGcodeAsync(command: "send", new { cmd = "G28" }).ConfigureAwait(false);
+                }
+                else
+                {
+                    string cmd = string.Format("G28{0}{1}{2}", x ? " X0 " : "", y ? " Y0 " : "", z ? " Z0 " : "");
+                    result = await SendGcodeAsync(command: "send", new { cmd = cmd }).ConfigureAwait(false);
+                }
+                return result;
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+            }
+            return false;
+        }
+        #endregion
+
+        #region Jobs
+
+        public async Task<bool> StartJobAsync(IPrint3dJob job, string command = "startJob", object? data = null)
+        {
+            try
+            {
+                // "{{\"id\":{0}}}", id
+                data ??= new 
+                {
+                    id = job.JobId,
+                };
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: ApiTargetPath, 
+                        method: Method.Post, 
+                        command: command ?? "continueJob", 
+                        authHeaders: AuthHeaders, 
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveJobAsync(IPrint3dJob job, string command = "removeJob", object? data = null)
+        {
+            try
+            {
+                // "{{\"id\":{0}}}", id
+                data ??= new
+                {
+                    id = job.JobId,
+                };
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "removeJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> ContinueJobAsync(string command = "continueJob", object? data = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "continueJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> PauseJobAsync(string command = "pauseJob", object? data = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "pauseJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> StopJobAsync(string command = "continueJob", object? data = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "stopJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+        #endregion
+
         #endregion
 
         #endregion
@@ -1383,6 +1552,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             return MemberwiseClone();
         }
+
         #endregion
     }
 }

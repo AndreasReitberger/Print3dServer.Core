@@ -37,7 +37,7 @@
 
         #region Methods
 
-        public Task<bool> HomeAsync(bool x, bool y, bool z);
+        public Task<bool> HomeAsync(IPrint3dServerClient client, bool x, bool y, bool z);
 
         #endregion
     }

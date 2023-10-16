@@ -25,10 +25,10 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Methods
-        public Task PrintAsync();
-        public Task ViewAsync();
-        public Task MoveToAsync(string targetPath, bool copy = false);
-        public Task MoveToQueueAsync(bool printIfReady = false);
+        public Task PrintAsync(IPrint3dServerClient client);
+        //public Task ViewAsync();
+        public Task MoveToAsync(IPrint3dServerClient client, string targetPath, bool copy = false);
+        public Task MoveToQueueAsync(IPrint3dServerClient client, bool printIfReady = false);
         #endregion
     }
 }

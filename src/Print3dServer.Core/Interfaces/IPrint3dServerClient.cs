@@ -49,8 +49,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Api
-
         public string ApiVersion { get; set; }
+        public string ApiTargetPath { get; set; }
 
         #endregion
 
@@ -138,6 +138,16 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Methods
+        public Task<bool> SendGcodeAsync(string command, object? data = null);
+
+        public Task<bool> HomeAsync(bool x, bool y, bool z);
+
+        public Task<bool> StartJobAsync(IPrint3dJob job, string command, object? data = null);
+        public Task<bool> RemoveJobAsync(IPrint3dJob job, string command, object? data = null);
+        public Task<bool> ContinueJobAsync(string command, object? data = null);
+        public Task<bool> PauseJobAsync(string command, object? data = null);
+        public Task<bool> StopJobAsync(string command, object? data = null);
+
         public void CancelCurrentRequests();
         #endregion
     }
