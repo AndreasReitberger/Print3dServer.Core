@@ -2,7 +2,7 @@
 
   <Import Project="..\..\common.props" />
   <PropertyGroup>
-	<TargetFrameworks>netstandard2.1;net6</TargetFrameworks>
+	<TargetFrameworks>netstandard2.1;net6;net7</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<RootNamespace>AndreasReitberger.API.Print3dServer.Core</RootNamespace>
@@ -19,9 +19,17 @@
   </PropertyGroup>
 
 	<ItemGroup>
+		<PackageReference Include="RCoreSharp" Version="1.0.9" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="RestSharp" Version="110.2.0" />
+		<PackageReference Include="WebSocket4Net" Version="0.15.2" />
+		<ProjectReference Include="..\..\..\WebSocket4Net\src\WebSocket4Net\WebSocket4Net.csproj" />
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="Models\JSON\" />
 	</ItemGroup>
 
 </Project>

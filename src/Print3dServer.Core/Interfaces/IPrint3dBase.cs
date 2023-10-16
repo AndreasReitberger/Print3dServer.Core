@@ -1,6 +1,6 @@
 ﻿namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrint3dBase
+    public interface IPrint3dBase : IDisposable, ICloneable
     {
         #region Properties
         public Guid Id { get; set; }
