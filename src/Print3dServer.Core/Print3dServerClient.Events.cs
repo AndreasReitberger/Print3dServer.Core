@@ -5,7 +5,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 {
     public partial class Print3dServerClient
     {
-
         #region EventHandlerss
 
         #region Debug

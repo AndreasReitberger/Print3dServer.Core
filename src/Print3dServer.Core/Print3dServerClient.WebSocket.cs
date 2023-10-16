@@ -66,7 +66,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected void PingServer(string? pingCommand = null)
+        public void PingServer(string? pingCommand = null)
         {
             try
             {
@@ -286,7 +286,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        void WebSocket_DataReceived(object? sender, DataReceivedEventArgs e)
+        protected void WebSocket_DataReceived(object? sender, DataReceivedEventArgs e)
         {
             try
             {

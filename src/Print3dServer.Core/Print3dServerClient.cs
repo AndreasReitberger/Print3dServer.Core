@@ -5,7 +5,6 @@ using AndreasReitberger.Core.Utilities;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
-using System.Security;
 using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -13,9 +12,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
     {
         #region Variables
-        RestClient? restClient;
-        HttpClient? httpClient;
-        int _retries = 0;
+        protected RestClient? restClient;
+        protected HttpClient? httpClient;
+        protected int _retries = 0;
         #endregion
 
         #region Properties
@@ -238,57 +237,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         
         #endregion
 
-        #region Proxy
-        [ObservableProperty]
-        bool enableProxy = false;
-        partial void OnEnableProxyChanged(bool value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        bool proxyUserUsesDefaultCredentials = true;
-        partial void OnProxyUserUsesDefaultCredentialsChanged(bool value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        bool secureProxyConnection = true;
-        partial void OnSecureProxyConnectionChanged(bool value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        string proxyAddress = string.Empty;
-        partial void OnProxyAddressChanged(string value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        int proxyPort = 443;
-        partial void OnProxyPortChanged(int value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        string proxyUser = string.Empty;
-        partial void OnProxyUserChanged(string value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        SecureString proxyPassword;
-        partial void OnProxyPasswordChanged(SecureString value)
-        {
-            UpdateRestClientInstance();
-        }
-        #endregion
-
         #region DiskSpace
         [ObservableProperty]
         long freeDiskSpace = 0;
@@ -315,7 +263,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, XmlIgnore]
-        bool isDualExtruder = false;
+        bool isMultiExtruder = false;
 
         [ObservableProperty]
         [property: JsonIgnore, XmlIgnore]
@@ -1492,13 +1440,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #endregion
 
-        #endregion
-
-        #region Interface, unused
-        public async Task<bool> DeleteAsync()
-        {
-            throw new NotSupportedException("This method is not supported on this object!");
-        }
         #endregion
 
         #region Overrides

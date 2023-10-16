@@ -1,4 +1,5 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
+using AndreasReitberger.Core.Utilities;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -20,6 +21,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             public Print3dServerConnectionBuilder AsRepetierServer()
             {
                 _client.Target = Print3dServerTarget.RepetierServer;
+                _client.ApiKeyRegexPattern = RegexHelper.RepetierServerProApiKey;
+                _client.Port = 3344;
                 return this;
             }
 

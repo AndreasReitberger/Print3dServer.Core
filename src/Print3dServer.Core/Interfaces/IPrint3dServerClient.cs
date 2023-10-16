@@ -88,6 +88,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double FlowFactorTarget { get; set; }
         public long NumberOfToolHeads { get; set; }
         public long ActiveToolHead { get; set; }
+        public bool IsMultiExtruder { get; set; }
         public bool HasHeatedBed { get; set; }
         public bool HasFan { get; set; }
         public bool HasHeatedChamber { get; set; }
@@ -138,17 +139,38 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Methods
+
+        #region Proxy
+        public void SetProxy(bool secure, string address, int port, bool enable = true);
+        public void SetProxy(bool secure, string address, int port, string user = "", SecureString? password = null, bool enable = true);
+        #endregion
+
+        #region WebSocket
+        protected void PingServer(string? pingCommand = null);
+        public Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null);
+        public Task StopListeningAsync();
+        public Task ConnectWebSocketAsync(string target);
+        public Task DisconnectWebSocketAsync();
+        #endregion
+
+        #region Printer
         public Task<bool> SendGcodeAsync(string command, object? data = null);
-
         public Task<bool> HomeAsync(bool x, bool y, bool z);
+        #endregion
 
+        #region Jobs
         public Task<bool> StartJobAsync(IPrint3dJob job, string command, object? data = null);
         public Task<bool> RemoveJobAsync(IPrint3dJob job, string command, object? data = null);
         public Task<bool> ContinueJobAsync(string command, object? data = null);
         public Task<bool> PauseJobAsync(string command, object? data = null);
         public Task<bool> StopJobAsync(string command, object? data = null);
+        #endregion
+
+        #region Misc
 
         public void CancelCurrentRequests();
+        #endregion
+
         #endregion
     }
 }
