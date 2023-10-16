@@ -5,7 +5,7 @@ using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrint3dServerClient
+    public interface IPrint3dServerClient : IPrint3dBase
     {
         #region Properties
 
@@ -14,21 +14,32 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Guid Id { get; set; }
         #endregion
 
+        #region Instance
+        public static IPrint3dServerClient? Instance { get; set; }
+        #endregion
+
         #region Connection
         public string SessionId { get; set; }
         public string ServerName { get; set; }
         public string ServerAddress { get; set; }
         public string ApiKey { get; set; }
+        public string ApiKeyRegexPattern { get; set; }
+        public string CheckOnlineTargetUri { get; set; }
         public int Port { get; set; }
         public int DefaultTimeout { get; set; }
         public int RetriesWhenOffline { get; set; }
         public bool IsSecure { get; set; }
         #endregion
 
+        #region Auth
+        Dictionary<string, string> AuthHeaders { get; set; }
+        #endregion
+
         #region States
         public bool IsActive { get; set; }
         public bool IsOnline { get; set; }
         public bool IsConnecting { get; set; }
+        public bool IsConnectedPrinterOnline { get; set; }
         public bool IsRefreshing { get; set; }
         public bool IsInitialized { get; set; }
         public bool IsListening { get; set; }
@@ -87,6 +98,9 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
+        public bool XHomed { get; set; }
+        public bool YHomed { get; set; }
+        public bool ZHomed { get; set; }
         public int Layer { get; set; }
         public int Layers { get; set; }
         #endregion
@@ -102,15 +116,16 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #endregion
 
+        #region WebSocket
+        public string PingCommand { get; set; }
+        public string WebSocketTargetUri { get; set; }
+        #endregion
+
         #region Data Convertion
 
         public ConcurrentDictionary<string, string> IgnoredJsonResults { get;set; }
 
 
-        #endregion
-
-        #region Instance
-        public static IPrint3dServerClient Instance { get; set; }
         #endregion
 
         #endregion
@@ -120,6 +135,10 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public ObservableCollection<IGcodeGroup> Groups { get; set; }
         public ObservableCollection<IGcode> Files { get; set; }
         public ObservableCollection<IPrint3dJob> Jobs { get; set; }
+        #endregion
+
+        #region Methods
+        public void CancelCurrentRequests();
         #endregion
     }
 }
