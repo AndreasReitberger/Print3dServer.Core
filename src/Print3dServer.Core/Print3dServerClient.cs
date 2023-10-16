@@ -546,7 +546,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-#endregion
+        #endregion
 
         #region Ctor
         public Print3dServerClient()
@@ -797,7 +797,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
+        protected async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
             string requestTargetUri,
             string command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
@@ -856,7 +856,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string filePath,
             Dictionary<string, string> authHeaders,
             string root = "/server/files/upload/",
@@ -938,7 +938,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string fileName,
             byte[] file,
             Dictionary<string, string> authHeaders,
