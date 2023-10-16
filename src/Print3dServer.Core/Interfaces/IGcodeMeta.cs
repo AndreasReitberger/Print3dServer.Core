@@ -1,9 +1,8 @@
 ﻿namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IGcodeMeta
+    public interface IGcodeMeta : IPrint3dBase
     {
         #region Properties
-        public Guid Id { get; set; }
         public string JobId { get; set; }
         public string FileName { get; set; }
         public double? PrintStartTime { get; set; }

@@ -1,9 +1,8 @@
 ﻿namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrinter3d
+    public interface IPrinter3d : IPrint3dBase
     {
         #region Properties
-        public Guid Id { get; set; }
         public string Name { get; set; }
         public string Slug { get; set; }
         public bool IsActive { get; set; }
@@ -33,6 +32,12 @@
         public double? RemainingPrintDuration { get; set; }
         public byte[] CurrentPrintImage { get; set; }
         public int? Repeat { get; set; }
+
+        #endregion
+
+        #region Methods
+
+        public Task<bool> HomeAsync(bool x, bool y, bool z);
 
         #endregion
     }
