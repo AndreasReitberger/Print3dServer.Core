@@ -152,6 +152,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         partial void OnServerAddressChanged(string value)
         {
             UpdateRestClientInstance();
+            _ = UpdateWebSocketAsync();
         }
 
         [ObservableProperty]
@@ -162,6 +163,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         partial void OnIsSecureChanged(bool value)
         {
             UpdateRestClientInstance();
+            WebSocketTargetUri = GetWebSocketTargetUri();
+            if (IsInitialized && IsListeningToWebsocket)
+            {
+                _ = UpdateWebSocketAsync();
+            }
         }
 
         [ObservableProperty]
@@ -191,6 +197,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 default:
                     break;
             }
+            WebSocketTargetUri = GetWebSocketTargetUri();
+            if (IsInitialized && IsListeningToWebsocket)
+            {
+                _ = UpdateWebSocketAsync();
+            }
         }
 
         [ObservableProperty]
@@ -201,6 +212,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         partial void OnPortChanged(int value)
         {
             UpdateRestClientInstance();
+            WebSocketTargetUri = GetWebSocketTargetUri();
+            if (IsInitialized && IsListeningToWebsocket)
+            {
+                _ = UpdateWebSocketAsync();
+            }
         }
 
         [ObservableProperty]
@@ -309,6 +325,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasWebCam = false;
 
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        bool shutdownAfterPrint = false;
+        
         #endregion
 
         #region PrinterState
@@ -1133,6 +1153,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 ApiKey = api;
                 Port = port;
                 IsSecure = isSecure;
+                //WebSocketTargetUri = GetWebSocketTargetUri();
 
                 Instance = this;
 
