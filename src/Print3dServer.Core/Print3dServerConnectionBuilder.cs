@@ -29,6 +29,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             public Print3dServerConnectionBuilder AsOctoPrintServer()
             {
                 _client.Target = Print3dServerTarget.OctoPrint;
+                _client.ApiKeyRegexPattern = RegexHelper.OctoPrintApiKey;
                 return this;
             }
 
@@ -44,9 +45,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return this;
             }
 
-            public Print3dServerConnectionBuilder AsCustom()
+            public Print3dServerConnectionBuilder AsCustom(string apiKeyRegexPattern = "")
             {
                 _client.Target = Print3dServerTarget.Custom;
+                _client.ApiKeyRegexPattern = apiKeyRegexPattern;
                 return this;
             }
             

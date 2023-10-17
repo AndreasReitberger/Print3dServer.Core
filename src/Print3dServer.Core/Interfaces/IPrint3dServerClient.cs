@@ -29,10 +29,13 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public int DefaultTimeout { get; set; }
         public int RetriesWhenOffline { get; set; }
         public bool IsSecure { get; set; }
+        public bool OverrideValidationRules { get; set; }
         #endregion
 
         #region Auth
         Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; }
+        public bool LoginRequired { get; set; }
+        public bool AuthenticationFailed { get; set; }
         #endregion
 
         #region States
@@ -44,7 +47,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public bool IsInitialized { get; set; }
         public bool IsListening { get; set; }
         public bool InitialDataFetched { get; set; }
-        public bool AuthenticationFailed { get; set; }
         public bool UpdateAvailable { get; set; }
         #endregion
 
@@ -82,12 +84,20 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Printer States
         public IPrint3dJobStatus JobStatus { get; set; }
         public byte[] CurrentPrintImage { get; set; }
+
+        public double TemperatureExtruderMain { get; set; }
+        public double TemperatureExtruderSecondary { get; set; }
+        public double TemperatureHeatedBedMain { get; set; }
+        public double TemperatureHeatedChamberMain { get; set; }
+
         public double SpeedFactor { get; set; }
         public double SpeedFactorTarget { get; set; }
         public double FlowFactor { get; set; }
         public double FlowFactorTarget { get; set; }
+
         public long NumberOfToolHeads { get; set; }
         public long ActiveToolHead { get; set; }
+
         public bool IsMultiExtruder { get; set; }
         public bool HasHeatedBed { get; set; }
         public bool HasFan { get; set; }
@@ -109,6 +119,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region WebCam
         public bool HasWebCam { get; set; }
 
+        public IWebCamConfig SelectedWebCam { get; set; }
         #endregion
 
         #region Printer
@@ -136,6 +147,11 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public ObservableCollection<IGcodeGroup> Groups { get; set; }
         public ObservableCollection<IGcode> Files { get; set; }
         public ObservableCollection<IPrint3dJob> Jobs { get; set; }
+        public ObservableCollection<IWebCamConfig> WebCams { get; set; }
+        public ObservableCollection<IPrint3dFan> Fans { get; set; }
+        public ObservableCollection<IHeaterComponent> Toolheads { get; set; }
+        public ObservableCollection<IHeaterComponent> HeatedBeds { get; set; }
+        public ObservableCollection<IHeaterComponent> HeatedChambers { get; set; }
         #endregion
 
         #region Methods
@@ -154,16 +170,20 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Printer
-        public Task<bool> SendGcodeAsync(string command, object? data = null);
-        public Task<bool> HomeAsync(bool x, bool y, bool z);
+        public Task<bool> SendGcodeAsync(string command, object? data = null, string? targetUri = null);
+        public Task<bool> HomeAsync(bool x, bool y, bool z, string? targetUri = null);
+        public Task<bool> SetFanSpeedAsync(string command, object? data = null, string? targetUri = null);
+        public Task<bool> SetExtruderTemperatureAsync(string command, object? data = null, string? targetUri = null);
+        public Task<bool> SetBedTemperatureAsync(string command, object? data = null, string? targetUri = null);
+        public Task<bool> SetChamberTemperatureAsync(string command, object? data = null, string? targetUri = null);
         #endregion
 
         #region Jobs
-        public Task<bool> StartJobAsync(IPrint3dJob job, string command, object? data = null);
-        public Task<bool> RemoveJobAsync(IPrint3dJob job, string command, object? data = null);
-        public Task<bool> ContinueJobAsync(string command, object? data = null);
-        public Task<bool> PauseJobAsync(string command, object? data = null);
-        public Task<bool> StopJobAsync(string command, object? data = null);
+        public Task<bool> StartJobAsync(IPrint3dJob job, string command, object? data = null, string? targetUri = null);
+        public Task<bool> RemoveJobAsync(IPrint3dJob job, string command, object? data = null, string? targetUri = null);
+        public Task<bool> ContinueJobAsync(string command, object? data = null, string? targetUri = null);
+        public Task<bool> PauseJobAsync(string command, object? data = null, string? targetUri = null);
+        public Task<bool> StopJobAsync(string command, object? data = null, string? targetUri = null);
         #endregion
 
         #region Misc
