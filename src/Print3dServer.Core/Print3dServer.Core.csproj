@@ -23,9 +23,8 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.2.1" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="RestSharp" Version="110.2.0" />
-		<PackageReference Include="WebSocket4Net" Version="0.15.2" />
 		<PackageReference Include="Websocket.Client" Version="5.0.0" />
-		<ProjectReference Include="..\..\..\WebSocket4Net\src\WebSocket4Net\WebSocket4Net.csproj" />
+		
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 
