@@ -102,6 +102,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public bool HasHeatedBed { get; set; }
         public bool HasFan { get; set; }
         public bool HasHeatedChamber { get; set; }
+        public bool ShutdownAfterPrint { get; set; }
 
         #endregion
 
@@ -131,6 +132,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region WebSocket
         public string PingCommand { get; set; }
         public string WebSocketTargetUri { get; set; }
+        public string WebSocketTarget { get; set; }
         #endregion
 
         #region Data Convertion
@@ -161,12 +163,18 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public void SetProxy(bool secure, string address, int port, string user = "", SecureString? password = null, bool enable = true);
         #endregion
 
-        #region WebSocket
+#region WebSocket
+#if NET_WS
         protected void PingServer(string? pingCommand = null);
+        protected void PingServerWithObject(object? pingCommand = null);
+#endif
+        public string BuildPingCommand(object? data);
         public Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null);
         public Task StopListeningAsync();
         public Task ConnectWebSocketAsync(string target);
         public Task DisconnectWebSocketAsync();
+
+        public Task UpdateWebSocketAsync(List<Task>? refreshFunctions);
         #endregion
 
         #region Printer
@@ -191,6 +199,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public void CancelCurrentRequests();
         #endregion
 
-        #endregion
+#endregion
     }
 }
