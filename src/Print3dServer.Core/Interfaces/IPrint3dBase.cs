@@ -6,10 +6,5 @@
         public Guid Id { get; set; }
 
         #endregion
-
-        #region Methods
-
-        public Task<bool> DeleteAsync();
-        #endregion
     }
 }

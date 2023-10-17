@@ -5,17 +5,17 @@ using AndreasReitberger.Core.Utilities;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
-using System.Security;
 using System.Text.RegularExpressions;
+using System.Xml.Linq;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
     public partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
     {
         #region Variables
-        RestClient? restClient;
-        HttpClient? httpClient;
-        int _retries = 0;
+        protected RestClient? restClient;
+        protected HttpClient? httpClient;
+        protected int _retries = 0;
         #endregion
 
         #region Properties
@@ -77,7 +77,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region RefreshTimer
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         Timer timer;
 
         [ObservableProperty]
@@ -91,7 +91,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isListening = false;
         partial void OnIsListeningChanged(bool value)
         {
@@ -104,7 +104,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool initialDataFetched = false;
 
         #endregion
@@ -122,13 +122,23 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
+        #region Api
+
+        [ObservableProperty]
+        string apiVersion = string.Empty;
+
+        [ObservableProperty]
+        string apiTargetPath = string.Empty;
+        #endregion
+
         #region Connection
 
         [ObservableProperty]
+        [property: XmlIgnore]
         Dictionary<string, IAuthenticationHeader> authHeaders = new();
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         string sessionId = string.Empty;
 
         [ObservableProperty]
@@ -156,12 +166,35 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         string apiKey = string.Empty;
+        partial void OnApiKeyChanged(string value)
+        {
+            switch (Target)
+            {
+                case Print3dServerTarget.Moonraker:
+                    break;
+                case Print3dServerTarget.RepetierServer:
+                    if (AuthHeaders?.ContainsKey("apikey") is true)
+                    {
+                        AuthHeaders["apikey"] = new AuthenticationHeader() { Token = value };
+                    }
+                    else
+                    {
+                        AuthHeaders?.Add("apikey", new AuthenticationHeader() { Token = value });
+                    }
+                    break;
+                case Print3dServerTarget.OctoPrint:
+                    break;
+                case Print3dServerTarget.PrusaConnect:
+                    break;
+                case Print3dServerTarget.Custom:
+                    break;
+                default:
+                    break;
+            }
+        }
 
         [ObservableProperty]
         string apiKeyRegexPattern = string.Empty;
-
-        [ObservableProperty]
-        string apiVersion = string.Empty;
 
         [ObservableProperty]
         int port = 3344;
@@ -177,7 +210,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         bool overrideValidationRules = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isOnline = false;
         partial void OnIsOnlineChanged(bool value)
         {
@@ -198,15 +231,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isConnecting = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool authenticationFailed = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isRefreshing = false;
 
         [ObservableProperty]
@@ -217,7 +250,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Update
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool updateAvailable = false;
         partial void OnUpdateAvailableChanged(bool value)
         {
@@ -230,57 +263,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
         
-        #endregion
-
-        #region Proxy
-        [ObservableProperty]
-        bool enableProxy = false;
-        partial void OnEnableProxyChanged(bool value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        bool proxyUserUsesDefaultCredentials = true;
-        partial void OnProxyUserUsesDefaultCredentialsChanged(bool value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        bool secureProxyConnection = true;
-        partial void OnSecureProxyConnectionChanged(bool value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        string proxyAddress = string.Empty;
-        partial void OnProxyAddressChanged(string value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        int proxyPort = 443;
-        partial void OnProxyPortChanged(int value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        string proxyUser = string.Empty;
-        partial void OnProxyUserChanged(string value)
-        {
-            UpdateRestClientInstance();
-        }
-
-        [ObservableProperty]
-        SecureString proxyPassword;
-        partial void OnProxyPasswordChanged(SecureString value)
-        {
-            UpdateRestClientInstance();
-        }
         #endregion
 
         #region DiskSpace
@@ -300,46 +282,46 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region ConfigurationInfo
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         long activeToolHead = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         long numberOfToolHeads = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
-        bool isDualExtruder = false;
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        bool isMultiExtruder = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasHeatedBed = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasHeatedChamber = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasFan = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasWebCam = false;
 
         #endregion
 
         #region PrinterState
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isPrinting = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isPaused = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isConnectedPrinterOnline = false;
 
         #endregion
@@ -347,49 +329,49 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Temperatures
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double temperatureExtruderMain = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double temperatureExtruderSecondary = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double temperatureHeatedBedMain = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double temperatureHeatedChamberMain = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double speedFactor = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double speedFactorTarget = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double flowFactor = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double flowFactorTarget = 0;
 
         #endregion
 
         #region Fans
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         int speedFanMain = 0;
 
         #endregion
 
         #region Printers
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         IPrinter3d? activePrinter;
         partial void OnActivePrinterChanging(IPrinter3d? value)
         {
@@ -403,7 +385,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         ObservableCollection<IPrinter3d> printers = new();
         partial void OnPrintersChanged(ObservableCollection<IPrinter3d> value)
         {
@@ -417,7 +399,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Files
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         ObservableCollection<IGcodeGroup> groups = new();
         partial void OnGroupsChanged(ObservableCollection<IGcodeGroup> value)
         {
@@ -431,7 +413,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         ObservableCollection<IGcode> files = new();
         partial void OnFilesChanged(ObservableCollection<IGcode> value)
         {
@@ -476,43 +458,82 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         IPrint3dJobStatus? jobStatus;
 
+        #endregion
+
+        #region WebCams
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        IWebCamConfig selectedWebCam;
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        ObservableCollection<IWebCamConfig> webCams = new();
+        #endregion
+
+        #region Fans
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        ObservableCollection<IPrint3dFan> fans = new();
+        #endregion
+
+        #region Toolheads
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        ObservableCollection<IHeaterComponent> toolheads = new();
+        #endregion
+
+        #region Beds
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        ObservableCollection<IHeaterComponent> heatedBeds = new();
+
+        #endregion
+
+        #region Chambers
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        ObservableCollection<IHeaterComponent> heatedChambers = new();
         #endregion
 
         #region Position
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double x = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double y = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         double z = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         int layer = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         int layers = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool yHomed = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool zHomed = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool xHomed = false;
 
         #endregion
@@ -540,7 +561,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-#endregion
+        #endregion
 
         #region Ctor
         public Print3dServerClient()
@@ -703,14 +724,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Rest Api
         protected async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
-            string commandBase,
+            string requestTargetUri,
             Method method,
             string command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             object jsonObject = null,
             CancellationTokenSource cts = default,
-            Dictionary<string, string> urlSegments = null,
-            string requestTargetUri = ""
+            Dictionary<string, string> urlSegments = null
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
@@ -727,8 +747,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     UpdateRestClientInstance();
                 }
-                RestRequest request = new(
-                    $"{(string.IsNullOrEmpty(requestTargetUri) ? commandBase.ToString() : requestTargetUri)}/{command}")
+                RestRequest request = new($"{requestTargetUri}/{command}")
                 {
                     RequestFormat = DataFormat.Json,
                     Method = method
@@ -736,12 +755,44 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
                 if(authHeaders?.Count > 0)
                 {
-                    foreach (var header in authHeaders)
+                    switch (Target)
                     {
-                        //  "Authorization", $"Bearer {UserToken}"
-                        //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value.Token);
+                        // Special handling for Repetier Server
+                        case Print3dServerTarget.RepetierServer:
+                            string? key = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            request.AddParameter("apikey", key, ParameterType.QueryString);
+                            break;
+                        case Print3dServerTarget.Moonraker:
+                        case Print3dServerTarget.OctoPrint:
+                        case Print3dServerTarget.PrusaConnect:
+                        case Print3dServerTarget.Custom:       
+                        default:
+                            foreach (var header in authHeaders)
+                            {
+                                //  "Authorization", $"Bearer {UserToken}"
+                                //  "X-Api-Key", $"{ApiKey}"
+                                request.AddHeader(header.Key, header.Value.Token);
+                            }
+                            break;
                     }
+                }
+                switch (Target)
+                {
+                    case Print3dServerTarget.RepetierServer:
+                        if (string.IsNullOrEmpty(command)) break;
+                        urlSegments ??= new();
+                        urlSegments.Add("a", command);
+                        break;
+                    case Print3dServerTarget.Moonraker:
+                        break;
+                    case Print3dServerTarget.OctoPrint:
+                        break;
+                    case Print3dServerTarget.PrusaConnect:
+                        break;
+                    case Print3dServerTarget.Custom:
+                        break;
+                    default:
+                        break;
                 }
                 if (urlSegments != null)
                 {
@@ -793,12 +844,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
-            string commandBase,
+        protected async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
+            string requestTargetUri,
             string command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
-            CancellationTokenSource cts,
-            string requestTargetUri = ""
+            CancellationTokenSource cts
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = false };
@@ -808,13 +858,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     cts = new(DefaultTimeout);
                 }
-                // https://github.com/Arksine/moonraker/blob/master/docs/web_api.md
                 if (restClient == null)
                 {
                     UpdateRestClientInstance();
                 }
-                RestRequest request = new(
-                    $"{(string.IsNullOrEmpty(requestTargetUri) ? commandBase.ToString() : requestTargetUri)}/{command}")
+                RestRequest request = new( $"{requestTargetUri}/{command}")
                 {
                     RequestFormat = DataFormat.Json,
                     Method = Method.Get
@@ -855,7 +903,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string filePath,
             Dictionary<string, string> authHeaders,
             string root = "/server/files/upload/",
@@ -937,7 +985,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string fileName,
             byte[] file,
             Dictionary<string, string> authHeaders,
@@ -1197,6 +1245,31 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return false;
             }
         }
+        
+        public async Task<bool> SendGcodeAsync(string command = "send", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                data ??= new
+                {
+                    cmd = "",
+                };
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "continueJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
         #endregion
 
         #region Download
@@ -1321,15 +1394,237 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-        #endregion
-
-        #endregion
-
-        #region Interface, unused
-        public async Task<bool> DeleteAsync()
+        #region Toolheads
+        public async Task<bool> HomeAsync(bool x, bool y, bool z, string? targetUri = null)
         {
-            throw new NotSupportedException("This method is not supported on this object!");
+            try
+            {
+                bool result;
+                if (x && y && z)
+                {
+                    result = await SendGcodeAsync(command: "send", new { cmd = "G28" }, targetUri: targetUri).ConfigureAwait(false);
+                }
+                else
+                {
+                    string cmd = string.Format("G28{0}{1}{2}", x ? " X0 " : "", y ? " Y0 " : "", z ? " Z0 " : "");
+                    result = await SendGcodeAsync(command: "send", new { cmd = cmd }, targetUri: targetUri).ConfigureAwait(false);
+                }
+                return result;
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+            }
+            return false;
         }
+
+        public async Task<bool> SetExtruderTemperatureAsync(string command = "setExtruderTemperature", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "setExtruderTemperature",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> SetBedTemperatureAsync(string command = "setBedTemperature", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "setBedTemperature",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> SetChamberTemperatureAsync(string command = "setChamberTemperature", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "setChamberTemperature",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+        #endregion
+
+        #region Jobs
+
+        public async Task<bool> StartJobAsync(IPrint3dJob job, string command = "startJob", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                // "{{\"id\":{0}}}", id
+                data ??= new 
+                {
+                    id = job.JobId,
+                };
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath, 
+                        method: Method.Post, 
+                        command: command ?? "continueJob", 
+                        authHeaders: AuthHeaders, 
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> RemoveJobAsync(IPrint3dJob job, string command = "removeJob", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                // "{{\"id\":{0}}}", id
+                data ??= new
+                {
+                    id = job.JobId,
+                };
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "removeJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> ContinueJobAsync(string command = "continueJob", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "continueJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> PauseJobAsync(string command = "pauseJob", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "pauseJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+
+        public async Task<bool> StopJobAsync(string command = "continueJob", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "stopJob",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+        #endregion
+
+        #region Printer Control
+        public async Task<bool> SetFanSpeedAsync(string command = "setFanSpeed", object? data = null, string? targetUri = null)
+        {
+            try
+            {
+                IRestApiRequestRespone? result =
+                    await SendRestApiRequestAsync(
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "setFanSpeed",
+                        authHeaders: AuthHeaders,
+                        jsonObject: data)
+                    .ConfigureAwait(false);
+                return GetQueryResult(result?.Result, true);
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return false;
+            }
+        }
+        #endregion
+
+        #endregion
+
         #endregion
 
         #region Overrides
@@ -1383,6 +1678,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             return MemberwiseClone();
         }
+
         #endregion
     }
 }
