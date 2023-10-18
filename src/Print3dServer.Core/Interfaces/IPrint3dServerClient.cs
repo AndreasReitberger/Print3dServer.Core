@@ -36,7 +36,10 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Auth
         Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; }
         public bool LoginRequired { get; set; }
+        public bool IsLoggedIn { get; set; }
         public bool AuthenticationFailed { get; set; }
+        public string Username { get; set; }
+        public SecureString Password { get; set; }
         #endregion
 
         #region States
