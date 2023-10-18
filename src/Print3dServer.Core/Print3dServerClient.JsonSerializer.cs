@@ -13,6 +13,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             //MissingMemberHandling = MissingMemberHandling.Error,
             MissingMemberHandling = MissingMemberHandling.Ignore,
             NullValueHandling = NullValueHandling.Include,
+            TypeNameHandling = TypeNameHandling.Auto,
         };
         #endregion
 #else
@@ -22,6 +23,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             // Ignore if the json respone has more or less properties than the target class
             MissingMemberHandling = MissingMemberHandling.Ignore,          
             NullValueHandling = NullValueHandling.Ignore,
+            TypeNameHandling = TypeNameHandling.Auto,
         };
         #endregion
 #endif

@@ -497,7 +497,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             try
             {
                 IsListeningToWebsocket = false;
-                StopPingTimer();
+                //StopPingTimer();
                 OnWebSocketDisconnected(new Print3dBaseEventArgs()
                 {
                     Message = 

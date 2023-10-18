@@ -1,6 +1,7 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using AndreasReitberger.API.Print3dServer.Core.JSON;
 using AndreasReitberger.Core.Utilities;
 using RestSharp;
 using System.Collections.Concurrent;
@@ -136,6 +137,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: XmlIgnore]
+        [property: JsonConverter(typeof(ConcreteTypeConverter<Dictionary<string, AuthenticationHeader>>))]
         Dictionary<string, IAuthenticationHeader> authHeaders = new();
 
         [ObservableProperty]
@@ -833,16 +835,31 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         if (string.IsNullOrEmpty(command)) break;
                         urlSegments ??= new();
                         urlSegments.Add("a", command);
+                        if(jsonObject is not null)
+                        {
+                            string jsonDataString = "";
+                            if (jsonObject is string jsonString)
+                            {
+                                jsonDataString = jsonString;
+                            }
+                            else
+                            {
+                                jsonDataString = JsonConvert.SerializeObject(jsonObject);
+                            }
+
+                            request.AddParameter("data", jsonDataString, ParameterType.QueryString);
+                        }
                         break;
                     case Print3dServerTarget.Moonraker:
-                        break;
                     case Print3dServerTarget.OctoPrint:
-                        break;
                     case Print3dServerTarget.PrusaConnect:
-                        break;
                     case Print3dServerTarget.Custom:
-                        break;
                     default:
+
+                        if (jsonObject is not null)
+                        {
+                            request.AddJsonBody(jsonObject, "application/json");
+                        }
                         break;
                 }
                 if (urlSegments != null)
@@ -853,10 +870,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                 }
 
-                if (jsonObject != null)
-                {
-                    request.AddJsonBody(jsonObject, "application/json");
-                }
                 Uri fullUri = restClient.BuildUri(request);
                 try
                 {
