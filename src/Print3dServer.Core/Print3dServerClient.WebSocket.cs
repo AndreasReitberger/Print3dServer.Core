@@ -84,6 +84,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
             switch (Target)
             {
                 case Enums.Print3dServerTarget.Moonraker:
+                    string oneShotToken = "", apiToken = "";
+                    if (AuthHeaders?.ContainsKey("session") is true)
+                    {
+                        oneShotToken = AuthHeaders?["session"].Token ?? "";
+                    }
+                    if (AuthHeaders?.ContainsKey("apikey") is true)
+                    {
+                        apiToken = AuthHeaders?["apikey"].Token ?? "";
+                    }
+
+                    webSocketTarget += LoginRequired ?
+                        $"?token={oneShotToken}" :
+                        $"t{(!string.IsNullOrEmpty(oneShotToken) ? $"?token={oneShotToken}" : $"?token={apiToken}")}";
                     break;
                 case Enums.Print3dServerTarget.RepetierServer:
                     if (AuthHeaders?.ContainsKey("apikey") is true)
@@ -161,6 +174,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
             switch (Target)
             {
                 case Enums.Print3dServerTarget.Moonraker:
+                    // Example: {{\"jsonrpc\":\"2.0\",\"method\":\"server.info\",\"params\":{{}},\"id\":1}}
+                    data = new
+                    {
+                        jsonrpc = "2.0",
+                        method = "server.info",
+                        @params = new { },
+                        id = PingCounter,
+                    };
                     break;
                 case Enums.Print3dServerTarget.RepetierServer:
                     //Example: $"{{\"action\":\"ping\",\"data\":{{\"source\":\"{"App"}\"}},\"printer\":\"{GetActivePrinterSlug()}\",\"callback_id\":{PingCounter}}}"
@@ -185,11 +206,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 default:
                     break;
             }
-#if false
-            return $"{{\"action\":\"ping\",\"data\":{{\"source\":\"{"App"}\"}},\"printer\":\"{GetActivePrinterSlug()}\",\"callback_id\":{PingCounter}}}";
-#else
             return JsonConvert.SerializeObject(data);
-#endif
         }
 
 #if NET_WS

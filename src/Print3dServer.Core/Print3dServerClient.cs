@@ -141,6 +141,17 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         string sessionId = string.Empty;
+        partial void OnSessionIdChanged(string value)
+        {
+            if (AuthHeaders?.ContainsKey("session") is true)
+            {
+                AuthHeaders["session"] = new AuthenticationHeader() { Token = value };
+            }
+            else
+            {
+                AuthHeaders?.Add("session", new AuthenticationHeader() { Token = value });
+            }
+        }
 
         [ObservableProperty]
         string serverName = string.Empty;
@@ -177,8 +188,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             switch (Target)
             {
+                case Print3dServerTarget.PrusaConnect:
+                case Print3dServerTarget.OctoPrint:
                 case Print3dServerTarget.Moonraker:
-                    break;
                 case Print3dServerTarget.RepetierServer:
                     if (AuthHeaders?.ContainsKey("apikey") is true)
                     {
@@ -187,11 +199,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     else
                     {
                         AuthHeaders?.Add("apikey", new AuthenticationHeader() { Token = value });
-                    }
-                    break;
-                case Print3dServerTarget.OctoPrint:
-                    break;
-                case Print3dServerTarget.PrusaConnect:
+                    }          
                     break;
                 case Print3dServerTarget.Custom:
                     break;
