@@ -1,15 +1,12 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using System.Collections.ObjectModel;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
-    public partial class Print3dBaseEventArgs : EventArgs, IPrint3dBaseEventArgs
+    public partial class PrintersChangedEventArgs : Print3dBaseEventArgs, IPrintersChangedEventArgs
     {
         #region Properties
-        public string? Message { get; set; }
-        public string? Printer { get; set; }
-        public long CallbackId { get; set; }
-        public string? SessonId { get; set; }
-        public string? AuthToken { get; set; }
+        public ObservableCollection<IPrinter3d> NewPrinters { get; set; } = new();
         #endregion
 
         #region Overrides

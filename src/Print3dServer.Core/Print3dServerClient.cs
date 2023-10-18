@@ -2,6 +2,7 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.Core.Utilities;
+using RestSharp;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -366,19 +367,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double speedFactor = 0;
+        double speedFactor = 100;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double speedFactorTarget = 0;
+        double speedFactorTarget = 100;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double flowFactor = 0;
+        double flowFactor = 100;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double flowFactorTarget = 0;
+        double flowFactorTarget = 100;
 
         #endregion
 
@@ -413,6 +414,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 ActivePrinter = value.FirstOrDefault();
             }
+            OnRemotePrintersChanged(new PrintersChangedEventArgs()
+            {
+                SessonId = SessionId,
+                NewPrinters = value,
+                Printer = GetActivePrinterSlug(),
+                AuthToken = ApiKey,
+            });
         }
 
         #endregion
@@ -538,11 +546,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int layer = 0;
+        long layer = 0;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int layers = 0;
+        long layers = 0;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -780,9 +788,24 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         // Special handling for Repetier Server
                         case Print3dServerTarget.RepetierServer:
                             string? key = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
-                            request.AddParameter("apikey", key, ParameterType.QueryString);
+                            if(key is not null)
+                                request.AddParameter("apikey", key, ParameterType.QueryString);
                             break;
                         case Print3dServerTarget.Moonraker:
+                            if (!string.IsNullOrEmpty(SessionId))
+                            {
+                                request.AddHeader("Authorization", $"Bearer {SessionId}");
+                            }
+                            else
+                            {
+                                string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                                if (apiKey is not null)
+                                {
+                                    request.AddHeader("X-Api-Key", $"Bearer {apiKey}");
+                                }
+                            }
+                            
+                            break;
                         case Print3dServerTarget.OctoPrint:
                         case Print3dServerTarget.PrusaConnect:
                         case Print3dServerTarget.Custom:       
@@ -1179,6 +1202,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
+            cts?.Dispose();
         }
 
         public async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default)
@@ -1341,58 +1365,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 OnError(new UnhandledExceptionEventArgs(exc, false));
                 return null;
-            }
-        }
-        #endregion
-
-        #region Proxy
-        Uri GetProxyUri() => ProxyAddress.StartsWith("http://") || ProxyAddress.StartsWith("https://") ? new Uri($"{ProxyAddress}:{ProxyPort}") : new Uri($"{(SecureProxyConnection ? "https" : "http")}://{ProxyAddress}:{ProxyPort}");
-
-        WebProxy GetCurrentProxy()
-        {
-            WebProxy proxy = new()
-            {
-                Address = GetProxyUri(),
-                BypassProxyOnLocal = false,
-                UseDefaultCredentials = ProxyUserUsesDefaultCredentials,
-            };
-            if (ProxyUserUsesDefaultCredentials && !string.IsNullOrEmpty(ProxyUser))
-            {
-                proxy.Credentials = new NetworkCredential(ProxyUser, ProxyPassword);
-            }
-            else
-            {
-                proxy.UseDefaultCredentials = ProxyUserUsesDefaultCredentials;
-            }
-            return proxy;
-        }
-        void UpdateRestClientInstance()
-        {
-            if (string.IsNullOrEmpty(ServerAddress))
-            {
-                return;
-            }
-            if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
-            {
-                RestClientOptions options = new(FullWebAddress)
-                {
-                    ThrowOnAnyError = true,
-                    MaxTimeout = 10000,
-                };
-                HttpClientHandler httpHandler = new()
-                {
-                    UseProxy = true,
-                    Proxy = GetCurrentProxy(),
-                    AllowAutoRedirect = true,
-                };
-
-                httpClient = new(handler: httpHandler, disposeHandler: true);
-                restClient = new(httpClient: httpClient, options: options);
-            }
-            else
-            {
-                httpClient = null;
-                restClient = new(baseUrl: FullWebAddress);
             }
         }
         #endregion
