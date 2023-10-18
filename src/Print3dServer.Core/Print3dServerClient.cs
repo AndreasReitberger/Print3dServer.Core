@@ -137,7 +137,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: XmlIgnore]
-        [property: JsonConverter(typeof(ConcreteTypeConverter<Dictionary<string, AuthenticationHeader>>))]
         Dictionary<string, IAuthenticationHeader> authHeaders = new();
 
         [ObservableProperty]

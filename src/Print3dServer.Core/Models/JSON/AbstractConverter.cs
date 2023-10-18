@@ -1,0 +1,26 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Text;
+
+namespace AndreasReitberger.API.Print3dServer.Core.JSON
+{
+    /// <summary>
+    /// Source: https://stackoverflow.com/a/48923314/10083577
+    /// License: CC BY-SA 4.0 (https://creativecommons.org/licenses/by-sa/4.0/)
+    /// Author: Simone S. (https://stackoverflow.com/users/1255023/simone-s)
+    /// </summary>
+    /// <typeparam name="TReal"></typeparam>
+    /// <typeparam name="TAbstract"></typeparam>
+    public class AbstractConverter<TReal, TAbstract>
+     : JsonConverter where TReal : TAbstract
+    {
+        public override Boolean CanConvert(Type objectType)
+            => objectType == typeof(TAbstract);
+
+        public override Object ReadJson(JsonReader reader, Type type, Object value, JsonSerializer jser)
+            => jser.Deserialize<TReal>(reader);
+
+        public override void WriteJson(JsonWriter writer, Object value, JsonSerializer jser)
+            => jser.Serialize(writer, value);
+    }
+}

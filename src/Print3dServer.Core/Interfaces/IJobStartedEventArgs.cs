@@ -1,6 +1,4 @@
-﻿using System.Collections.Concurrent;
-
-namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
+﻿namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
     public interface IJobStartedEventArgs : IPrint3dBaseEventArgs
     {

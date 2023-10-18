@@ -152,6 +152,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
             JobFinished?.Invoke(this, e);
         }
 
+        public event EventHandler<JobStatusFinishedEventArgs> JobStatusFinished;
+        protected virtual void OnJobStatusFinished(JobStatusFinishedEventArgs e)
+        {
+            JobStatusFinished?.Invoke(this, e);
+        }
+
         public event EventHandler<TemperatureDataEventArgs> TemperatureDataReceived;
         protected virtual void OnTemperatureDataReceived(TemperatureDataEventArgs e)
         {

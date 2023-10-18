@@ -1,4 +1,6 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
+using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using AndreasReitberger.API.Print3dServer.Core.JSON;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -7,23 +9,36 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
 #if DEBUG
         #region Debug
-        public static JsonSerializerSettings JsonSerializerSettings = new()
+        [ObservableProperty]
+        JsonSerializerSettings jsonSerializerSettings = DefaultJsonSerializerSettings;
+
+        public static JsonSerializerSettings DefaultJsonSerializerSettings = new()
         {
             // Detect if the json respone has more or less properties than the target class
             //MissingMemberHandling = MissingMemberHandling.Error,
             MissingMemberHandling = MissingMemberHandling.Ignore,
             NullValueHandling = NullValueHandling.Include,
             TypeNameHandling = TypeNameHandling.Auto,
+            Converters =
+            {
+                // Map the converters
+                new AbstractConverter<AuthenticationHeader, IAuthenticationHeader>(),
+            }
         };
         #endregion
 #else
         #region Release
-        public static JsonSerializerSettings JsonSerializerSettings = new()
+        public static JsonSerializerSettings DefaultJsonSerializerSettings = new()
         {
             // Ignore if the json respone has more or less properties than the target class
             MissingMemberHandling = MissingMemberHandling.Ignore,          
             NullValueHandling = NullValueHandling.Ignore,
             TypeNameHandling = TypeNameHandling.Auto,
+            Converters =
+            {
+                // Map the converters
+                new AbstractConverter<AuthenticationHeader, IAuthenticationHeader>(),
+            }
         };
         #endregion
 #endif
