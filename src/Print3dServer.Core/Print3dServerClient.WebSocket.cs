@@ -108,6 +108,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                     break;
                 case Enums.Print3dServerTarget.OctoPrint:
+                    if (AuthHeaders?.ContainsKey("apikey") is true)
+                    {
+                        webSocketTarget += $"?t={AuthHeaders?["apikey"].Token}";
+                    }
                     break;
                 case Enums.Print3dServerTarget.PrusaConnect:
                     break;

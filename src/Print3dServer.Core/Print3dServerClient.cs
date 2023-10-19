@@ -3,6 +3,7 @@ using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.Core.Utilities;
 using Newtonsoft.Json;
+using RestSharp;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -821,6 +822,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
                             
                             break;
                         case Print3dServerTarget.OctoPrint:
+                            string? octoKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            if (octoKey is not null)
+                                request.AddHeader("X-Api-Key", octoKey);
+                            break;
                         case Print3dServerTarget.PrusaConnect:
                         case Print3dServerTarget.Custom:       
                         default:
@@ -859,7 +864,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     case Print3dServerTarget.PrusaConnect:
                     case Print3dServerTarget.Custom:
                     default:
-
                         if (jsonObject is not null)
                         {
                             request.AddJsonBody(jsonObject, "application/json");
