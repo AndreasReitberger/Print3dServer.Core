@@ -1,14 +1,12 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
-using AndreasReitberger.API.Print3dServer.Core.JSON;
 using AndreasReitberger.Core.Utilities;
-using RestSharp;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -99,7 +97,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnListeningChangedEvent(new ListeningChangedEventArgs()
             {
-                SessonId = SessionId,
+                SessionId = SessionId,
                 IsListening = value,
                 IsListeningToWebSocket = IsListeningToWebsocket,
             });
@@ -152,6 +150,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 AuthHeaders?.Add("session", new AuthenticationHeader() { Token = value });
             }
+            OnSessionChangedEvent(new()
+            {
+                SessionId = value,
+                Session = value,
+                AuthToken = ApiKey,
+                Printer = GetActivePrinterSlug(),
+            });
         }
 
         [ObservableProperty]
@@ -244,14 +249,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 OnServerWentOnline(new Print3dBaseEventArgs()
                 {
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
             else
             {
                 OnServerWentOffline(new Print3dBaseEventArgs()
                 {
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
         }
@@ -284,7 +289,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 OnServerUpdateAvailable(new Print3dBaseEventArgs()
                 {
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
         }
@@ -407,7 +412,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnActivePrinterChangedEvent(new ActivePrinterChangedEventArgs()
             {
-                SessonId = SessionId,
+                SessionId = SessionId,
                 NewPrinter = value,
                 OldPrinter = ActivePrinter,
                 Printer = GetActivePrinterSlug(),
@@ -425,7 +430,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
             OnRemotePrintersChanged(new PrintersChangedEventArgs()
             {
-                SessonId = SessionId,
+                SessionId = SessionId,
                 NewPrinters = value,
                 Printer = GetActivePrinterSlug(),
                 AuthToken = ApiKey,
@@ -443,7 +448,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnGcodeGroupsChangedEvent(new GcodeGroupsChangedEventArgs()
             {
                 NewModelGroups = value,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
             });
@@ -457,7 +462,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnGcodesChangedEvent(new GcodesChangedEventArgs()
             {
                 NewModels = value,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
             });
@@ -475,7 +480,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 NewImage = value,
                 PreviousImage = CurrentPrintImage,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
             });
         }
@@ -488,7 +493,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnJobListChangedEvent(new JobListChangedEventArgs()
             {
                 NewJobList = value,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
             });

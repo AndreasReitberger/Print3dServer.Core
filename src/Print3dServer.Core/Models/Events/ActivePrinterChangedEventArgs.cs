@@ -1,5 +1,6 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 
+using Newtonsoft.Json;
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
     public partial class ActivePrinterChangedEventArgs : Print3dBaseEventArgs, IActivePrinterChangedEventArgs

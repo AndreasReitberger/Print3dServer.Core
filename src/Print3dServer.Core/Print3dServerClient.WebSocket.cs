@@ -1,6 +1,8 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.Core.Enums;
 using AndreasReitberger.Core.Utilities;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -18,7 +20,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Properties
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
 #if NET_WS
         WebSocket? webSocket;
 #else
@@ -26,29 +28,30 @@ namespace AndreasReitberger.API.Print3dServer.Core
 #endif
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         Timer pingTimer;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         long lastPingTimestamp;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         int pingInterval = 10;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         int pingCounter = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         int refreshCounter = 0;
 
         [ObservableProperty]
         string pingCommand;
 
         [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         string webSocketTargetUri;
 
         [ObservableProperty]
@@ -63,13 +66,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isListeningToWebsocket = false;
         partial void OnIsListeningToWebsocketChanged(bool value)
         {
             OnListeningChangedEvent(new ListeningChangedEventArgs()
             {
-                SessonId = SessionId,
+                SessionId = SessionId,
                 IsListening = IsListening,
                 IsListeningToWebSocket = value,
             });
@@ -147,6 +150,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 if (info.Type == ReconnectionType.Initial)
                 {
+                    IsListeningToWebsocket = true;
                     // Only query messages at this point when using a api-key or no auth
                     /*
                     if (Session.AuthType != AuthenticationType.Credentials)
@@ -162,12 +166,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return client;
         }
 
-        async Task SendPingAsync()
-        {
-            await Task.Run(() => WebSocket?.Send(BuildPingCommand()));
-        }
-#endif
-
+        public Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
+ 
+        public Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
+        #endif
 
         public string BuildPingCommand(object? data = null)
         {
@@ -450,11 +452,35 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     LastPingTimestamp = timestamp;
                     Task.Run(async () => await SendPingAsync());
                 }
+                
+                if (string.IsNullOrEmpty(SessionId) && msg.Text.ToLower().Contains("session"))
+                {
+                    JObject? obj = JsonConvert.DeserializeObject<JObject>(msg.Text);
+                    switch (Target)
+                    {
+                        case Enums.Print3dServerTarget.Moonraker:
+                            break;
+                        case Enums.Print3dServerTarget.RepetierServer:
+                            var sessObj = obj?.SelectToken("session");
+                            SessionId = sessObj?.Value<string>() ?? "";
+                            break;
+                        case Enums.Print3dServerTarget.OctoPrint:
+                            break;
+                        case Enums.Print3dServerTarget.PrusaConnect:
+                            break;
+                        case Enums.Print3dServerTarget.Custom:
+                            break;
+                        default:
+                            break;
+                    }
+                    //Session.SessionId = message.SessionId;
+                    //OnSessionEstablished?.Invoke(Session.SessionId);
+                }/**/
                 OnWebSocketMessageReceived(new WebsocketEventArgs()
                 {
                     CallbackId = PingCounter,
                     Message = msg.Text,
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
             catch (JsonException jecx)

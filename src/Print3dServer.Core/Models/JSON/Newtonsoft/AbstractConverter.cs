@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using Newtonsoft.Json;
 
-namespace AndreasReitberger.API.Print3dServer.Core.JSON
+namespace AndreasReitberger.API.Print3dServer.Core.JSON.Newtonsoft
 {
     /// <summary>
     /// Source: https://stackoverflow.com/a/48923314/10083577
@@ -14,13 +12,13 @@ namespace AndreasReitberger.API.Print3dServer.Core.JSON
     public class AbstractConverter<TReal, TAbstract>
      : JsonConverter where TReal : TAbstract
     {
-        public override Boolean CanConvert(Type objectType)
+        public override bool CanConvert(Type objectType)
             => objectType == typeof(TAbstract);
 
-        public override Object ReadJson(JsonReader reader, Type type, Object value, JsonSerializer jser)
+        public override object ReadJson(JsonReader reader, Type type, object value, JsonSerializer jser)
             => jser.Deserialize<TReal>(reader);
 
-        public override void WriteJson(JsonWriter writer, Object value, JsonSerializer jser)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer jser)
             => jser.Serialize(writer, value);
     }
 }

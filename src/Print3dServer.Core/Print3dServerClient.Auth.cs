@@ -1,4 +1,5 @@
 ﻿using System.Security;
+using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -10,11 +11,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         bool isLoggedIn = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         string username;
 
         [ObservableProperty]
-        [property: JsonIgnore, XmlIgnore]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         SecureString password;
         #endregion
 

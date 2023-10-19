@@ -180,6 +180,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task StopListeningAsync();
         public Task ConnectWebSocketAsync(string target);
         public Task DisconnectWebSocketAsync();
+        public Task SendWebSocketCommandAsync(string command);
+        public Task SendPingAsync();
 
         public Task UpdateWebSocketAsync(List<Task>? refreshFunctions);
         #endregion

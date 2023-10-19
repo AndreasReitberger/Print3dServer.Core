@@ -1,8 +1,7 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
-using AndreasReitberger.API.Print3dServer.Core.JSON.System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
+using AndreasReitberger.API.Print3dServer.Core.JSON.Newtonsoft;
+using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -12,30 +11,35 @@ namespace AndreasReitberger.API.Print3dServer.Core
 #if DEBUG
         #region Debug
         [ObservableProperty]
-        [property: Newtonsoft.Json.JsonIgnore, JsonIgnore, XmlIgnore]
-        JsonSerializerOptions jsonSerializerSettings = DefaultJsonSerializerSettings;
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        JsonSerializerSettings newtonsoftJsonSerializerSettings = DefaultNewtonsoftJsonSerializerSettings;
 
-        public static JsonSerializerOptions DefaultJsonSerializerSettings = new()
+        public static JsonSerializerSettings DefaultNewtonsoftJsonSerializerSettings = new()
         {
-            ReferenceHandler = ReferenceHandler.Preserve,
-            WriteIndented = true,
+            // Detect if the json respone has more or less properties than the target class
+            //MissingMemberHandling = MissingMemberHandling.Error,
+            MissingMemberHandling = MissingMemberHandling.Ignore,
+            NullValueHandling = NullValueHandling.Include,
+            TypeNameHandling = TypeNameHandling.Auto,
             Converters =
-            {                     
+            {
                 // Map the converters
-                new TypeMappingConverter<IAuthenticationHeader, AuthenticationHeader>(),
+                new AbstractConverter<AuthenticationHeader, IAuthenticationHeader>(),
             }
         };
         #endregion
 #else
         #region Release
-        public static JsonSerializerOptions DefaultJsonSerializerSettings = new()
+        public static JsonSerializerSettings DefaultNewtonsoftJsonSerializerSettings = new()
         {
-            ReferenceHandler = ReferenceHandler.IgnoreCycles,
-            WriteIndented = true,
+            // Ignore if the json respone has more or less properties than the target class
+            MissingMemberHandling = MissingMemberHandling.Ignore,          
+            NullValueHandling = NullValueHandling.Ignore,
+            TypeNameHandling = TypeNameHandling.Auto,
             Converters =
-            {                     
+            {
                 // Map the converters
-                new TypeMappingConverter<IAuthenticationHeader, AuthenticationHeader>(),
+                new AbstractConverter<AuthenticationHeader, IAuthenticationHeader>(),
             }
         };
         #endregion
@@ -43,7 +47,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Methods
 
 #nullable enable
-        public T? GetObjectFromJsonSystem<T>(string json, JsonSerializerOptions? serializerSettings = null)
+        public T? GetObjectFromJson<T>(string json, JsonSerializerSettings? serializerSettings = null)
         {
             try
             {
@@ -60,9 +64,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     //json += $"]";
                 }
 #endif
-                return JsonSerializer.Deserialize<T?>(json, serializerSettings ?? JsonSerializerSettings);
+                return JsonConvert.DeserializeObject<T?>(json, serializerSettings ?? NewtonsoftJsonSerializerSettings);
             }
-            catch (JsonException jexc)
+            catch (JsonSerializationException jexc)
             {
                 OnError(new JsonConvertEventArgs()
                 {
