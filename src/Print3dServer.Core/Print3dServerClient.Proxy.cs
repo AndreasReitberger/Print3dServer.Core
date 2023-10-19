@@ -1,4 +1,4 @@
-﻿using AndreasReitberger.API.Print3dServer.Core.Events;
+﻿using System.Net;
 using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -82,6 +82,58 @@ namespace AndreasReitberger.API.Print3dServer.Core
             SecureProxyConnection = secure;
             UpdateRestClientInstance();
         }
+
+        #region Proxy
+        public Uri GetProxyUri() => ProxyAddress.StartsWith("http://") || ProxyAddress.StartsWith("https://") ? new Uri($"{ProxyAddress}:{ProxyPort}") : new Uri($"{(SecureProxyConnection ? "https" : "http")}://{ProxyAddress}:{ProxyPort}");
+
+        public WebProxy GetCurrentProxy()
+        {
+            WebProxy proxy = new()
+            {
+                Address = GetProxyUri(),
+                BypassProxyOnLocal = false,
+                UseDefaultCredentials = ProxyUserUsesDefaultCredentials,
+            };
+            if (ProxyUserUsesDefaultCredentials && !string.IsNullOrEmpty(ProxyUser))
+            {
+                proxy.Credentials = new NetworkCredential(ProxyUser, ProxyPassword);
+            }
+            else
+            {
+                proxy.UseDefaultCredentials = ProxyUserUsesDefaultCredentials;
+            }
+            return proxy;
+        }
+        public void UpdateRestClientInstance()
+        {
+            if (string.IsNullOrEmpty(ServerAddress))
+            {
+                return;
+            }
+            if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
+            {
+                RestClientOptions options = new(FullWebAddress)
+                {
+                    ThrowOnAnyError = true,
+                    MaxTimeout = 10000,
+                };
+                HttpClientHandler httpHandler = new()
+                {
+                    UseProxy = true,
+                    Proxy = GetCurrentProxy(),
+                    AllowAutoRedirect = true,
+                };
+
+                httpClient = new(handler: httpHandler, disposeHandler: true);
+                restClient = new(httpClient: httpClient, options: options);
+            }
+            else
+            {
+                httpClient = null;
+                restClient = new(baseUrl: FullWebAddress);
+            }
+        }
+        #endregion
 
         #endregion
     }

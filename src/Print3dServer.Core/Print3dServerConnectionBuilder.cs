@@ -23,6 +23,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _client.Target = Print3dServerTarget.RepetierServer;
                 _client.ApiKeyRegexPattern = RegexHelper.RepetierServerProApiKey;
                 _client.Port = 3344;
+                _client.WebSocketTarget = "/socket/";
                 return this;
             }
 
@@ -30,12 +31,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 _client.Target = Print3dServerTarget.OctoPrint;
                 _client.ApiKeyRegexPattern = RegexHelper.OctoPrintApiKey;
+                _client.Port = 8080;
                 return this;
             }
 
             public Print3dServerConnectionBuilder AsMoonrakerServer()
             {
                 _client.Target = Print3dServerTarget.Moonraker;
+                _client.Port = 80;
+                _client.WebSocketTarget = "/websocket/";
                 return this;
             }
 

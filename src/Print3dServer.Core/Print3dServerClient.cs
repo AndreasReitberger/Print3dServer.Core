@@ -2,11 +2,11 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.Core.Utilities;
+using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
 using System.Text.RegularExpressions;
-using System.Xml.Linq;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -97,7 +97,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnListeningChangedEvent(new ListeningChangedEventArgs()
             {
-                SessonId = SessionId,
+                SessionId = SessionId,
                 IsListening = value,
                 IsListeningToWebSocket = IsListeningToWebsocket,
             });
@@ -140,6 +140,24 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         string sessionId = string.Empty;
+        partial void OnSessionIdChanged(string value)
+        {
+            if (AuthHeaders?.ContainsKey("session") is true)
+            {
+                AuthHeaders["session"] = new AuthenticationHeader() { Token = value };
+            }
+            else
+            {
+                AuthHeaders?.Add("session", new AuthenticationHeader() { Token = value });
+            }
+            OnSessionChangedEvent(new()
+            {
+                SessionId = value,
+                Session = value,
+                AuthToken = ApiKey,
+                Printer = GetActivePrinterSlug(),
+            });
+        }
 
         [ObservableProperty]
         string serverName = string.Empty;
@@ -176,8 +194,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             switch (Target)
             {
+                case Print3dServerTarget.PrusaConnect:
+                case Print3dServerTarget.OctoPrint:
                 case Print3dServerTarget.Moonraker:
-                    break;
                 case Print3dServerTarget.RepetierServer:
                     if (AuthHeaders?.ContainsKey("apikey") is true)
                     {
@@ -186,11 +205,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     else
                     {
                         AuthHeaders?.Add("apikey", new AuthenticationHeader() { Token = value });
-                    }
-                    break;
-                case Print3dServerTarget.OctoPrint:
-                    break;
-                case Print3dServerTarget.PrusaConnect:
+                    }          
                     break;
                 case Print3dServerTarget.Custom:
                     break;
@@ -234,14 +249,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 OnServerWentOnline(new Print3dBaseEventArgs()
                 {
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
             else
             {
                 OnServerWentOffline(new Print3dBaseEventArgs()
                 {
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
         }
@@ -274,7 +289,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 OnServerUpdateAvailable(new Print3dBaseEventArgs()
                 {
-                    SessonId = SessionId,
+                    SessionId = SessionId,
                 });
             }
         }
@@ -366,19 +381,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double speedFactor = 0;
+        double speedFactor = 100;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double speedFactorTarget = 0;
+        double speedFactorTarget = 100;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double flowFactor = 0;
+        double flowFactor = 100;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        double flowFactorTarget = 0;
+        double flowFactorTarget = 100;
 
         #endregion
 
@@ -397,7 +412,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnActivePrinterChangedEvent(new ActivePrinterChangedEventArgs()
             {
-                SessonId = SessionId,
+                SessionId = SessionId,
                 NewPrinter = value,
                 OldPrinter = ActivePrinter,
                 Printer = GetActivePrinterSlug(),
@@ -413,6 +428,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 ActivePrinter = value.FirstOrDefault();
             }
+            OnRemotePrintersChanged(new PrintersChangedEventArgs()
+            {
+                SessionId = SessionId,
+                NewPrinters = value,
+                Printer = GetActivePrinterSlug(),
+                AuthToken = ApiKey,
+            });
         }
 
         #endregion
@@ -426,7 +448,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnGcodeGroupsChangedEvent(new GcodeGroupsChangedEventArgs()
             {
                 NewModelGroups = value,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
             });
@@ -440,7 +462,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnGcodesChangedEvent(new GcodesChangedEventArgs()
             {
                 NewModels = value,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
             });
@@ -458,7 +480,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 NewImage = value,
                 PreviousImage = CurrentPrintImage,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
             });
         }
@@ -471,7 +493,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnJobListChangedEvent(new JobListChangedEventArgs()
             {
                 NewJobList = value,
-                SessonId = SessionId,
+                SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
             });
@@ -538,11 +560,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int layer = 0;
+        long layer = 0;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int layers = 0;
+        long layers = 0;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -780,9 +802,24 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         // Special handling for Repetier Server
                         case Print3dServerTarget.RepetierServer:
                             string? key = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
-                            request.AddParameter("apikey", key, ParameterType.QueryString);
+                            if(key is not null)
+                                request.AddParameter("apikey", key, ParameterType.QueryString);
                             break;
                         case Print3dServerTarget.Moonraker:
+                            if (!string.IsNullOrEmpty(SessionId))
+                            {
+                                request.AddHeader("Authorization", $"Bearer {SessionId}");
+                            }
+                            else
+                            {
+                                string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                                if (apiKey is not null)
+                                {
+                                    request.AddHeader("X-Api-Key", $"Bearer {apiKey}");
+                                }
+                            }
+                            
+                            break;
                         case Print3dServerTarget.OctoPrint:
                         case Print3dServerTarget.PrusaConnect:
                         case Print3dServerTarget.Custom:       
@@ -802,16 +839,31 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         if (string.IsNullOrEmpty(command)) break;
                         urlSegments ??= new();
                         urlSegments.Add("a", command);
+                        if(jsonObject is not null)
+                        {
+                            string jsonDataString = "";
+                            if (jsonObject is string jsonString)
+                            {
+                                jsonDataString = jsonString;
+                            }
+                            else
+                            {
+                                jsonDataString = JsonConvert.SerializeObject(jsonObject);
+                            }
+
+                            request.AddParameter("data", jsonDataString, ParameterType.QueryString);
+                        }
                         break;
                     case Print3dServerTarget.Moonraker:
-                        break;
                     case Print3dServerTarget.OctoPrint:
-                        break;
                     case Print3dServerTarget.PrusaConnect:
-                        break;
                     case Print3dServerTarget.Custom:
-                        break;
                     default:
+
+                        if (jsonObject is not null)
+                        {
+                            request.AddJsonBody(jsonObject, "application/json");
+                        }
                         break;
                 }
                 if (urlSegments != null)
@@ -822,10 +874,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                 }
 
-                if (jsonObject != null)
-                {
-                    request.AddJsonBody(jsonObject, "application/json");
-                }
                 Uri fullUri = restClient.BuildUri(request);
                 try
                 {
@@ -1179,6 +1227,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
+            cts?.Dispose();
         }
 
         public async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default)
@@ -1341,58 +1390,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 OnError(new UnhandledExceptionEventArgs(exc, false));
                 return null;
-            }
-        }
-        #endregion
-
-        #region Proxy
-        Uri GetProxyUri() => ProxyAddress.StartsWith("http://") || ProxyAddress.StartsWith("https://") ? new Uri($"{ProxyAddress}:{ProxyPort}") : new Uri($"{(SecureProxyConnection ? "https" : "http")}://{ProxyAddress}:{ProxyPort}");
-
-        WebProxy GetCurrentProxy()
-        {
-            WebProxy proxy = new()
-            {
-                Address = GetProxyUri(),
-                BypassProxyOnLocal = false,
-                UseDefaultCredentials = ProxyUserUsesDefaultCredentials,
-            };
-            if (ProxyUserUsesDefaultCredentials && !string.IsNullOrEmpty(ProxyUser))
-            {
-                proxy.Credentials = new NetworkCredential(ProxyUser, ProxyPassword);
-            }
-            else
-            {
-                proxy.UseDefaultCredentials = ProxyUserUsesDefaultCredentials;
-            }
-            return proxy;
-        }
-        void UpdateRestClientInstance()
-        {
-            if (string.IsNullOrEmpty(ServerAddress))
-            {
-                return;
-            }
-            if (EnableProxy && !string.IsNullOrEmpty(ProxyAddress))
-            {
-                RestClientOptions options = new(FullWebAddress)
-                {
-                    ThrowOnAnyError = true,
-                    MaxTimeout = 10000,
-                };
-                HttpClientHandler httpHandler = new()
-                {
-                    UseProxy = true,
-                    Proxy = GetCurrentProxy(),
-                    AllowAutoRedirect = true,
-                };
-
-                httpClient = new(handler: httpHandler, disposeHandler: true);
-                restClient = new(httpClient: httpClient, options: options);
-            }
-            else
-            {
-                httpClient = null;
-                restClient = new(baseUrl: FullWebAddress);
             }
         }
         #endregion

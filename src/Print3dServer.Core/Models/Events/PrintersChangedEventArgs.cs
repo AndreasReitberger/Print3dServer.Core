@@ -1,13 +1,13 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
+using System.Collections.ObjectModel;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
-    public partial class WebsocketEventArgs : Print3dBaseEventArgs, IWebsocketEventArgs
+    public partial class PrintersChangedEventArgs : Print3dBaseEventArgs, IPrintersChangedEventArgs
     {
         #region Properties
-        public string? MessageReceived { get; set; }
-        public byte[]? Data { get; set; }
+        public ObservableCollection<IPrinter3d> NewPrinters { get; set; } = new();
         #endregion
 
         #region Overrides

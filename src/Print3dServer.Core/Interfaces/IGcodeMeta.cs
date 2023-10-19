@@ -1,4 +1,6 @@
-﻿namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
+﻿using System.Collections.ObjectModel;
+
+namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
     public interface IGcodeMeta : IPrint3dBase
     {
@@ -18,11 +20,11 @@
         public double EstimatedPrintTime { get; set; }
         public double FirstLayerExtrTemp { get; set; }
         public double FirstLayerBedTemp { get; set; }
-        public double Layers { get; }
+        public long Layers { get; }
         #endregion
 
         #region Collections
-        IList<IGcodeImage> GcodeImages { get; set; }
+        ObservableCollection<IGcodeImage> GcodeImages { get; set; }
         #endregion
     }
 }

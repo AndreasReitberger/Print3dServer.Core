@@ -6,7 +6,8 @@
         public string? Message { get; set; }
         public string? Printer { get; set; }
         public long CallbackId { get; set; }
-        public string? SessonId { get; set; }
+        public string? SessionId { get; set; }
+        public string? AuthToken { get; set; }
         #endregion
     }
 }

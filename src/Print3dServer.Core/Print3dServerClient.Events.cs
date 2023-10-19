@@ -152,6 +152,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
             JobFinished?.Invoke(this, e);
         }
 
+        public event EventHandler<JobStatusFinishedEventArgs> JobStatusFinished;
+        protected virtual void OnJobStatusFinished(JobStatusFinishedEventArgs e)
+        {
+            JobStatusFinished?.Invoke(this, e);
+        }
+
         public event EventHandler<TemperatureDataEventArgs> TemperatureDataReceived;
         protected virtual void OnTemperatureDataReceived(TemperatureDataEventArgs e)
         {
@@ -170,12 +176,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             GcodeGroupsChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<JobListChangedEventArgs> JobListChanged;
-        protected virtual void OnJobListChangedEvent(JobListChangedEventArgs e)
-        {
-            JobListChanged?.Invoke(this, e);
-        }
-
         public event EventHandler<ActivePrinterChangedEventArgs> ActivePrinterChanged;
         protected virtual void OnActivePrinterChangedEvent(ActivePrinterChangedEventArgs e)
         {
@@ -189,6 +189,20 @@ namespace AndreasReitberger.API.Print3dServer.Core
         protected virtual void OnActivePrintImageChanged(ActivePrintImageChangedEventArgs e)
         {
             ActivePrintImageChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<JobListChangedEventArgs> JobListChanged;
+        protected virtual void OnJobListChangedEvent(JobListChangedEventArgs e)
+        {
+            JobListChanged?.Invoke(this, e);
+        }
+        #endregion
+
+        #region Printers
+        public event EventHandler<PrintersChangedEventArgs> RemotePrintersChanged;
+        protected virtual void OnRemotePrintersChanged(PrintersChangedEventArgs e)
+        {
+            RemotePrintersChanged?.Invoke(this, e);
         }
         #endregion
 

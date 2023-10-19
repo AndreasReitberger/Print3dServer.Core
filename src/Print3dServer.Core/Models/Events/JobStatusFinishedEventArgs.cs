@@ -3,11 +3,10 @@ using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
-    public partial class WebsocketEventArgs : Print3dBaseEventArgs, IWebsocketEventArgs
+    public partial class JobStatusFinishedEventArgs : Print3dBaseEventArgs, IJobStatusFinishedEventArgs
     {
         #region Properties
-        public string? MessageReceived { get; set; }
-        public byte[]? Data { get; set; }
+        public IPrint3dJobStatus? JobStatus { get; set; }
         #endregion
 
         #region Overrides

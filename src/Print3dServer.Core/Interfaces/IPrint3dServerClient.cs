@@ -1,6 +1,7 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Net;
 using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
@@ -35,7 +36,10 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Auth
         Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; }
         public bool LoginRequired { get; set; }
+        public bool IsLoggedIn { get; set; }
         public bool AuthenticationFailed { get; set; }
+        public string Username { get; set; }
+        public SecureString Password { get; set; }
         #endregion
 
         #region States
@@ -113,8 +117,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public bool XHomed { get; set; }
         public bool YHomed { get; set; }
         public bool ZHomed { get; set; }
-        public int Layer { get; set; }
-        public int Layers { get; set; }
+        public long Layer { get; set; }
+        public long Layers { get; set; }
         #endregion
 
         #region WebCam
@@ -159,11 +163,14 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Methods
 
         #region Proxy
+        public Uri GetProxyUri();
+        public WebProxy GetCurrentProxy();
+        public void UpdateRestClientInstance();
         public void SetProxy(bool secure, string address, int port, bool enable = true);
         public void SetProxy(bool secure, string address, int port, string user = "", SecureString? password = null, bool enable = true);
         #endregion
 
-#region WebSocket
+        #region WebSocket
 #if NET_WS
         protected void PingServer(string? pingCommand = null);
         protected void PingServerWithObject(object? pingCommand = null);
@@ -173,6 +180,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task StopListeningAsync();
         public Task ConnectWebSocketAsync(string target);
         public Task DisconnectWebSocketAsync();
+        public Task SendWebSocketCommandAsync(string command);
+        public Task SendPingAsync();
 
         public Task UpdateWebSocketAsync(List<Task>? refreshFunctions);
         #endregion

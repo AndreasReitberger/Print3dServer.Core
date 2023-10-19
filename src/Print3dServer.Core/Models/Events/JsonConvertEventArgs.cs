@@ -1,4 +1,6 @@
-﻿namespace AndreasReitberger.API.Print3dServer.Core.Events
+﻿using Newtonsoft.Json;
+
+namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
     public partial class JsonConvertEventArgs : EventArgs
     {
