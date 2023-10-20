@@ -94,6 +94,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return this;
             }
 
+            public Print3dServerConnectionBuilder WithName(string name)
+            {
+                _client.ServerName = name;
+                return this;
+            }
+
             #endregion
         }
     }

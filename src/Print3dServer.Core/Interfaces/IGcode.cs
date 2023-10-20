@@ -15,6 +15,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double Modified { get;set; }
         public double Volume { get;set; }
         public double Filament { get;set; }
+        public double PrintTime { get;set; }
         public long Size { get; set; }
         public string Permissions { get; set; }
         public string Group { get; set; }
