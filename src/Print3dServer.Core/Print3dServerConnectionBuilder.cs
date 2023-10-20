@@ -31,7 +31,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 _client.Target = Print3dServerTarget.OctoPrint;
                 _client.ApiKeyRegexPattern = RegexHelper.OctoPrintApiKey;
-                _client.Port = 8080;
+                _client.Port = 80;
+                _client.WebSocketTarget = "/sockjs/websocket";
                 return this;
             }
 
