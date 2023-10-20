@@ -1,2 +1,67 @@
 # Print3dServer.Core
 A C# based core library for our 3d Print Server nugets (Moonraker, Repetier Server, OctoPrint and so on)
+
+## Available print servers
+- OctoPrint (https://github.com/AndreasReitberger/OctoPrintRestApiSharp)
+- Repetier Server (https://github.com/AndreasReitberger/RepetierServerSharpApi)
+- Moonraker (https://github.com/AndreasReitberger/KlipperRestApiSharp)
+
+## Planned
+- PrusaConnect
+
+# Usage
+
+## Base Client
+In order to create your own `PrintServerClient`, inherit from the base client `Print3dServerClient, IPrintServerClient` as shown below.
+
+```cs
+public partial class OctoPrintClient : Print3dServerClient, IPrintServerClient
+{
+ //...
+}
+```
+
+The base class holds all needed `Methods` and `Properties` needed to communicate with a print server (via REST API and WebSocket).
+
+## Example migration for OctoPrint
+To query data from your server, simply call send the needed `Command`. The result will contain the data as `JsonString`, 
+which can be accessed over the `Result` property.
+
+```cs
+async Task<OctoPrintFiles> GetFilesAsync(string location, string path = "", bool recursive = true)
+{
+    try
+    {
+        string files = string.IsNullOrEmpty(path) ? string.Format("files/{0}", location) : string.Format("files/{0}/{1}", location, path);
+        Dictionary<string, string> urlSegments = new()
+        {
+            //get all files & folders 
+            { "recursive", recursive ? "true" : "false" }
+        };
+
+        string targetUri = $"{OctoPrintCommands.Api}";
+        IRestApiRequestRespone result = await SendRestApiRequestAsync(
+               requestTargetUri: targetUri,
+               method: Method.Get,
+               command: files,
+               jsonObject: null,
+               authHeaders: AuthHeaders,
+               urlSegments: urlSegments,
+               cts: default
+               )
+            .ConfigureAwait(false);
+        OctoPrintFiles list = JsonConvert.DeserializeObject<OctoPrintFiles>(result.Result);
+        if (list != null)
+        {
+            FreeDiskSpace = list.Free;
+            TotalDiskSpace = list.Total;
+        }
+        return list;
+    }
+    catch (Exception exc)
+    {
+        OnError(new UnhandledExceptionEventArgs(exc, false));
+        return new OctoPrintFiles();
+    }
+}
+```
