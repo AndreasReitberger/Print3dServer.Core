@@ -885,58 +885,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-        #region Download
-        public async Task<byte[]?> DownloadFileFromUriAsync(
-            string path, 
-            Dictionary<string, string> authHeaders,
-            Dictionary<string, string> urlSegements = null, 
-            int timeout = 10000
-            )
-        {
-            try
-            {
-                if (restClient is null)
-                {
-                    UpdateRestClientInstance();
-                }
-                RestRequest request = new(path);
-                if (authHeaders?.Count > 0)
-                {
-                    foreach (var header in authHeaders)
-                    {
-                        //  "Authorization", $"Bearer {UserToken}"
-                        //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value);
-                    }
-                }
-
-                request.RequestFormat = DataFormat.Json;
-                request.Method = Method.Get;
-                request.Timeout = timeout;
-                if (urlSegements?.Count > 0)
-                {
-                    foreach (KeyValuePair<string, string> segment in urlSegements)
-                    {
-                        request.AddParameter(segment.Key, segment.Value);
-                    }
-                }
-
-                Uri fullUrl = restClient.BuildUri(request);
-                CancellationTokenSource cts = new(timeout);
-                byte[]? respone = await restClient.DownloadDataAsync(request, cts.Token)
-                    .ConfigureAwait(false)
-                    ;
-
-                return respone;
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-                return null;
-            }
-        }
-        #endregion
-
         #region Misc
         public void CancelCurrentRequests()
         {

@@ -604,6 +604,90 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
+        #region Download
+        public async Task<byte[]?> DownloadFileFromUriAsync(
+            string path,
+            Dictionary<string, IAuthenticationHeader> authHeaders,
+            Dictionary<string, string>? urlSegments = null,
+            int timeout = 10000
+            )
+        {
+            try
+            {
+                if (restClient is null)
+                {
+                    UpdateRestClientInstance();
+                }
+                RestRequest request = new(path);
+                if (authHeaders?.Count > 0)
+                {
+                    switch (Target)
+                    {
+                        // Special handling for Repetier Server
+                        case Print3dServerTarget.RepetierServer:
+                            string? key = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            if (key is not null)
+                                request.AddParameter("apikey", key, ParameterType.QueryString);
+                            break;
+                        case Print3dServerTarget.Moonraker:
+                            if (!string.IsNullOrEmpty(SessionId))
+                            {
+                                request.AddHeader("Authorization", $"Bearer {SessionId}");
+                            }
+                            else
+                            {
+                                string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                                if (apiKey is not null)
+                                {
+                                    request.AddHeader("X-Api-Key", $"Bearer {apiKey}");
+                                }
+                            }
+
+                            break;
+                        case Print3dServerTarget.OctoPrint:
+                            string? octoKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            if (octoKey is not null)
+                                request.AddHeader("X-Api-Key", octoKey);
+                            break;
+                        case Print3dServerTarget.PrusaConnect:
+                        case Print3dServerTarget.Custom:
+                        default:
+                            foreach (var header in authHeaders)
+                            {
+                                //  "Authorization", $"Bearer {UserToken}"
+                                //  "X-Api-Key", $"{ApiKey}"
+                                request.AddHeader(header.Key, header.Value.Token);
+                            }
+                            break;
+                    }
+                }
+
+                request.RequestFormat = DataFormat.Json;
+                request.Method = Method.Get;
+                request.Timeout = timeout;
+                if (urlSegments?.Count > 0)
+                {
+                    foreach (KeyValuePair<string, string> segment in urlSegments)
+                    {
+                        request.AddParameter(segment.Key, segment.Value, ParameterType.QueryString);
+                    }
+                }
+
+                Uri fullUrl = restClient.BuildUri(request);
+                CancellationTokenSource cts = new(timeout);
+                byte[]? respone = await restClient.DownloadDataAsync(request, cts.Token)
+                    .ConfigureAwait(false)
+                    ;
+
+                return respone;
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+                return null;
+            }
+        }
+        #endregion
         #endregion
 
         #endregion
