@@ -135,6 +135,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region WebSocket
         public string PingCommand { get; set; }
+        public long PingCounter { get; set; }
+        public int PingInterval { get; set; }
         public string WebSocketTargetUri { get; set; }
         public string WebSocketTarget { get; set; }
         #endregion
@@ -162,6 +164,19 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Methods
 
+        #region OnlineCheck
+        public Task CheckOnlineAsync(int timeout = 10000);
+        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
+        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default);
+        public Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
+        #endregion
+
+        #region Refreshing
+        public Task RefreshAllAsync();
+        public Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
+        public Task<ObservableCollection<IGcode>> GetFilesAsync();
+        #endregion
+
         #region Proxy
         public Uri GetProxyUri();
         public WebProxy GetCurrentProxy();
@@ -176,6 +191,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         protected void PingServerWithObject(object? pingCommand = null);
 #endif
         public string BuildPingCommand(object? data);
+        public Task StartListeningAsync(bool stopActiveListening = false);
         public Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null);
         public Task StopListeningAsync();
         public Task ConnectWebSocketAsync(string target);
@@ -187,6 +203,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Printer
+        public Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true);
+        public Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true);
         public Task<bool> SendGcodeAsync(string command, object? data = null, string? targetUri = null);
         public Task<bool> HomeAsync(bool x, bool y, bool z, string? targetUri = null);
         public Task<bool> SetFanSpeedAsync(string command, object? data = null, string? targetUri = null);
@@ -208,6 +226,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public void CancelCurrentRequests();
         #endregion
 
-#endregion
+        #endregion
     }
 }

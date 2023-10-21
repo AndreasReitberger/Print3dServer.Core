@@ -6,6 +6,8 @@ using Newtonsoft.Json;
 using System.Security.Authentication;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Diagnostics;
+
 
 #if NET_WS
 using WebSocket4Net;
@@ -37,11 +39,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int pingInterval = 10;
+        int pingInterval = 20;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int pingCounter = 0;
+        long pingCounter = 0;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -59,13 +61,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         partial void OnWebSocketTargetChanged(string value)
         {
             WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListeningToWebsocket)
+            if (IsInitialized && IsListening)
             {
                 _ = UpdateWebSocketAsync();
             }
         }
 
-        [ObservableProperty]
+        [ObservableProperty, Obsolete("Use IsListening instead")]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isListeningToWebsocket = false;
         partial void OnIsListeningToWebsocketChanged(bool value)
@@ -88,7 +90,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 case Enums.Print3dServerTarget.Moonraker:
                     string oneShotToken = "", apiToken = "";
-                    if (AuthHeaders?.ContainsKey("session") is true)
+                    if (AuthHeaders?.ContainsKey("oneshottoken") is true)
+                    {
+                        oneShotToken = AuthHeaders?["oneshottoken"].Token ?? "";
+                    }
+                    else if (AuthHeaders?.ContainsKey("session") is true)
                     {
                         oneShotToken = AuthHeaders?["session"].Token ?? "";
                     }
@@ -96,10 +102,16 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     {
                         apiToken = AuthHeaders?["apikey"].Token ?? "";
                     }
+                    if (string.IsNullOrEmpty(oneShotToken))
+                    {
+                        oneShotToken = SessionId;
+                    }
+                    if (string.IsNullOrEmpty(oneShotToken) && string.IsNullOrEmpty(apiToken))
+                        break;
 
                     webSocketTarget += LoginRequired ?
                         $"?token={oneShotToken}" :
-                        $"t{(!string.IsNullOrEmpty(oneShotToken) ? $"?token={oneShotToken}" : $"?token={apiToken}")}";
+                        $"{(!string.IsNullOrEmpty(oneShotToken) ? $"?token={oneShotToken}" : $"?token={apiToken}")}";
                     break;
                 case Enums.Print3dServerTarget.RepetierServer:
                     if (AuthHeaders?.ContainsKey("apikey") is true)
@@ -122,22 +134,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
             return webSocketTarget;
         }
-        void StopPingTimer()
-        {
-            if (PingTimer != null)
-            {
-                try
-                {
-                    PingTimer?.Change(Timeout.Infinite, Timeout.Infinite);
-                    PingTimer = null;
-                    IsListeningToWebsocket = false;
-                }
-                catch (ObjectDisposedException)
-                {
-                    //PingTimer = null;
-                }
-            }
-        }
 
 #if !NET_WS
         /// <summary>
@@ -154,7 +150,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 if (info.Type == ReconnectionType.Initial)
                 {
-                    IsListeningToWebsocket = true;
+                    IsListening = true;
                     // Only query messages at this point when using a api-key or no auth
                     /*
                     if (Session.AuthType != AuthenticationType.Credentials)
@@ -263,6 +259,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     .ConfigureAwait(false);
             }
         }
+        public Task StartListeningAsync(bool stopActiveListening = false) => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, RefreshTasks);
 
         public async Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null)
         {
@@ -277,10 +274,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     return; // StopListening();
                 }
             }
+            RefreshTasks = refreshFunctions ?? new List<Task>();
             await ConnectWebSocketAsync(target).ConfigureAwait(false);
+            // Refreshing is now done when a Websocket pin is sent
+            /*
             Timer = new Timer(async (action) =>
             {
-                // Do not check the online state ever tick
                 if (RefreshCounter > 5)
                 {
                     RefreshCounter = 0;
@@ -297,6 +296,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     await StopListeningAsync(); // StopListening();
                 }
             }, null, 0, RefreshInterval * 1000);
+            */
             IsListening = true;
         }
         public async Task StopListeningAsync()
@@ -307,7 +307,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 #endif
             StopTimer();
 
-            if (IsListeningToWebsocket)
+            if (IsListening)
             {
                 await DisconnectWebSocketAsync().ConfigureAwait(false);
             }
@@ -318,13 +318,17 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                if (!string.IsNullOrEmpty(FullWebAddress) && (
-                    Regex.IsMatch(FullWebAddress, RegexHelper.IPv4AddressRegex) ||
-                    Regex.IsMatch(FullWebAddress, RegexHelper.IPv6AddressRegex) ||
-                    Regex.IsMatch(FullWebAddress, RegexHelper.Fqdn)))
+#if NET6_0_OR_GREATER
+                bool targetValid = Uri.TryCreate(target, UriKind.Absolute, out var uriResult)
+                    && (uriResult.Scheme == Uri.UriSchemeWs || uriResult.Scheme == Uri.UriSchemeWss);
+                if (!targetValid) return;
+#else
+                if (!string.IsNullOrEmpty(target) && Regex.IsMatch(target, @"/^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-zA-Z]+):([0-9]{1,5})$/"))
                 {
                     return;
                 }
+#endif
+                
                 await DisconnectWebSocketAsync();
                 //string target = $"{(IsSecure ? "wss" : "ws")}://{ServerAddress}:{Port}/socket/{(!string.IsNullOrEmpty(ApiKey) ? $"?apikey={ApiKey}" : "")}";
 #if NET_WS
@@ -397,7 +401,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                IsListeningToWebsocket = false;
+                IsListening = false;
                 OnWebSocketError(e);
                 OnError(e);
             }
@@ -453,10 +457,32 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
                 if (LastPingTimestamp + PingInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
                 {
+                    PingCounter++;
                     LastPingTimestamp = timestamp;
                     Task.Run(async () => await SendPingAsync());
+#if DEBUG
+                    Debug.WriteLine($"WS-Ping sent from {Target}: {DateTime.Now}");
+#endif
+                    Task.Run(async () =>
+                    {
+                        // Check online state on each 5. ping
+                        if (RefreshCounter > 5)
+                        {
+                            RefreshCounter = 0;
+                            await CheckOnlineAsync(commandBase: CheckOnlineTargetUri, authHeaders: AuthHeaders, timeout: 3500).ConfigureAwait(false);
+                        }
+                        else RefreshCounter++;
+                        if (IsOnline)
+                        {
+                            if (RefreshTasks?.Count > 0)
+                                await Task.WhenAll(RefreshTasks).ConfigureAwait(false);
+                        }
+                        else if (IsListening)
+                        {
+                            await StopListeningAsync().ConfigureAwait(false); // StopListening();
+                        }
+                    });
                 }
-                
                 if (string.IsNullOrEmpty(SessionId) && msg.Text.ToLower().Contains("session"))
                 {
                     JObject? obj = JsonConvert.DeserializeObject<JObject>(msg.Text);
@@ -508,7 +534,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                IsListeningToWebsocket = false;
+                IsListening = false;
                 StopPingTimer();
                 OnWebSocketDisconnected(new Print3dBaseEventArgs()
                 {
@@ -526,7 +552,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                IsListeningToWebsocket = false;
+                IsListening = false;
                 //StopPingTimer();
                 OnWebSocketDisconnected(new Print3dBaseEventArgs()
                 {
@@ -554,7 +580,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 //PingTimer = new Timer((action) => PingServer(PingCommand), null, 0, 2500);
                 //PingTimer = new Timer((action) => PingServerWithObject(), null, 0, 2500);
 
-                IsListeningToWebsocket = true;
+                IsListening = true;
                 OnWebSocketConnected(new Print3dBaseEventArgs()
                 {
                     Message = $"WebSocket connection to {WebSocket} established. Connection state while opening was '{(IsOnline ? "online" : "offline")}'",
@@ -585,7 +611,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 #endif
 
-#endregion
+        #endregion
 
     }
 }

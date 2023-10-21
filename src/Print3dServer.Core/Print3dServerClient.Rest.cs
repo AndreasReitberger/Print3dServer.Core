@@ -119,8 +119,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
-            if (!IsOnline) return apiRsponeResult;
-
+            //if (!IsOnline) return apiRsponeResult;
             try
             {
                 if (cts == default)
@@ -149,19 +148,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
                                 request.AddParameter("apikey", key, ParameterType.QueryString);
                             break;
                         case Print3dServerTarget.Moonraker:
-                            if (!string.IsNullOrEmpty(SessionId))
+                            string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            if (apiKey is not null)
+                            {
+                                request.AddHeader("X-Api-Key", $"{apiKey}");
+                            }
+                            else if (authHeaders?.ContainsKey("oneshottoken") is true)
+                            {
+                                apiKey = authHeaders?.FirstOrDefault(x => x.Key == "oneshottoken").Value?.Token;
+                                if(apiKey is not null)
+                                    request.AddHeader("Authorization", $"Bearer {SessionId}");
+                            }
+                            else if (!string.IsNullOrEmpty(SessionId))
                             {
                                 request.AddHeader("Authorization", $"Bearer {SessionId}");
                             }
-                            else
-                            {
-                                string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
-                                if (apiKey is not null)
-                                {
-                                    request.AddHeader("X-Api-Key", $"Bearer {apiKey}");
-                                }
-                            }
-
                             break;
                         case Print3dServerTarget.OctoPrint:
                             string? octoKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
@@ -520,19 +521,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
                                 request.AddParameter("apikey", key, ParameterType.QueryString);
                             break;
                         case Print3dServerTarget.Moonraker:
-                            if (!string.IsNullOrEmpty(SessionId))
+                            string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            if (apiKey is not null)
+                            {
+                                request.AddHeader("X-Api-Key", $"{apiKey}");
+                            }
+                            else if (authHeaders?.ContainsKey("oneshottoken") is true)
+                            {
+                                apiKey = authHeaders?.FirstOrDefault(x => x.Key == "oneshottoken").Value?.Token;
+                                if (apiKey is not null)
+                                    request.AddHeader("Authorization", $"Bearer {SessionId}");
+                            }
+                            else if (!string.IsNullOrEmpty(SessionId))
                             {
                                 request.AddHeader("Authorization", $"Bearer {SessionId}");
                             }
-                            else
-                            {
-                                string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
-                                if (apiKey is not null)
-                                {
-                                    request.AddHeader("X-Api-Key", $"Bearer {apiKey}");
-                                }
-                            }
-
                             break;
                         case Print3dServerTarget.OctoPrint:
                             string? octoKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
@@ -630,19 +633,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
                                 request.AddParameter("apikey", key, ParameterType.QueryString);
                             break;
                         case Print3dServerTarget.Moonraker:
-                            if (!string.IsNullOrEmpty(SessionId))
+                            string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
+                            if (apiKey is not null)
+                            {
+                                request.AddHeader("X-Api-Key", $"{apiKey}");
+                            }
+                            else if (authHeaders?.ContainsKey("oneshottoken") is true)
+                            {
+                                apiKey = authHeaders?.FirstOrDefault(x => x.Key == "oneshottoken").Value?.Token;
+                                if (apiKey is not null)
+                                    request.AddHeader("Authorization", $"Bearer {SessionId}");
+                            }
+                            else if (!string.IsNullOrEmpty(SessionId))
                             {
                                 request.AddHeader("Authorization", $"Bearer {SessionId}");
                             }
-                            else
-                            {
-                                string? apiKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
-                                if (apiKey is not null)
-                                {
-                                    request.AddHeader("X-Api-Key", $"Bearer {apiKey}");
-                                }
-                            }
-
                             break;
                         case Print3dServerTarget.OctoPrint:
                             string? octoKey = authHeaders?.FirstOrDefault(x => x.Key == "apikey").Value?.Token;
