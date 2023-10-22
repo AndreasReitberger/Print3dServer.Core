@@ -5,8 +5,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
     public interface IGcode : IPrint3dBase
     {
         #region Properties
-
-        public Guid Id { get; set; }
         public long Identifier { get; set; }
         public string FileName { get; set; }
         public string FilePath { get; set; }

@@ -490,17 +490,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #endregion
 
-        #region WebCams
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IWebCamConfig selectedWebCam;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IWebCamConfig> webCams = new();
-        #endregion
-
         #region Fans
 
         [ObservableProperty]
@@ -658,7 +647,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Timers
-
+        [Obsolete("Don't use the timer anymore, rather refresh on WebSocket messages")]
         void StopTimer()
         {
             if (Timer != null)
@@ -915,6 +904,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order });
             }
+        }
+
+        public IAuthenticationHeader? GetAuthHeader(string key)
+        {
+            if (AuthHeaders?.ContainsKey(key) is true)
+            {
+                return AuthHeaders?[key]; 
+            }
+            return null;
         }
 
         public void CancelCurrentRequests()

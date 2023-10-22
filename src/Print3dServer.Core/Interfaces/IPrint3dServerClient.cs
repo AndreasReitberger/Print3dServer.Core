@@ -125,6 +125,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public bool HasWebCam { get; set; }
 
         public IWebCamConfig SelectedWebCam { get; set; }
+        public string WebCamTargetUri { get; set; }
+        public string WebCamTarget { get; set; }
         #endregion
 
         #region Printer
@@ -139,6 +141,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public int PingInterval { get; set; }
         public string WebSocketTargetUri { get; set; }
         public string WebSocketTarget { get; set; }
+        public long LastPingTimestamp { get; set; }
+        public long LastRefreshTimestamp { get; set; }
         #endregion
 
         #region Data Convertion
@@ -186,10 +190,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region WebSocket
-#if NET_WS
-        protected void PingServer(string? pingCommand = null);
-        protected void PingServerWithObject(object? pingCommand = null);
-#endif
         public string BuildPingCommand(object? data);
         public Task StartListeningAsync(bool stopActiveListening = false);
         public Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null);
@@ -221,9 +221,19 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task<bool> StopJobAsync(string command, object? data = null, string? targetUri = null);
         #endregion
 
+        #region WebCam
+        public Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync();
+        public Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null);
+        public string GetDefaultWebCamUri();
+        public string GetWebCamUri(IWebCamConfig? config);
+        public Task<string> GetWebCamUriAsync(int index = 0, bool refreshWebCamConfig = false);
+        #endregion
+
         #region Misc
 
         public void CancelCurrentRequests();
+        public IAuthenticationHeader? GetAuthHeader(string key);
+        public void AddOrUpdateAuthHeader(string key, string value, int order = 0);
         #endregion
 
         #endregion

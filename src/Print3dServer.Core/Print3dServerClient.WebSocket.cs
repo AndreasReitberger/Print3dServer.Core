@@ -1,20 +1,9 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
-using AndreasReitberger.Core.Enums;
-using AndreasReitberger.Core.Utilities;
-using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
-using System.Security.Authentication;
-using System.Text;
-using System.Text.RegularExpressions;
+using Newtonsoft.Json.Linq;
 using System.Diagnostics;
-
-
-#if NET_WS
-using WebSocket4Net;
-using ErrorEventArgs = SuperSocket.ClientEngine.ErrorEventArgs;
-#else
+using System.Text.RegularExpressions;
 using Websocket.Client;
-#endif
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -23,13 +12,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Properties
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-#if NET_WS
-        WebSocket? webSocket;
-#else
         WebsocketClient? webSocket;
-#endif
 
-        [ObservableProperty]
+        [ObservableProperty, Obsolete("Not needed anymore")]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         Timer pingTimer;
 
@@ -39,11 +24,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int pingInterval = 20;
+        int pingInterval = 60;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         long pingCounter = 0;
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        long lastRefreshTimestamp;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -200,60 +189,18 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     };
                     break;
                 case Enums.Print3dServerTarget.OctoPrint:
-                    break;
                 case Enums.Print3dServerTarget.PrusaConnect:
-                    break;
                 case Enums.Print3dServerTarget.Custom:
-                    break;
                 default:
+                    data = new { };
                     break;
             }
             return JsonConvert.SerializeObject(data);
         }
 
-#if NET_WS
-        public void PingServer(string? pingCommand = null)
-        {
-            try
-            {
-                if (WebSocket != null)
-                    if (WebSocket.State == WebSocketState.Open)
-                    {
-                        pingCommand ??= PingCommand;
-                        if(pingCommand is not null)
-                            WebSocket.Send(pingCommand);
-                    }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-
-        }
-
-        public void PingServerWithObject(object? pingCommand = null)
-        {
-            try
-            {
-                if (WebSocket != null)
-                    if (WebSocket.State == WebSocketState.Open)
-                    {
-                        string cmd = BuildPingCommand(pingCommand);
-                        if(pingCommand is not null)
-                            WebSocket.Send(cmd);
-                    }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-
-        }
-#endif
-
         public async Task UpdateWebSocketAsync(List<Task>? refreshFunctions = null)
         {
-            if (!string.IsNullOrEmpty(WebSocketTargetUri))
+            if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
             {
                 await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunctions: refreshFunctions)
                     .ConfigureAwait(false);
@@ -276,37 +223,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
             RefreshTasks = refreshFunctions ?? new List<Task>();
             await ConnectWebSocketAsync(target).ConfigureAwait(false);
-            // Refreshing is now done when a Websocket pin is sent
-            /*
-            Timer = new Timer(async (action) =>
-            {
-                if (RefreshCounter > 5)
-                {
-                    RefreshCounter = 0;
-                    await CheckOnlineAsync(commandBase: CheckOnlineTargetUri, authHeaders: AuthHeaders, timeout: 3500).ConfigureAwait(false);
-                }
-                else RefreshCounter++;
-                if (IsOnline)
-                {
-                    if(refreshFunctions?.Count > 0)
-                        await Task.WhenAll(refreshFunctions).ConfigureAwait(false);
-                }
-                else if (IsListening)
-                {
-                    await StopListeningAsync(); // StopListening();
-                }
-            }, null, 0, RefreshInterval * 1000);
-            */
             IsListening = true;
         }
+       
         public async Task StopListeningAsync()
         {
             CancelCurrentRequests();
-#if NET_WS
-            StopPingTimer();
-#endif
-            StopTimer();
-
             if (IsListening)
             {
                 await DisconnectWebSocketAsync().ConfigureAwait(false);
@@ -327,40 +249,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     return;
                 }
-#endif
-                
+#endif            
                 await DisconnectWebSocketAsync();
-                //string target = $"{(IsSecure ? "wss" : "ws")}://{ServerAddress}:{Port}/socket/{(!string.IsNullOrEmpty(ApiKey) ? $"?apikey={ApiKey}" : "")}";
-#if NET_WS
-                WebSocket = new WebSocket(target)
-                {
-                    EnableAutoSendPing = true,
-                    AutoSendPingInterval = 0,
-                };
-
-                if (IsSecure)
-                {
-                    // https://github.com/sta/websocket-sharp/issues/219#issuecomment-453535816
-                    SslProtocols sslProtocolHack = (SslProtocols)(SslProtocolsHack.Tls12 | SslProtocolsHack.Tls11 | SslProtocolsHack.Tls);
-                    //Avoid TlsHandshakeFailure
-                    if (WebSocket.Security.EnabledSslProtocols != sslProtocolHack)
-                    {
-                        WebSocket.Security.EnabledSslProtocols = sslProtocolHack;
-                    }
-                }
-
-                WebSocket.MessageReceived += WebSocket_MessageReceived;
-                WebSocket.DataReceived += WebSocket_DataReceived;
-                WebSocket.Opened += WebSocket_Opened;
-                WebSocket.Closed += WebSocket_Closed;
-                WebSocket.Error += WebSocket_Error;
-
-                await WebSocket.OpenAsync();
-#else
                 WebSocket = GetWebSocketClient();
                 await WebSocket.StartOrFail()
                     .ContinueWith(t => SendPingAsync());
-#endif
             }
             catch (Exception exc)
             {
@@ -371,22 +264,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                if (WebSocket != null)
+                if (WebSocket is not null)
                 {
-#if NET_WS
-                    if (WebSocket.State == WebSocketState.Open)
-                        await WebSocket.CloseAsync();
-                    StopPingTimer();
-
-                    WebSocket.MessageReceived -= WebSocket_MessageReceived;
-                    WebSocket.DataReceived -= WebSocket_DataReceived;
-                    WebSocket.Opened -= WebSocket_Opened;
-                    WebSocket.Closed -= WebSocket_Closed;
-                    WebSocket.Error -= WebSocket_Error;
-#else
                     await Task.Delay(10);
                     WebSocket.Dispose();
-#endif
                     WebSocket = null;
                 }
             }
@@ -396,56 +277,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-#if NET_WS
-        protected void WebSocket_Error(object? sender, ErrorEventArgs e)
-        {
-            try
-            {
-                IsListening = false;
-                OnWebSocketError(e);
-                OnError(e);
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-            finally
-            {
-                _ =  DisconnectWebSocketAsync();
-            }
-        }
-#endif
-
-#if NET_WS
-
-        protected void WebSocket_MessageReceived(object? sender, MessageReceivedEventArgs e)
-        {
-            try
-            {
-                if (e.Message == null || string.IsNullOrEmpty(e.Message))
-                    return;
-                OnWebSocketMessageReceived(new WebsocketEventArgs()
-                {
-                    CallbackId = PingCounter,
-                    Message = e.Message,
-                    SessonId = SessionId,
-                });
-            }
-            catch (JsonException jecx)
-            {
-                OnError(new JsonConvertEventArgs()
-                {
-                    Exception = jecx,
-                    OriginalString = e.Message,
-                    Message = jecx.Message,
-                });
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-#else
         protected void WebSocket_MessageReceived(ResponseMessage? msg)
         {
             try
@@ -459,10 +290,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     PingCounter++;
                     LastPingTimestamp = timestamp;
-                    Task.Run(async () => await SendPingAsync());
+                    Task.Run(SendPingAsync);
 #if DEBUG
                     Debug.WriteLine($"WS-Ping sent from {Target}: {DateTime.Now}");
 #endif
+                }
+                // Handle refreshing more often the pinging
+                if (LastRefreshTimestamp + RefreshInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
+                {
+                    LastPingTimestamp = timestamp;
                     Task.Run(async () =>
                     {
                         // Check online state on each 5. ping
@@ -475,7 +311,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         if (IsOnline)
                         {
                             if (RefreshTasks?.Count > 0)
+                            {
                                 await Task.WhenAll(RefreshTasks).ConfigureAwait(false);
+#if DEBUG
+                                Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - RefreshTasks: {RefreshTasks?.Count} Method(s)");
+#endif
+                            }
                         }
                         else if (IsListening)
                         {
@@ -527,27 +368,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-#endif
 
-#if NET_WS
-        protected void WebSocket_Closed(object? sender, EventArgs e)
-        {
-            try
-            {
-                IsListening = false;
-                StopPingTimer();
-                OnWebSocketDisconnected(new Print3dBaseEventArgs()
-                {
-                    Message = $"WebSocket connection to {WebSocket} closed. Connection state while closing was '{(IsOnline ? "online" : "offline")}'",
-                    Printer = GetActivePrinterSlug(),
-                });
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-#else
         protected void WebSocket_Closed(DisconnectionInfo? info)
         {
             try
@@ -567,51 +388,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-#endif
-
-#if NET_WS
-        protected void WebSocket_Opened(object? sender, EventArgs e)
-        {
-            try
-            {
-                // Trigger ping to get session id
-                //WebSocket?.Send(BuildPingCommand());
-
-                //PingTimer = new Timer((action) => PingServer(PingCommand), null, 0, 2500);
-                //PingTimer = new Timer((action) => PingServerWithObject(), null, 0, 2500);
-
-                IsListening = true;
-                OnWebSocketConnected(new Print3dBaseEventArgs()
-                {
-                    Message = $"WebSocket connection to {WebSocket} established. Connection state while opening was '{(IsOnline ? "online" : "offline")}'",
-                    Printer = GetActivePrinterSlug(),
-                });
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-
-        protected void WebSocket_DataReceived(object? sender, DataReceivedEventArgs e)
-        {
-            try
-            {
-                OnWebSocketDataReceived(new WebsocketEventArgs()
-                {
-                    CallbackId = PingCounter,
-                    Data = e.Data,
-                    SessonId = SessionId,
-                });
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-#endif
 
         #endregion
-
     }
 }
