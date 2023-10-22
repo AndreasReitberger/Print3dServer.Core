@@ -143,6 +143,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string WebSocketTarget { get; set; }
         public long LastPingTimestamp { get; set; }
         public long LastRefreshTimestamp { get; set; }
+        public Func<Task>? OnRefresh { get; set; }
         #endregion
 
         #region Data Convertion
@@ -192,14 +193,14 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region WebSocket
         public string BuildPingCommand(object? data);
         public Task StartListeningAsync(bool stopActiveListening = false);
-        public Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null);
+        public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null);
         public Task StopListeningAsync();
         public Task ConnectWebSocketAsync(string target);
         public Task DisconnectWebSocketAsync();
         public Task SendWebSocketCommandAsync(string command);
         public Task SendPingAsync();
 
-        public Task UpdateWebSocketAsync(List<Task>? refreshFunctions);
+        public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions);
         #endregion
 
         #region Printer

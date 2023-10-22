@@ -28,7 +28,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         Print3dServerTarget target = Print3dServerTarget.Custom;
 
         [ObservableProperty]
-        List<Task> refreshTasks = new();
+        Func<Task>? onRefresh;
         #endregion
 
         #region Instance
@@ -81,12 +81,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
         Timer timer;
 
         [ObservableProperty]
-        int refreshInterval = 3;
+        int refreshInterval = 5;
         partial void OnRefreshIntervalChanged(int value)
         {
             if (IsListening)
             {
-                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunctions: RefreshTasks);
+                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
             }
         }
 
@@ -879,8 +879,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 // Avoid multiple calls
                 if (IsRefreshing) return;
                 IsRefreshing = true;
-
-                await Task.WhenAll(RefreshTasks).ConfigureAwait(false);
+                if (OnRefresh is not null)
+                    await OnRefresh.Invoke();
+                //await Task.WhenAll(RefreshTasks).ConfigureAwait(false);
                 if (!InitialDataFetched)
                     InitialDataFetched = true;
             }

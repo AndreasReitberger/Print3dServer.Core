@@ -198,17 +198,17 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return JsonConvert.SerializeObject(data);
         }
 
-        public async Task UpdateWebSocketAsync(List<Task>? refreshFunctions = null)
+        public async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null)
         {
             if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
             {
-                await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunctions: refreshFunctions)
+                await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: refreshFunction)
                     .ConfigureAwait(false);
             }
         }
-        public Task StartListeningAsync(bool stopActiveListening = false) => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, RefreshTasks);
+        public Task StartListeningAsync(bool stopActiveListening = false) => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, OnRefresh);
 
-        public async Task StartListeningAsync(string target, bool stopActiveListening = false, List<Task>? refreshFunctions = null)
+        public async Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunction = null)
         {
             if (IsListening)// avoid multiple sessions
             {
@@ -221,7 +221,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     return; // StopListening();
                 }
             }
-            RefreshTasks = refreshFunctions ?? new List<Task>();
+            OnRefresh = refreshFunction;
             await ConnectWebSocketAsync(target).ConfigureAwait(false);
             IsListening = true;
         }
@@ -298,7 +298,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 // Handle refreshing more often the pinging
                 if (LastRefreshTimestamp + RefreshInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
                 {
-                    LastPingTimestamp = timestamp;
+                    LastRefreshTimestamp = timestamp;
                     Task.Run(async () =>
                     {
                         // Check online state on each 5. ping
@@ -310,11 +310,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         else RefreshCounter++;
                         if (IsOnline)
                         {
-                            if (RefreshTasks?.Count > 0)
+                            if(OnRefresh is not null)
                             {
-                                await Task.WhenAll(RefreshTasks).ConfigureAwait(false);
+                                await OnRefresh.Invoke().ConfigureAwait(false);
 #if DEBUG
-                                Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - RefreshTasks: {RefreshTasks?.Count} Method(s)");
+                                Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - On refresh done");
 #endif
                             }
                         }
