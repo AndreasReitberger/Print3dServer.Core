@@ -43,6 +43,20 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             WebCamTargetUri = GetDefaultWebCamUri();
         }
+
+        [ObservableProperty]
+        int webCamIndex = 0;
+        partial void OnWebCamIndexChanged(int value)
+        {
+            WebCamTargetUri = GetDefaultWebCamUri();
+        }
+
+        [ObservableProperty]
+        string webCamMultiCamTarget = "?cam=";
+        partial void OnWebCamMultiCamTargetChanged(string value)
+        {
+            WebCamTargetUri = GetDefaultWebCamUri();
+        }
         #endregion
 
         #region Methods
@@ -50,11 +64,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync()
         {
             await Task.Delay(10);
-            return new();
+            throw new NotImplementedException("This method must be overwritten by the inherited client class.");
         }
         public async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null)
         {
-            IRestApiRequestRespone result = null;
+            IRestApiRequestRespone? result = null;
             ObservableCollection<IWebCamConfig> resultObject = new();
             try
             {
@@ -68,7 +82,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        cts: default
                        )
                     .ConfigureAwait(false);
-                return GetObjectFromJson<ObservableCollection<IWebCamConfig>>(result?.Result, NewtonsoftJsonSerializerSettings);
+                return GetObjectFromJson<ObservableCollection<IWebCamConfig>>(result?.Result, NewtonsoftJsonSerializerSettings) ?? new();
             }
             catch (JsonException jecx)
             {
@@ -96,19 +110,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 string? token;
                 switch (Target)
                 {
+                    case Print3dServerTarget.OctoPrint:
                     case Print3dServerTarget.Moonraker:
                         token = GetAuthHeader("apikey")?.Token ?? GetAuthHeader("usertoken")?.Token;
                         if (!string.IsNullOrEmpty(token))
                             baseStream += $"?t={token}";
                         break;
                     case Print3dServerTarget.RepetierServer:
-                        break;
-                    case Print3dServerTarget.OctoPrint:
+                        // $"{FullWebAddress}/printer/{(type == RepetierWebcamType.Dynamic ? "cammjpg" : "camjpg")}/{currentPrinter}?cam={camIndex}&apikey={ApiKey}";
+                        baseStream += $"{GetActivePrinterSlug()}{WebCamMultiCamTarget}{WebCamIndex}"; 
+                        token = GetAuthHeader("apikey")?.Token;
+                        if (!string.IsNullOrEmpty(token))
+                            baseStream += $"&apikey={token}";                    
                         break;
                     case Print3dServerTarget.PrusaConnect:
-                        break;
                     case Print3dServerTarget.Custom:
-                        break;
                     default:
                         break;
                 }
@@ -125,10 +141,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                string baseStream = $"{FullWebAddress}";
+                string baseStream = $"{FullWebAddress}{WebCamTarget}";
                 string? token;
                 switch (Target)
                 {
+                    case Print3dServerTarget.OctoPrint:
                     case Print3dServerTarget.Moonraker:
                         baseStream += config?.WebCamUrlDynamic;
                         token = GetAuthHeader("apikey")?.Token ?? GetAuthHeader("usertoken")?.Token;
@@ -136,11 +153,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                             baseStream += $"?t={token}";
                         break;
                     case Print3dServerTarget.RepetierServer:
-                        break;
-                    case Print3dServerTarget.OctoPrint:
+                        baseStream += $"{GetActivePrinterSlug()}{WebCamMultiCamTarget}{config?.Position ?? 0}";
+                        token = GetAuthHeader("apikey")?.Token;
+                        if (!string.IsNullOrEmpty(token))
+                            baseStream += $"&apikey={token}";
                         break;
                     case Print3dServerTarget.PrusaConnect:
-                        break;
                     case Print3dServerTarget.Custom:
                         break;
                     default:

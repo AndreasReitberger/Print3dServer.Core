@@ -24,6 +24,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _client.ApiKeyRegexPattern = RegexHelper.RepetierServerProApiKey;
                 _client.Port = 3344;
                 _client.WebSocketTarget = "/socket/";
+                _client.WebCamTarget = "/printer/cammjpg/";
                 return this;
             }
 
@@ -33,6 +34,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _client.ApiKeyRegexPattern = RegexHelper.OctoPrintApiKey;
                 _client.Port = 80;
                 _client.WebSocketTarget = "/sockjs/websocket";
+                _client.WebCamTarget = "/webcam/?action=stream";
                 return this;
             }
 
