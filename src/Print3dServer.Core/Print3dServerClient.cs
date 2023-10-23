@@ -1110,7 +1110,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public async Task<ObservableCollection<IPrinter3d>> GetPrintersAsync()
         {
             await Task.Delay(1);
-            return new();
+            throw new NotImplementedException("This method must be overwritten by the inherited client class.");
         }
         public async Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true)
         {
@@ -1176,7 +1176,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public async Task<ObservableCollection<IGcode>> GetFilesAsync()
         {
             await Task.Delay(1);
-            return new();
+            throw new NotImplementedException("This method must be overwritten by the inherited client class.");
         }
         #endregion
 
@@ -1185,18 +1185,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Overrides
-        public override string ToString()
-        {
-            try
-            {
-                return FullWebAddress;
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-                return string.Empty;
-            }
-        }
+        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+
         public override bool Equals(object? obj)
         {
             if (obj is not Print3dServerClient item)

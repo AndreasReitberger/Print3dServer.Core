@@ -129,10 +129,11 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region WebCam
         public bool HasWebCam { get; set; }
-
         public IWebCamConfig SelectedWebCam { get; set; }
         public string WebCamTargetUri { get; set; }
         public string WebCamTarget { get; set; }
+        public int WebCamIndex { get; set; }
+        public string WebCamMultiCamTarget { get; set; }
         #endregion
 
         #region Printer
