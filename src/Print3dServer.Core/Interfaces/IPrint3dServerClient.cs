@@ -86,7 +86,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Printer States
-        public IPrint3dJobStatus JobStatus { get; set; }
+        public IPrint3dJobStatus ActiveJob { get; set; }
         public byte[] CurrentPrintImage { get; set; }
 
         public double TemperatureExtruderMain { get; set; }
@@ -99,8 +99,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double FlowFactor { get; set; }
         public double FlowFactorTarget { get; set; }
 
-        public long NumberOfToolHeads { get; set; }
-        public long ActiveToolHead { get; set; }
+        public int NumberOfToolHeads { get; set; }
+        public int ActiveToolheadIndex { get; set; }
 
         public bool IsMultiExtruder { get; set; }
         public bool HasHeatedBed { get; set; }
@@ -110,7 +110,13 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #endregion
 
+        #region Heaters
+        public IHeaterComponent ActiveHeatedBed { get; set; }
+        public IHeaterComponent ActiveHeatedChamber { get; set; }
+        #endregion
+
         #region ToolHead
+        public IToolhead ActiveToolhead { get; set; }   
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
@@ -160,11 +166,12 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public ObservableCollection<IGcodeGroup> Groups { get; set; }
         public ObservableCollection<IGcode> Files { get; set; }
         public ObservableCollection<IPrint3dJob> Jobs { get; set; }
+        public ObservableCollection<IPrint3dJobStatus> ActiveJobs { get; set; }
         public ObservableCollection<IWebCamConfig> WebCams { get; set; }
         public ObservableCollection<IPrint3dFan> Fans { get; set; }
-        public ObservableCollection<IHeaterComponent> Toolheads { get; set; }
-        public ObservableCollection<IHeaterComponent> HeatedBeds { get; set; }
-        public ObservableCollection<IHeaterComponent> HeatedChambers { get; set; }
+        public ConcurrentDictionary<int, IToolhead> Toolheads { get; set; }
+        public ConcurrentDictionary<int, IHeaterComponent> HeatedBeds { get; set; }
+        public ConcurrentDictionary<int, IHeaterComponent> HeatedChambers { get; set; }
         #endregion
 
         #region Methods

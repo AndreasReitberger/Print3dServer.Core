@@ -6,6 +6,7 @@
         Shutdown,
         InProgress,
         Cancelled,
+        Paused,
 
         Error = 99,
     }

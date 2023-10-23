@@ -299,26 +299,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        long activeToolHead = 0;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        long numberOfToolHeads = 0;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool isMultiExtruder = false;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasHeatedBed = false;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasHeatedChamber = false;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasFan = false;
 
         [ObservableProperty]
@@ -486,7 +466,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IPrint3dJobStatus? jobStatus;
+        IPrint3dJobStatus? activeJob;
+
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        ObservableCollection<IPrint3dJobStatus> activeJobs = new();
 
         #endregion
 
@@ -495,27 +479,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         ObservableCollection<IPrint3dFan> fans = new();
-        #endregion
-
-        #region Toolheads
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IHeaterComponent> toolheads = new();
-        #endregion
-
-        #region Beds
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IHeaterComponent> heatedBeds = new();
-
-        #endregion
-
-        #region Chambers
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IHeaterComponent> heatedChambers = new();
         #endregion
 
         #region Position

@@ -220,6 +220,36 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #endregion
 
+        #region Heaters
+        public event EventHandler<HeaterChangedEventArgs> HeaterChanged;
+        protected virtual void OnHeaterChangedEvent(HeaterChangedEventArgs e)
+        {
+            HeaterChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<HeatersChangedEventArgs> HeatersChanged;
+        protected virtual void OnHeatersChangedEvent(HeatersChangedEventArgs e)
+        {
+            HeatersChanged?.Invoke(this, e);
+        }
+
+        #endregion
+
+        #region Heaters
+        public event EventHandler<ToolheadChangedEventArgs> ToolheadChanged;
+        protected virtual void OnToolheadChangedEvent(ToolheadChangedEventArgs e)
+        {
+            ToolheadChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<ToolheadsChangedEventArgs> ToolheadsChanged;
+        protected virtual void OnToolheadsChangedEvent(ToolheadsChangedEventArgs e)
+        {
+            ToolheadsChanged?.Invoke(this, e);
+        }
+
+        #endregion
+
         #endregion
     }
 }

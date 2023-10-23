@@ -49,6 +49,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
         string webSocketTarget = "/socket/";
         partial void OnWebSocketTargetChanged(string value)
         {
+            if(value?.StartsWith("/") is true)
+            {
+                WebSocketTarget = string.Join("", value.Skip(1));
+            }
+            if(value?.EndsWith("/") is true)
+            {
+                WebSocketTarget = string.Join("", value.Take(value.Length - 1));
+            }
             WebSocketTargetUri = GetWebSocketTargetUri();
             if (IsInitialized && IsListening)
             {
