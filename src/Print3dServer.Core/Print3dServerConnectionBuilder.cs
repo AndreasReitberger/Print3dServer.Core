@@ -40,7 +40,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 _client.Target = Print3dServerTarget.Moonraker;
                 _client.Port = 80;
-                _client.WebSocketTarget = "/websocket/";
+                _client.WebSocketTarget = "/websocket";
+                _client.WebCamTarget = "/webcam/?action=stream"; 
                 return this;
             }
 

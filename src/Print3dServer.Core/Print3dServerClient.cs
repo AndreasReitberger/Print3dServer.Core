@@ -1,12 +1,11 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Events;
+using AndreasReitberger.API.Print3dServer.Core.Exceptions;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.Core.Utilities;
 using Newtonsoft.Json;
-using RestSharp;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Net;
 using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -29,7 +28,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         Print3dServerTarget target = Print3dServerTarget.Custom;
 
         [ObservableProperty]
-        List<Task> refreshTasks = new();
+        Func<Task>? onRefresh;
         #endregion
 
         #region Instance
@@ -77,17 +76,17 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region RefreshTimer
-        [ObservableProperty]
+        [ObservableProperty, Obsolete("Try to replace with WebSocket pinging")]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         Timer timer;
 
         [ObservableProperty]
-        int refreshInterval = 3;
+        int refreshInterval = 5;
         partial void OnRefreshIntervalChanged(int value)
         {
             if (IsListening)
             {
-                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunctions: refreshTasks);
+                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
             }
         }
 
@@ -100,7 +99,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 SessionId = SessionId,
                 IsListening = value,
-                IsListeningToWebSocket = IsListeningToWebsocket,
+                IsListeningToWebSocket = value,
             });
         }
 
@@ -143,14 +142,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         string sessionId = string.Empty;
         partial void OnSessionIdChanged(string value)
         {
-            if (AuthHeaders?.ContainsKey("session") is true)
-            {
-                AuthHeaders["session"] = new AuthenticationHeader() { Token = value };
-            }
-            else
-            {
-                AuthHeaders?.Add("session", new AuthenticationHeader() { Token = value });
-            }
+            AddOrUpdateAuthHeader("session", value);
             OnSessionChangedEvent(new()
             {
                 SessionId = value,
@@ -183,7 +175,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             UpdateRestClientInstance();
             WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListeningToWebsocket)
+            if (IsInitialized && IsListening)
             {
                 _ = UpdateWebSocketAsync();
             }
@@ -195,26 +187,18 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             switch (Target)
             {
+                case Print3dServerTarget.Custom:
+                    break;
                 case Print3dServerTarget.PrusaConnect:
                 case Print3dServerTarget.OctoPrint:
                 case Print3dServerTarget.Moonraker:
                 case Print3dServerTarget.RepetierServer:
-                    if (AuthHeaders?.ContainsKey("apikey") is true)
-                    {
-                        AuthHeaders["apikey"] = new AuthenticationHeader() { Token = value };
-                    }
-                    else
-                    {
-                        AuthHeaders?.Add("apikey", new AuthenticationHeader() { Token = value });
-                    }          
-                    break;
-                case Print3dServerTarget.Custom:
-                    break;
                 default:
+                    AddOrUpdateAuthHeader("apikey", value);
                     break;
             }
             WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListeningToWebsocket)
+            if (IsInitialized && IsListening)
             {
                 _ = UpdateWebSocketAsync();
             }
@@ -229,7 +213,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             UpdateRestClientInstance();
             WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListeningToWebsocket)
+            if (IsInitialized && IsListening)
             {
                 _ = UpdateWebSocketAsync();
             }
@@ -506,17 +490,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #endregion
 
-        #region WebCams
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IWebCamConfig selectedWebCam;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IWebCamConfig> webCams = new();
-        #endregion
-
         #region Fans
 
         [ObservableProperty]
@@ -584,7 +557,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region ReadOnly
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public string FullWebAddress => $"{(IsSecure ? "https" : "http")}://{ServerAddress}:{Port}";
+
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public bool IsReady
         {
             get
@@ -613,14 +589,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
             UpdateRestClientInstance();
         }
 
-        public Print3dServerClient(string serverAddress, string api, int port = 3344, bool isSecure = false)
+        public Print3dServerClient(string serverAddress, string api, int port, bool isSecure = false)
         {
             Id = Guid.NewGuid();
             InitInstance(serverAddress, port, api, isSecure);
             UpdateRestClientInstance();
         }
 
-        public Print3dServerClient(string serverAddress, int port = 3344, bool isSecure = false)
+        public Print3dServerClient(string serverAddress, int port, bool isSecure = false)
         {
             Id = Guid.NewGuid();
             InitInstance(serverAddress, port, "", isSecure);
@@ -671,7 +647,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Timers
-
+        [Obsolete("Don't use the timer anymore, rather refresh on WebSocket messages")]
         void StopTimer()
         {
             if (Timer != null)
@@ -755,7 +731,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-        #region Rest Api
+        #region Online Check
+        public async Task CheckOnlineAsync(int timeout = 10000)
+        {
+            CancellationTokenSource cts = new(timeout);
+            await CheckOnlineAsync(FullWebAddress, AuthHeaders, "", cts).ConfigureAwait(false);
+            cts?.Dispose();
+        }
+
         public async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
@@ -776,7 +759,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     // Send a blank api request in order to check if the server is reachable
                     IRestApiRequestRespone? respone = await SendRestApiRequestAsync(
                        requestTargetUri: commandBase, 
-                       method: Method.Post,
+                       method: Method.Get,
                        command: command,
                        jsonObject: null,
                        authHeaders: authHeaders,
@@ -833,7 +816,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 if (IsOnline)
                 {
                     RestApiRequestRespone? respone = await SendRestApiRequestAsync(
-                        commandBase, Method.Post, command,
+                        requestTargetUri: commandBase,
+                        method: Method.Get,
+                        command: command,
                         authHeaders: authHeaders,
                         cts: new(timeout))
                         .ConfigureAwait(false) as RestApiRequestRespone;
@@ -885,7 +870,52 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
+        #region Refreshing
+        public async Task RefreshAllAsync()
+        {
+            try
+            {
+                if (!IsOnline) throw new ServerNotReachableException($"The server '{ServerName} ({FullWebAddress})' is not reachable. Make sure to call `CheckOnlineAsync()` first! ");
+                // Avoid multiple calls
+                if (IsRefreshing) return;
+                IsRefreshing = true;
+                if (OnRefresh is not null)
+                    await OnRefresh.Invoke();
+                //await Task.WhenAll(RefreshTasks).ConfigureAwait(false);
+                if (!InitialDataFetched)
+                    InitialDataFetched = true;
+            }
+            catch (Exception exc)
+            {
+                OnError(new UnhandledExceptionEventArgs(exc, false));
+            }
+            IsRefreshing = false;
+        }
+        #endregion
+
         #region Misc
+
+        public void AddOrUpdateAuthHeader(string key, string value, int order = 0)
+        {
+            if (AuthHeaders?.ContainsKey(key) is true)
+            {
+                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order };
+            }
+            else
+            {
+                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order });
+            }
+        }
+
+        public IAuthenticationHeader? GetAuthHeader(string key)
+        {
+            if (AuthHeaders?.ContainsKey(key) is true)
+            {
+                return AuthHeaders?[key]; 
+            }
+            return null;
+        }
+
         public void CancelCurrentRequests()
         {
             try
@@ -1110,6 +1140,48 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Printer Control
+        /// <summary>
+        /// Override this method
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ObservableCollection<IPrinter3d>> GetPrintersAsync()
+        {
+            await Task.Delay(1);
+            return new();
+        }
+        public async Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true)
+        {
+            if (refreshPrinterList)
+            {
+                Printers = await GetPrintersAsync().ConfigureAwait(false);
+            }
+            IPrinter3d? printer = Printers?.FirstOrDefault(prt => prt?.Slug == slug);
+            if (printer is not null)
+                ActivePrinter = printer;
+            else 
+                ActivePrinter = Printers?.FirstOrDefault(printer => printer.IsOnline); 
+        }
+        public async Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true)
+        {
+            if (refreshPrinterList)
+            {
+                Printers = await GetPrintersAsync().ConfigureAwait(false);
+            }
+            if (Printers?.Count > index && index >= 0)
+            {
+                ActivePrinter = Printers[index];
+            }
+            else
+            {
+                // If no index is provided, or it's out of bound, the first online printer is used
+                ActivePrinter = Printers?.FirstOrDefault(printer => printer.IsOnline);
+                // If no online printers is found, however there is at least one printer configured, use this one
+                if (ActivePrinter is null && Printers?.Count > 0)
+                {
+                    ActivePrinter = Printers[0];
+                }
+            }
+        }
         public async Task<bool> SetFanSpeedAsync(string command = "setFanSpeed", object? data = null, string? targetUri = null)
         {
             try
@@ -1129,6 +1201,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
                 return false;
             }
+        }
+        #endregion
+
+        #region Files
+
+        /// <summary>
+        /// Override this method
+        /// </summary>
+        /// <returns></returns>
+        public async Task<ObservableCollection<IGcode>> GetFilesAsync()
+        {
+            await Task.Delay(1);
+            return new();
         }
         #endregion
 

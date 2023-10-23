@@ -205,6 +205,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
+        #region WebCams
+        public event EventHandler<WebCamConfigChangedEventArgs> WebCamConfigChanged;
+        protected virtual void OnWebCamConfigChanged(WebCamConfigChangedEventArgs e)
+        {
+            WebCamConfigChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<WebCamConfigsChangedEventArgs> WebCamConfigsChanged;
+        protected virtual void OnWebCamConfigsChanged(WebCamConfigsChangedEventArgs e)
+        {
+            WebCamConfigsChanged?.Invoke(this, e);
+        }
+
+        #endregion
+
         #endregion
     }
 }
