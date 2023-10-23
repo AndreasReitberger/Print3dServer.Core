@@ -1,12 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using AndreasReitberger.Shared.Syncfusion.Hosting;
 
 namespace AndreasReitberger.API.Print3dServer.Maui.Hosting
 {
-    internal class AppHostBuilderExtensions
+    public static class AppHostBuilderExtensions
     {
+        public static MauiAppBuilder InitializeSharedStyles(this MauiAppBuilder builder)
+        {
+            builder
+                .InitializeSharedSyncfusionStyles()
+                ;
+            return builder;
+        }
     }
 }
