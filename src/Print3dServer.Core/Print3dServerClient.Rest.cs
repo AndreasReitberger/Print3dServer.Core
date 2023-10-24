@@ -10,11 +10,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Methods
 
-        #region Private
-
         #region ValidateResult
 
-        protected bool GetQueryResult(string result, bool emptyResultIsValid = false)
+        protected virtual bool GetQueryResult(string result, bool emptyResultIsValid = false)
         {
             try
             {
@@ -40,7 +38,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected IRestApiRequestRespone ValidateResponse(RestResponse respone, Uri targetUri)
+        protected virtual IRestApiRequestRespone ValidateResponse(RestResponse respone, Uri targetUri)
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
@@ -108,7 +106,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Rest Api
-        protected async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+        protected virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
             string requestTargetUri,
             Method method,
             string command,
@@ -251,66 +249,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         OnError(new UnhandledExceptionEventArgs(toexp, false));
                     }
                 }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-            return apiRsponeResult;
-        }
-
-        [Obsolete("Do not use anymore, instead use SendRestApiRequestAsync")]
-        protected async Task<IRestApiRequestRespone?> SendOnlineCheckRestApiRequestAsync(
-            string requestTargetUri,
-            string command,
-            Dictionary<string, IAuthenticationHeader> authHeaders,
-            CancellationTokenSource cts
-            )
-        {
-            RestApiRequestRespone apiRsponeResult = new() { IsOnline = false };
-            try
-            {
-                if (cts == default)
-                {
-                    cts = new(DefaultTimeout);
-                }
-                if (restClient == null)
-                {
-                    UpdateRestClientInstance();
-                }
-                RestRequest request = new($"{requestTargetUri}/{command}")
-                {
-                    RequestFormat = DataFormat.Json,
-                    Method = Method.Get
-                };
-                if (authHeaders?.Count > 0)
-                {
-                    foreach (var header in authHeaders)
-                    {
-                        //  "Authorization", $"Bearer {UserToken}"
-                        //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value.Token);
-                    }
-                }
-                Uri fullUri = restClient.BuildUri(request);
-                try
-                {
-                    RestResponse respone = await restClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
-                    apiRsponeResult = ValidateResponse(respone, fullUri) as RestApiRequestRespone;
-                }
-                catch (TaskCanceledException)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                }
-                catch (HttpRequestException)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                }
-                catch (TimeoutException)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                }
-
             }
             catch (Exception exc)
             {
@@ -486,7 +424,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }
 
-        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        protected virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string fileName,
             byte[] file,
             string root,
@@ -608,7 +546,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Download
-        public async Task<byte[]?> DownloadFileFromUriAsync(
+        public virtual async Task<byte[]?> DownloadFileFromUriAsync(
             string path,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? urlSegments = null,
@@ -692,8 +630,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return null;
             }
         }
-        #endregion
-
         #endregion
 
         #endregion

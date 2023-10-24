@@ -1,4 +1,5 @@
-﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
+﻿#if false
+using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.Core.Utilities;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -107,3 +108,4 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
     }
 }
+#endif

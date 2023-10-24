@@ -14,10 +14,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         WebsocketClient? webSocket;
 
-        [ObservableProperty, Obsolete("Not needed anymore")]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        Timer pingTimer;
-
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         long lastPingTimestamp;
@@ -80,7 +76,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Methods
 
-        protected string GetWebSocketTargetUri()
+        protected virtual string GetWebSocketTargetUri()
         {
             string webSocketTarget = $"{(IsSecure ? "wss" : "ws")}://{ServerAddress}:{Port}/{WebSocketTarget}";
             switch (Target)
@@ -137,7 +133,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Source: https://github.com/Z0rdak/RepetierSharp/blob/main/RepetierConnection.cs
         /// </summary>
         /// <returns></returns>
-        WebsocketClient GetWebSocketClient()
+        protected virtual WebsocketClient GetWebSocketClient()
         {
             WebsocketClient client = new(new Uri(GetWebSocketTargetUri()))
             {
@@ -163,12 +159,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return client;
         }
 
-        public Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
+        public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
  
-        public Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
+        public virtual Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
         #endif
 
-        public string BuildPingCommand(object? data = null)
+        public virtual string BuildPingCommand(object? data = null)
         {
             switch (Target)
             {
@@ -206,7 +202,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return JsonConvert.SerializeObject(data);
         }
 
-        public async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null)
+        public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null)
         {
             if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
             {
@@ -214,9 +210,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     .ConfigureAwait(false);
             }
         }
-        public Task StartListeningAsync(bool stopActiveListening = false) => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, OnRefresh);
+        public virtual Task StartListeningAsync(bool stopActiveListening = false) => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, OnRefresh);
 
-        public async Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunction = null)
+        public virtual async Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunction = null)
         {
             if (IsListening)// avoid multiple sessions
             {
@@ -234,7 +230,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             IsListening = true;
         }
        
-        public async Task StopListeningAsync()
+        public virtual async Task StopListeningAsync()
         {
             CancelCurrentRequests();
             if (IsListening)
@@ -244,7 +240,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             IsListening = false;
         }
 
-        public async Task ConnectWebSocketAsync(string target)
+        public virtual async Task ConnectWebSocketAsync(string target)
         {
             try
             {
@@ -268,7 +264,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-        public async Task DisconnectWebSocketAsync()
+        public virtual async Task DisconnectWebSocketAsync()
         {
             try
             {
@@ -285,7 +281,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected void WebSocket_MessageReceived(ResponseMessage? msg)
+        protected virtual void WebSocket_MessageReceived(ResponseMessage? msg)
         {
             try
             {
@@ -377,7 +373,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected void WebSocket_Closed(DisconnectionInfo? info)
+        protected virtual void WebSocket_Closed(DisconnectionInfo? info)
         {
             try
             {
