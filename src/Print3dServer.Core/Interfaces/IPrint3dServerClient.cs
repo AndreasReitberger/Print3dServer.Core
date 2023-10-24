@@ -16,6 +16,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Instance
+        public bool UpdateInstance { get; set; }
         public static IPrint3dServerClient? Instance { get; set; }
         #endregion
 

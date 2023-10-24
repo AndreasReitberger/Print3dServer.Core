@@ -59,7 +59,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Methods
 
-        public void SetProxy(bool secure, string address, int port, bool enable = true)
+        public virtual void SetProxy(bool secure, string address, int port, bool enable = true)
         {
             EnableProxy = enable;
             ProxyUserUsesDefaultCredentials = true;
@@ -71,7 +71,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             UpdateRestClientInstance();
         }
 
-        public void SetProxy(bool secure, string address, int port, string user = "", SecureString? password = null, bool enable = true)
+        public virtual void SetProxy(bool secure, string address, int port, string user = "", SecureString? password = null, bool enable = true)
         {
             EnableProxy = enable;
             ProxyUserUsesDefaultCredentials = false;
@@ -83,10 +83,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
             UpdateRestClientInstance();
         }
 
-        #region Proxy
-        public Uri GetProxyUri() => ProxyAddress.StartsWith("http://") || ProxyAddress.StartsWith("https://") ? new Uri($"{ProxyAddress}:{ProxyPort}") : new Uri($"{(SecureProxyConnection ? "https" : "http")}://{ProxyAddress}:{ProxyPort}");
+        public virtual Uri GetProxyUri() => ProxyAddress.StartsWith("http://") || ProxyAddress.StartsWith("https://") ? new Uri($"{ProxyAddress}:{ProxyPort}") : new Uri($"{(SecureProxyConnection ? "https" : "http")}://{ProxyAddress}:{ProxyPort}");
 
-        public WebProxy GetCurrentProxy()
+        public virtual WebProxy GetCurrentProxy()
         {
             WebProxy proxy = new()
             {
@@ -104,7 +103,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
             return proxy;
         }
-        public void UpdateRestClientInstance()
+        public virtual void UpdateRestClientInstance()
         {
             if (string.IsNullOrEmpty(ServerAddress))
             {
@@ -133,7 +132,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 restClient = new(baseUrl: FullWebAddress);
             }
         }
-        #endregion
 
         #endregion
     }

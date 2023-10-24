@@ -10,7 +10,7 @@ using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
-    public partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
+    public abstract partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
     {
         #region Variables
         protected RestClient? restClient;
@@ -33,6 +33,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Instance
 
+       
+        public static IPrint3dServerClient Instance;
+        /*
         static readonly object Lock = new();
         static Print3dServerClient? _instance = null;
         public static Print3dServerClient Instance
@@ -56,6 +59,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
 
         }
+        */
 
         [ObservableProperty]
         bool isActive = false;
@@ -579,7 +583,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Private
 
         #region ValidateActivePrinter
-        protected string GetActivePrinterSlug()
+        protected virtual string GetActivePrinterSlug()
         {
             try
             {
@@ -595,7 +599,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return string.Empty;
             }
         }
-        protected bool IsPrinterSlugSelected(string PrinterSlug)
+        protected virtual bool IsPrinterSlugSelected(string PrinterSlug)
         {
             try
             {
@@ -609,32 +613,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-        #region Timers
-        [Obsolete("Don't use the timer anymore, rather refresh on WebSocket messages")]
-        void StopTimer()
-        {
-            if (Timer != null)
-            {
-                try
-                {
-                    Timer?.Change(Timeout.Infinite, Timeout.Infinite);
-                    Timer = null;
-                    IsListening = false;
-                }
-                catch (ObjectDisposedException)
-                {
-                    //PingTimer = null;
-                }
-            }
-        }
-        #endregion
-
         #endregion
 
         #region Public
 
         #region Init
-        public void InitInstance()
+        public virtual void InitInstance()
         {
             try
             {
@@ -665,7 +649,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 //OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-        public void InitInstance(string serverAddress, int port, string api = "", bool isSecure = false)
+        public virtual void InitInstance(string serverAddress, int port, string api = "", bool isSecure = false)
         {
             try
             {
@@ -695,21 +679,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Online Check
-        public async Task CheckOnlineAsync(int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(FullWebAddress, AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public virtual async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default)
+        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default)
         {
             if (IsConnecting) return; // Avoid multiple calls
             IsConnecting = true;
@@ -772,7 +756,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             try
             {
@@ -807,7 +791,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
         
-        public async Task<bool> SendGcodeAsync(string command = "send", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> SendGcodeAsync(string command = "send", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -834,7 +818,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Refreshing
-        public async Task RefreshAllAsync()
+        public virtual async Task RefreshAllAsync()
         {
             try
             {
@@ -858,7 +842,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Misc
 
-        public void AddOrUpdateAuthHeader(string key, string value, int order = 0)
+        public virtual void AddOrUpdateAuthHeader(string key, string value, int order = 0)
         {
             if (AuthHeaders?.ContainsKey(key) is true)
             {
@@ -870,7 +854,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public IAuthenticationHeader? GetAuthHeader(string key)
+        public virtual IAuthenticationHeader? GetAuthHeader(string key)
         {
             if (AuthHeaders?.ContainsKey(key) is true)
             {
@@ -879,7 +863,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return null;
         }
 
-        public void CancelCurrentRequests()
+        public virtual void CancelCurrentRequests()
         {
             try
             {
@@ -897,7 +881,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Toolheads
-        public async Task<bool> HomeAsync(bool x, bool y, bool z, string? targetUri = null)
+        public virtual async Task<bool> HomeAsync(bool x, bool y, bool z, string? targetUri = null)
         {
             try
             {
@@ -920,7 +904,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return false;
         }
 
-        public async Task<bool> SetExtruderTemperatureAsync(string command = "setExtruderTemperature", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> SetExtruderTemperatureAsync(string command = "setExtruderTemperature", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -941,7 +925,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> SetBedTemperatureAsync(string command = "setBedTemperature", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> SetBedTemperatureAsync(string command = "setBedTemperature", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -962,7 +946,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> SetChamberTemperatureAsync(string command = "setChamberTemperature", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> SetChamberTemperatureAsync(string command = "setChamberTemperature", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -986,7 +970,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Jobs
 
-        public async Task<bool> StartJobAsync(IPrint3dJob job, string command = "startJob", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> StartJobAsync(IPrint3dJob job, string command = "startJob", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -1012,7 +996,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> RemoveJobAsync(IPrint3dJob job, string command = "removeJob", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> RemoveJobAsync(IPrint3dJob job, string command = "removeJob", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -1038,7 +1022,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> ContinueJobAsync(string command = "continueJob", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> ContinueJobAsync(string command = "continueJob", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -1059,7 +1043,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> PauseJobAsync(string command = "pauseJob", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> PauseJobAsync(string command = "pauseJob", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -1080,7 +1064,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<bool> StopJobAsync(string command = "continueJob", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> StopJobAsync(string command = "continueJob", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -1107,12 +1091,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Override this method
         /// </summary>
         /// <returns></returns>
-        public async Task<ObservableCollection<IPrinter3d>> GetPrintersAsync()
-        {
-            await Task.Delay(1);
-            throw new NotImplementedException("This method must be overwritten by the inherited client class.");
-        }
-        public async Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true)
+        public abstract Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
+        public virtual async Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true)
         {
             if (refreshPrinterList)
             {
@@ -1124,7 +1104,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             else 
                 ActivePrinter = Printers?.FirstOrDefault(printer => printer.IsOnline); 
         }
-        public async Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true)
+        public virtual async Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true)
         {
             if (refreshPrinterList)
             {
@@ -1145,7 +1125,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 }
             }
         }
-        public async Task<bool> SetFanSpeedAsync(string command = "setFanSpeed", object? data = null, string? targetUri = null)
+        public virtual async Task<bool> SetFanSpeedAsync(string command = "setFanSpeed", object? data = null, string? targetUri = null)
         {
             try
             {
@@ -1173,11 +1153,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Override this method
         /// </summary>
         /// <returns></returns>
-        public async Task<ObservableCollection<IGcode>> GetFilesAsync()
-        {
-            await Task.Delay(1);
-            throw new NotImplementedException("This method must be overwritten by the inherited client class.");
-        }
+        public abstract Task<ObservableCollection<IGcode>> GetFilesAsync();
         #endregion
 
         #endregion

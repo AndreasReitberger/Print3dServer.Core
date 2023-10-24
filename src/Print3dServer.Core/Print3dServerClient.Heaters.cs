@@ -1,10 +1,7 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
-using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.Concurrent;
-using System.Collections.ObjectModel;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {

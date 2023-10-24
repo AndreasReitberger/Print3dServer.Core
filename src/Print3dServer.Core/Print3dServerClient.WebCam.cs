@@ -61,12 +61,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Methods
 
-        public async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync()
-        {
-            await Task.Delay(10);
-            throw new NotImplementedException("This method must be overwritten by the inherited client class.");
-        }
-        public async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null)
+        public abstract Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync();
+
+        public virtual async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null)
         {
             IRestApiRequestRespone? result = null;
             ObservableCollection<IWebCamConfig> resultObject = new();
@@ -102,7 +99,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public string GetDefaultWebCamUri()
+        public virtual string GetDefaultWebCamUri()
         {
             try
             {
@@ -137,7 +134,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public string GetWebCamUri(IWebCamConfig? config)
+        public virtual string GetWebCamUri(IWebCamConfig? config)
         {
             try
             {
@@ -173,7 +170,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        public async Task<string> GetWebCamUriAsync(int index = 0, bool refreshWebCamConfig = false)
+        public virtual async Task<string> GetWebCamUriAsync(int index = 0, bool refreshWebCamConfig = false)
         {
             try
             {
