@@ -72,7 +72,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 IsListeningToWebSocket = value,
             });
         }
-#endregion
+        #endregion
 
         #region Methods
 
@@ -128,7 +128,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return webSocketTarget;
         }
 
-#if !NET_WS
         /// <summary>
         /// Source: https://github.com/Z0rdak/RepetierSharp/blob/main/RepetierConnection.cs
         /// </summary>
@@ -162,7 +161,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
  
         public virtual Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
-        #endif
 
         public virtual string BuildPingCommand(object? data = null)
         {
