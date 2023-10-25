@@ -1,4 +1,5 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
+using AndreasReitberger.API.Print3dServer.Core.Events;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -174,6 +175,51 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public ConcurrentDictionary<int, IToolhead> Toolheads { get; set; }
         public ConcurrentDictionary<int, IHeaterComponent> HeatedBeds { get; set; }
         public ConcurrentDictionary<int, IHeaterComponent> HeatedChambers { get; set; }
+        #endregion
+
+        #region EventHandlers
+        public event EventHandler<IgnoredJsonResultsChangedEventArgs> IgnoredJsonResultsChanged;
+
+        public event EventHandler<Print3dBaseEventArgs> WebSocketConnected;
+        public event EventHandler<Print3dBaseEventArgs> WebSocketDisconnected;
+        public event EventHandler<ErrorEventArgs> WebSocketError;
+        public event EventHandler<WebsocketEventArgs> WebSocketMessageReceived;
+        public event EventHandler<WebsocketEventArgs> WebSocketDataReceived;
+        public event EventHandler<LoginRequiredEventArgs> LoginResultReceived;
+
+        public event EventHandler<Print3dBaseEventArgs> ServerWentOffline;
+        public event EventHandler<Print3dBaseEventArgs> ServerWentOnline;
+        public event EventHandler<Print3dBaseEventArgs> ServerUpdateAvailable;
+
+        public event EventHandler Error;
+        public event EventHandler<RestEventArgs> RestApiError;
+        public event EventHandler<RestEventArgs> RestApiAuthenticationError;
+        public event EventHandler<RestEventArgs> RestApiAuthenticationSucceeded;
+        public event EventHandler<JsonConvertEventArgs> RestJsonConvertError;
+
+        public event EventHandler<ListeningChangedEventArgs> ListeningChanged;
+        public event EventHandler<SessionChangedEventArgs> SessionChanged;
+        public event EventHandler<JobStartedEventArgs> JobsStarted;
+        public event EventHandler<JobsChangedEventArgs> JobsChanged;
+        public event EventHandler<JobFinishedEventArgs> JobFinished;
+        public event EventHandler<JobStatusFinishedEventArgs> JobStatusFinished;
+        public event EventHandler<TemperatureDataEventArgs> TemperatureDataReceived;
+        public event EventHandler<GcodesChangedEventArgs> GcodesChanged;
+        public event EventHandler<GcodeGroupsChangedEventArgs> GcodeGroupsChanged;
+        public event EventHandler<ActivePrinterChangedEventArgs> ActivePrinterChanged;
+        public event EventHandler<ActivePrintImageChangedEventArgs> ActivePrintImageChanged;
+        public event EventHandler<JobListChangedEventArgs> JobListChanged;
+
+        public event EventHandler<PrintersChangedEventArgs> RemotePrintersChanged;
+
+        public event EventHandler<WebCamConfigChangedEventArgs> WebCamConfigChanged;
+        public event EventHandler<WebCamConfigsChangedEventArgs> WebCamConfigsChanged;
+
+        public event EventHandler<HeaterChangedEventArgs> HeaterChanged;
+        public event EventHandler<HeatersChangedEventArgs> HeatersChanged;
+
+        public event EventHandler<ToolheadChangedEventArgs> ToolheadChanged;
+        public event EventHandler<ToolheadsChangedEventArgs> ToolheadsChanged;
         #endregion
 
         #region Methods

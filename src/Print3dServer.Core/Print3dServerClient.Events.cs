@@ -235,7 +235,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #endregion
 
-        #region Heaters
+        #region Toolheads
         public event EventHandler<ToolheadChangedEventArgs> ToolheadChanged;
         protected virtual void OnToolheadChangedEvent(ToolheadChangedEventArgs e)
         {
