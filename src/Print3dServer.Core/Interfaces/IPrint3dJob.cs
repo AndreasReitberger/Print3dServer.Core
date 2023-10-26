@@ -5,7 +5,9 @@
         #region Properties
         public string JobId { get; set; }
         public double? TimeAdded { get; set; }
+        public DateTime? TimeAddedGeneralized { get; set; }
         public double? TimeInQueue { get; set; }
+        public DateTime? TimeInQueueGeneralized { get; set; }
         public string FileName { get; set; }
         #endregion
 

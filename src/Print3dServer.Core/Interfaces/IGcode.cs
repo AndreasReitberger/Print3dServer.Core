@@ -10,10 +10,12 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string FilePath { get; set; }
         public string PrinterName { get; set; }
         public GcodeImageType ImageType { get; set; }
+        public GcodeTimeBaseTarget TimeBaseTarget { get; set; }
         public double Modified { get;set; }
         public double Volume { get;set; }
         public double Filament { get;set; }
         public double PrintTime { get;set; }
+        public TimeSpan? PrintTimeGeneralized { get;set; }
         public long Size { get; set; }
         public string Permissions { get; set; }
         public string Group { get; set; }
