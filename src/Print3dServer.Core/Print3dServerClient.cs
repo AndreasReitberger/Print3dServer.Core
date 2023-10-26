@@ -28,6 +28,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         Print3dServerTarget target = Print3dServerTarget.Custom;
 
         [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         Func<Task>? onRefresh;
         #endregion
 
