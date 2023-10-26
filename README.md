@@ -65,3 +65,30 @@ async Task<OctoPrintFiles> GetFilesAsync(string location, string path = "", bool
     }
 }
 ```
+
+### Time differences
+Each print server uses a different time base for `PrintDuration`, `StartTime` and `EndTime`.
+
+| Property              | Core                     | Moonraker              | OctoPrint | Repetier Server      |
+|-----------------------| -------------------------|:----------------------:| ----------|---------------------:|
+| `PrintDuration`       | `double?` (UNIX Hours)   | `double?` (UNIX Hours) | tbd       | `double?` (Seconds)  |
+| `Modified`            | `double?` (UNIX DT)      | `double?` (UNIX DT)    | tbd       | `double?` (Seconds)  |
+| `Created`             | `double?` (UNIX DT)      | `double?` (UNIX DT)    | tbd       | `long?` (Seconds)  |
+
+## Converters
+Available `Converters` for `XamlBindings`:
+https://github.com/AndreasReitberger/SharedMauiCoreLibrary/tree/main/src/SharedMauiCoreLibrary/Converters
+
+Or for code behind, use `TimeBaseConvertHelper`.
+
+```cs
+ [ObservableProperty]
+ double printTime;
+ partial void OnPrintTimeChanged(double value)
+ {
+     PrintTimeGeneralized = TimeBaseConvertHelper.FromUnixDoubleHours(value);          
+ }
+
+[ObservableProperty]
+TimeSpan? printTimeGeneralized;
+```
