@@ -472,6 +472,16 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         IPrint3dJobStatus? activeJob;
+        partial void OnActiveJobChanging(IPrint3dJobStatus? oldValue, IPrint3dJobStatus? newValue)
+        {
+            OnJobStatusChangedEvent(new JobStatusChangedEventArgs()
+            {
+                NewJobStatus = newValue,
+                PreviousJobStatus = oldValue,
+                CallbackId = -1,
+                Printer = GetActivePrinterSlug(),
+            });
+        }
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]

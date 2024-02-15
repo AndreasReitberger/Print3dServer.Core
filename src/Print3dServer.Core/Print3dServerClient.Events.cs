@@ -4,7 +4,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 {
     public partial class Print3dServerClient
     {
-        #region EventHandlerss
+        #region Event Handlers
 
         #region Debug
         public event EventHandler<IgnoredJsonResultsChangedEventArgs> IgnoredJsonResultsChanged;
@@ -194,6 +194,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
         protected virtual void OnJobListChangedEvent(JobListChangedEventArgs e)
         {
             JobListChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<JobStatusChangedEventArgs> JobStatusChanged;
+        protected virtual void OnJobStatusChangedEvent(JobStatusChangedEventArgs e)
+        {
+            JobStatusChanged?.Invoke(this, e);
         }
         #endregion
 
