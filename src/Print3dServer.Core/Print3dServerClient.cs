@@ -117,7 +117,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Debug
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ConcurrentDictionary<string, string> ignoredJsonResults = new();
+        ConcurrentDictionary<string, string> ignoredJsonResults = [];
         partial void OnIgnoredJsonResultsChanged(ConcurrentDictionary<string, string> value)
         {
             OnIgnoredJsonResultsChanged(new IgnoredJsonResultsChangedEventArgs()
@@ -304,14 +304,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasFan = false;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasWebCam = false;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool shutdownAfterPrint = false;
         
         #endregion
@@ -487,13 +479,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         ObservableCollection<IPrint3dJobStatus> activeJobs = new();
 
-        #endregion
-
-        #region Fans
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IPrint3dFan> fans = new();
         #endregion
 
         #region Position

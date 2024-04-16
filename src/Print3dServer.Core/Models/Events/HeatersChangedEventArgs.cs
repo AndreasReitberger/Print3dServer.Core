@@ -9,7 +9,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
     {
         #region Properties
         public Printer3dHeaterType Type { get; set; }
-        public ConcurrentDictionary<int, IHeaterComponent> Heaters { get; set; } = new();
+        public ConcurrentDictionary<int, IHeaterComponent> Heaters { get; set; } = [];
         #endregion
 
         #region Overrides

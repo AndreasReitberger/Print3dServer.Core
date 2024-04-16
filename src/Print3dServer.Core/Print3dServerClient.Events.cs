@@ -255,6 +255,30 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         #endregion
+        
+        #region Fans
+        public event EventHandler<FanChangedEventArgs> FanChanged;
+        protected virtual void OnFanChangedEvent(FanChangedEventArgs e)
+        {
+            FanChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<FansChangedEventArgs> FansChanged;
+        protected virtual void OnFansChangedEvent(FansChangedEventArgs e)
+        {
+            FansChanged?.Invoke(this, e);
+        }
+
+        #endregion
+        
+        #region Sensors
+        public event EventHandler<SensorsChangedEventArgs> SensorsChanged;
+        protected virtual void OnSensorsChangedEvent(SensorsChangedEventArgs e)
+        {
+            SensorsChanged?.Invoke(this, e);
+        }
+
+        #endregion
 
         #endregion
     }

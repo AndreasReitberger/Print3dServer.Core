@@ -104,6 +104,11 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public int NumberOfToolHeads { get; set; }
         public int ActiveToolheadIndex { get; set; }
 
+        public int NumberOfSensors { get; set; }
+
+        public int NumberOfFans { get; set; }
+        public string ActiveFanIndex { get; set; }
+
         public bool IsMultiExtruder { get; set; }
         public bool HasHeatedBed { get; set; }
         public bool HasFan { get; set; }
@@ -171,7 +176,9 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public ObservableCollection<IPrint3dJob> Jobs { get; set; }
         public ObservableCollection<IPrint3dJobStatus> ActiveJobs { get; set; }
         public ObservableCollection<IWebCamConfig> WebCams { get; set; }
-        public ObservableCollection<IPrint3dFan> Fans { get; set; }
+        //public ObservableCollection<IPrint3dFan> Fans { get; set; }
+        public ConcurrentDictionary<string, ISensorComponent> Sensors { get; set; }
+        public ConcurrentDictionary<string, IPrint3dFan> Fans { get; set; }
         public ConcurrentDictionary<int, IToolhead> Toolheads { get; set; }
         public ConcurrentDictionary<int, IHeaterComponent> HeatedBeds { get; set; }
         public ConcurrentDictionary<int, IHeaterComponent> HeatedChambers { get; set; }
@@ -254,15 +261,15 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region WebSocket
         public string BuildPingCommand(object? data);
-        public Task StartListeningAsync(bool stopActiveListening = false);
-        public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null);
+        public Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null);
+        public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null, string[]? commandsOnConnect = null);
         public Task StopListeningAsync();
-        public Task ConnectWebSocketAsync(string target);
+        public Task ConnectWebSocketAsync(string target, string commandOnConnect);
+        public Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null);
         public Task DisconnectWebSocketAsync();
         public Task SendWebSocketCommandAsync(string command);
         public Task SendPingAsync();
-
-        public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions);
+        public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions, string[]? commandsOnConnect = null);
         #endregion
 
         #region Printer

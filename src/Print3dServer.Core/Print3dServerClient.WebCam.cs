@@ -2,7 +2,6 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -10,6 +9,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class Print3dServerClient
     {
         #region Properties
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        bool hasWebCam = false;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
