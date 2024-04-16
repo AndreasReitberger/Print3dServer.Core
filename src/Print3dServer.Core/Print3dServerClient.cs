@@ -1165,6 +1165,23 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// </summary>
         /// <returns></returns>
         public abstract Task<ObservableCollection<IGcode>> GetFilesAsync();
+
+        /// <summary>
+        /// Override this method
+        /// </summary>
+        /// <returns></returns>
+        //public abstract Task<IRestApiRequestRespone?> DeleteFileAsync(string filePath);
+        /// <summary>
+        /// Override this method
+        /// </summary>
+        /// <returns></returns>
+        //public abstract Task<IRestApiRequestRespone?> UploadFileAsync(string filePath);
+
+        /// <summary>
+        /// Override this method
+        /// </summary>
+        /// <returns></returns>
+        public abstract Task<byte[]> DownloadFileAsync(string filePath);
         #endregion
 
         #endregion

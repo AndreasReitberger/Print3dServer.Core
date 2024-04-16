@@ -233,8 +233,15 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Refreshing
         public Task RefreshAllAsync();
-        public Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
+        #endregion
+
+        #region Files
         public Task<ObservableCollection<IGcode>> GetFilesAsync();
+        /*
+        public Task<IRestApiRequestRespone?> DeleteFileAsync(string filePath);
+        public Task<IRestApiRequestRespone?> UploadFileAsync(string filePath);
+        */
+        public Task<byte[]> DownloadFileAsync(string filePath);
         #endregion
 
         #region Proxy
@@ -259,6 +266,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Printer
+        public Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
         public Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true);
         public Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true);
         public Task<bool> SendGcodeAsync(string command, object? data = null, string? targetUri = null);
