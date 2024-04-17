@@ -1140,7 +1140,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Override this method
         /// </summary>
         /// <returns></returns>
-        public abstract Task<byte[]> DownloadFileAsync(string filePath);
+        public abstract Task<byte[]?> DownloadFileAsync(string filePath);
         #endregion
 
         #endregion

@@ -247,7 +247,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task<IRestApiRequestRespone?> DeleteFileAsync(string filePath);
         public Task<IRestApiRequestRespone?> UploadFileAsync(string filePath);
         */
-        public Task<byte[]> DownloadFileAsync(string filePath);
+        public Task<byte[]?> DownloadFileAsync(string filePath);
         #endregion
 
         #region Proxy
