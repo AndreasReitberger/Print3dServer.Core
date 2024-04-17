@@ -33,34 +33,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Instance
-
-       
-        public static IPrint3dServerClient Instance;
-        /*
-        static readonly object Lock = new();
-        static Print3dServerClient? _instance = null;
-        public static Print3dServerClient Instance
-        {
-            get
-            {
-                lock (Lock)
-                {
-                    _instance ??= new Print3dServerClient();
-                }
-                return _instance;
-            }
-
-            set
-            {
-                if (_instance == value) return;
-                lock (Lock)
-                {
-                    _instance = value;
-                }
-            }
-
-        }
-        */
+   
+        public static IPrint3dServerClient? Instance;
 
         [ObservableProperty]
         bool isActive = false;
@@ -83,7 +57,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region RefreshTimer
         [ObservableProperty, Obsolete("Try to replace with WebSocket pinging")]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        Timer timer;
+        Timer? timer;
 
         [ObservableProperty]
         int refreshInterval = 5;
@@ -140,7 +114,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: XmlIgnore]
-        Dictionary<string, IAuthenticationHeader> authHeaders = new();
+        Dictionary<string, IAuthenticationHeader> authHeaders = [];
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -383,7 +357,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IPrinter3d> printers = new();
+        ObservableCollection<IPrinter3d> printers = [];
         partial void OnPrintersChanged(ObservableCollection<IPrinter3d> value)
         {
             if (value?.Count > 0 && ActivePrinter == null)
@@ -393,7 +367,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnRemotePrintersChanged(new PrintersChangedEventArgs()
             {
                 SessionId = SessionId,
-                NewPrinters = value,
+                NewPrinters = value ?? [],
                 Printer = GetActivePrinterSlug(),
                 AuthToken = ApiKey,
             });
@@ -404,7 +378,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Files
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IGcodeGroup> groups = new();
+        ObservableCollection<IGcodeGroup> groups = [];
         partial void OnGroupsChanged(ObservableCollection<IGcodeGroup> value)
         {
             OnGcodeGroupsChangedEvent(new GcodeGroupsChangedEventArgs()
@@ -418,7 +392,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IGcode> files = new();
+        ObservableCollection<IGcode> files = [];
         partial void OnFilesChanged(ObservableCollection<IGcode> value)
         {
             OnGcodesChangedEvent(new GcodesChangedEventArgs()
@@ -435,7 +409,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Jobs
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        byte[] currentPrintImage = Array.Empty<byte>();
+        byte[] currentPrintImage = [];
         partial void OnCurrentPrintImageChanging(byte[] value)
         {
             OnActivePrintImageChanged(new ActivePrintImageChangedEventArgs()
@@ -449,7 +423,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IPrint3dJob> jobs = new();
+        ObservableCollection<IPrint3dJob> jobs = [];
         partial void OnJobsChanged(ObservableCollection<IPrint3dJob> value)
         {
             OnJobListChangedEvent(new JobListChangedEventArgs()
@@ -477,7 +451,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IPrint3dJobStatus> activeJobs = new();
+        ObservableCollection<IPrint3dJobStatus> activeJobs = [];
 
         #endregion
 
@@ -587,7 +561,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     return string.Empty;
                 }
-                return ActivePrinter?.Slug;
+                return ActivePrinter?.Slug ?? string.Empty;
             }
             catch (Exception exc)
             {
@@ -653,10 +627,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 ApiKey = api;
                 Port = port;
                 IsSecure = isSecure;
-                //WebSocketTargetUri = GetWebSocketTargetUri();
 
                 Instance = this;
-
                 if (Instance != null)
                 {
                     Instance.UpdateInstance = false;
@@ -689,7 +661,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             cts?.Dispose();
         }
 
-        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default)
+        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default)
         {
             if (IsConnecting) return; // Avoid multiple calls
             IsConnecting = true;
@@ -765,15 +737,17 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: authHeaders,
                         cts: new(timeout))
                         .ConfigureAwait(false) as RestApiRequestRespone;
-                    if (respone.HasAuthenticationError)
+                    if (respone?.HasAuthenticationError is true)
                     {
                         AuthenticationFailed = true;
-                        OnRestApiAuthenticationError(respone.EventArgs as RestEventArgs);
+                        if (respone.EventArgs is RestEventArgs rArgs)
+                            OnRestApiAuthenticationError(rArgs);
                     }
                     else
                     {
                         AuthenticationFailed = false;
-                        OnRestApiAuthenticationSucceeded(respone.EventArgs as RestEventArgs);
+                        if (respone?.EventArgs is RestEventArgs rArgs)
+                            OnRestApiAuthenticationSucceeded(rArgs);
                     }
                     return AuthenticationFailed;
                 }
@@ -803,7 +777,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: AuthHeaders,
                         jsonObject: data)
                     .ConfigureAwait(false);
-                return GetQueryResult(result.Result, true);
+                return GetQueryResult(result?.Result, true);
             }
             catch (Exception exc)
             {
@@ -912,7 +886,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: AuthHeaders,
                         jsonObject: data)
                     .ConfigureAwait(false);
-                return GetQueryResult(result.Result, true);
+                return GetQueryResult(result?.Result, true);
             }
             catch (Exception exc)
             {
@@ -933,7 +907,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: AuthHeaders,
                         jsonObject: data)
                     .ConfigureAwait(false);
-                return GetQueryResult(result.Result, true);
+                return GetQueryResult(result?.Result, true);
             }
             catch (Exception exc)
             {
@@ -954,7 +928,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: AuthHeaders,
                         jsonObject: data)
                     .ConfigureAwait(false);
-                return GetQueryResult(result.Result, true);
+                return GetQueryResult(result?.Result, true);
             }
             catch (Exception exc)
             {
@@ -983,7 +957,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: AuthHeaders, 
                         jsonObject: data)
                     .ConfigureAwait(false);
-                return GetQueryResult(result.Result, true);
+                return GetQueryResult(result?.Result, true);
             }
             catch (Exception exc)
             {
@@ -1009,7 +983,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         authHeaders: AuthHeaders,
                         jsonObject: data)
                     .ConfigureAwait(false);
-                return GetQueryResult(result.Result, true);
+                return GetQueryResult(result?.Result, true);
             }
             catch (Exception exc)
             {

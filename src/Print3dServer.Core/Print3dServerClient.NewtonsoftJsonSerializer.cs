@@ -47,7 +47,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Methods
 
 #nullable enable
-        public T? GetObjectFromJson<T>(string json, JsonSerializerSettings? serializerSettings = null)
+        public T? GetObjectFromJson<T>(string? json, JsonSerializerSettings? serializerSettings = null)
         {
             try
             {
@@ -64,6 +64,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     //json += $"]";
                 }
 #endif
+                json ??= string.Empty;
                 return JsonConvert.DeserializeObject<T?>(json, serializerSettings ?? NewtonsoftJsonSerializerSettings);
             }
             catch (JsonSerializationException jexc)

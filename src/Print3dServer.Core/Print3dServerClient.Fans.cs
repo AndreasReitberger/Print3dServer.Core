@@ -34,12 +34,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             });
         }
 
-        /*
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IPrint3dFan> fans = new();
-        */
-
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         ConcurrentDictionary<string, IPrint3dFan> fans = [];

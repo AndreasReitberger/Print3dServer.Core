@@ -35,11 +35,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         int refreshCounter = 0;
 
         [ObservableProperty]
-        string pingCommand;
+        string pingCommand = string.Empty;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string webSocketTargetUri;
+        string webSocketTargetUri = string.Empty;
 
         [ObservableProperty]
         string webSocketTarget = "/socket/";
@@ -373,7 +373,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new JsonConvertEventArgs()
                 {
                     Exception = jecx,
-                    OriginalString = msg.Text,
+                    OriginalString = msg?.Text,
                     Message = jecx.Message,
                 });
             }

@@ -7,7 +7,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
     public partial class PrintersChangedEventArgs : Print3dBaseEventArgs, IPrintersChangedEventArgs
     {
         #region Properties
-        public ObservableCollection<IPrinter3d> NewPrinters { get; set; } = new();
+        public ObservableCollection<IPrinter3d> NewPrinters { get; set; } = [];
         #endregion
 
         #region Overrides

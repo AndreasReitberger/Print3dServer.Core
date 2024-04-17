@@ -29,12 +29,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool hasHeatedChamber = false;
 
-        /*
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IHeaterComponent> toolheads = new();
-        */
-
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         IToolhead? activeToolhead;

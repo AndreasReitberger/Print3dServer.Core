@@ -12,7 +12,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ValidateResult
 
-        protected virtual bool GetQueryResult(string result, bool emptyResultIsValid = false)
+        protected virtual bool GetQueryResult(string? result, bool emptyResultIsValid = false)
         {
             try
             {
@@ -38,11 +38,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        protected virtual IRestApiRequestRespone ValidateResponse(RestResponse respone, Uri targetUri)
+        protected virtual IRestApiRequestRespone ValidateResponse(RestResponse? respone, Uri? targetUri)
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
             {
+                if (respone is null) return apiRsponeResult;
                 if ((
                     respone.StatusCode == HttpStatusCode.OK || respone.StatusCode == HttpStatusCode.NoContent) &&
                     respone.ResponseStatus == ResponseStatus.Completed)
@@ -107,9 +108,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Rest Api
         protected virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
-            string requestTargetUri,
+            string? requestTargetUri,
             Method method,
-            string command,
+            string? command,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             object? jsonObject = null,
             CancellationTokenSource? cts = default,
@@ -117,24 +118,20 @@ namespace AndreasReitberger.API.Print3dServer.Core
             )
         {
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
-            //if (!IsOnline) return apiRsponeResult;
             try
             {
-                if (cts == default)
-                {
-                    cts = new(DefaultTimeout);
-                }
-                // https://github.com/Arksine/moonraker/blob/master/docs/web_api.md
+                cts ??= new(DefaultTimeout);                
+                requestTargetUri ??= string.Empty;
+                command ??= string.Empty;
                 if (restClient == null)
                 {
                     UpdateRestClientInstance();
                 }
-                RestRequest request = new($"{requestTargetUri}/{command}")
+                RestRequest request = new(!string.IsNullOrEmpty(command) ? $"{requestTargetUri}/{command}" : requestTargetUri)
                 {
                     RequestFormat = DataFormat.Json,
                     Method = method
                 };
-
                 if (authHeaders?.Count > 0)
                 {
                     switch (Target)
@@ -183,7 +180,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     case Print3dServerTarget.RepetierServer:
                         if (string.IsNullOrEmpty(command)) break;
-                        urlSegments ??= new();
+                        urlSegments ??= [];
                         urlSegments.Add("a", command);
                         if (jsonObject is not null)
                         {
@@ -219,11 +216,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                 }
 
-                Uri fullUri = restClient.BuildUri(request);
+                Uri? fullUri = restClient?.BuildUri(request);
                 try
                 {
-                    RestResponse respone = await restClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
-                    apiRsponeResult = ValidateResponse(respone, fullUri) as RestApiRequestRespone;
+                    if (restClient is not null)
+                    { 
+                        RestResponse? respone = await restClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
+                        if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
+                            apiRsponeResult = res;
+                    }
                 }
                 catch (TaskCanceledException texp)
                 {
@@ -258,7 +259,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [Obsolete("Will be removed")]
-        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        internal async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string filePath,
             Dictionary<string, string> authHeaders,
             string root = "/server/files/upload/",
@@ -302,11 +303,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 request.AddParameter("root", fileTarget, ParameterType.GetOrPost);
                 request.AddParameter("path", path, ParameterType.GetOrPost);
 
-                Uri fullUri = restClient.BuildUri(request);
+                Uri? fullUri = restClient?.BuildUri(request);
                 try
                 {
-                    RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
-                    apiRsponeResult = ValidateResponse(respone, fullUri) as RestApiRequestRespone;
+                    if (restClient is not null)
+                    {
+                        RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
+                        if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
+                            apiRsponeResult = res;
+                    }
                 }
                 catch (TaskCanceledException texp)
                 {
@@ -341,7 +346,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [Obsolete("Will be removed")]
-        protected async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        internal async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
             string fileName,
             byte[] file,
             Dictionary<string, string> authHeaders,
@@ -386,11 +391,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 request.AddParameter("root", fileTarget, ParameterType.GetOrPost);
                 request.AddParameter("path", path, ParameterType.GetOrPost);
 
-                Uri fullUri = restClient.BuildUri(request);
+                Uri? fullUri = restClient?.BuildUri(request);
                 try
                 {
-                    RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
-                    apiRsponeResult = ValidateResponse(respone, fullUri) as RestApiRequestRespone;
+                    if (restClient is not null)
+                    {
+                        RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
+                        if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
+                            apiRsponeResult = res;
+                    }
                 }
                 catch (TaskCanceledException texp)
                 {
@@ -506,11 +515,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     request.AddParameter(para.Key, para.Value, ParameterType.GetOrPost);
                 }
 
-                Uri fullUri = restClient.BuildUri(request);
+                Uri? fullUri = restClient?.BuildUri(request);
                 try
                 {
-                    RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
-                    apiRsponeResult = ValidateResponse(respone, fullUri) as RestApiRequestRespone;
+                    if (restClient is not null)
+                    {
+                        RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
+                        if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
+                            apiRsponeResult = res;
+                    }
                 }
                 catch (TaskCanceledException texp)
                 {
@@ -616,13 +629,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                 }
 
-                Uri fullUrl = restClient.BuildUri(request);
+                Uri? fullUrl = restClient?.BuildUri(request);
                 CancellationTokenSource cts = new(timeout);
-                byte[]? respone = await restClient.DownloadDataAsync(request, cts.Token)
-                    .ConfigureAwait(false)
-                    ;
-
-                return respone;
+                if (restClient is not null)
+                {
+                    byte[]? respone = await restClient.DownloadDataAsync(request, cts.Token)
+                        .ConfigureAwait(false);
+                    return respone;
+                }
+                else return null;
             }
             catch (Exception exc)
             {

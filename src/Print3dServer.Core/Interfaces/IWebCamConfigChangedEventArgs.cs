@@ -3,7 +3,7 @@
     public interface IWebCamConfigChangedEventArgs : IPrint3dBaseEventArgs
     {
         #region Properties
-        public IWebCamConfig NewConfig { get; set; }
+        public IWebCamConfig? NewConfig { get; set; }
         #endregion
     }
 }

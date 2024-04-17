@@ -13,7 +13,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region General
         public Print3dServerTarget Target { get; set; }
-        public Guid Id { get; set; }
         #endregion
 
         #region Instance
@@ -234,7 +233,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region OnlineCheck
         public Task CheckOnlineAsync(int timeout = 10000);
         public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
-        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default);
+        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default);
         public Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
         #endregion
 

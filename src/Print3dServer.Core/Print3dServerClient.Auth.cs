@@ -12,11 +12,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string username;
+        string username = string.Empty;
 
         [ObservableProperty]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        SecureString password;
+        SecureString? password;
         #endregion
 
     }
