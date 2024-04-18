@@ -7,7 +7,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Properties
         public Printer3dHeaterType Type { get; set; }
         public int? Index { get; set; }
-        public IToolhead Toolhead { get; set; }
+        public IToolhead? Toolhead { get; set; }
         #endregion
     }
 }

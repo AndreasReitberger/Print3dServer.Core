@@ -35,11 +35,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         int refreshCounter = 0;
 
         [ObservableProperty]
-        string pingCommand;
+        string pingCommand = string.Empty;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string webSocketTargetUri;
+        string webSocketTargetUri = string.Empty;
 
         [ObservableProperty]
         string webSocketTarget = "/socket/";
@@ -200,17 +200,18 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return JsonConvert.SerializeObject(data);
         }
 
-        public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null)
+        public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
         {
             if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
             {
-                await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: refreshFunction)
+                await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: refreshFunction, commandsOnConnect: commandsOnConnect)
                     .ConfigureAwait(false);
             }
         }
-        public virtual Task StartListeningAsync(bool stopActiveListening = false) => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, OnRefresh);
+        public virtual Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null)
+            => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, OnRefresh, commandsOnConnect: commandsOnConnect);
 
-        public virtual async Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunction = null)
+        public virtual async Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
         {
             if (IsListening)// avoid multiple sessions
             {
@@ -224,7 +225,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 }
             }
             OnRefresh = refreshFunction;
-            await ConnectWebSocketAsync(target).ConfigureAwait(false);
+            await ConnectWebSocketAsync(target, commandsOnConnect: commandsOnConnect).ConfigureAwait(false);
             IsListening = true;
         }
        
@@ -238,7 +239,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
             IsListening = false;
         }
 
-        public virtual async Task ConnectWebSocketAsync(string target)
+        public virtual Task ConnectWebSocketAsync(string target, string commandOnConnect)
+            => ConnectWebSocketAsync(target: target, commandsOnConnect: commandOnConnect is not null ? [commandOnConnect] : null);
+        public virtual async Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null)
         {
             try
             {
@@ -255,7 +258,16 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 await DisconnectWebSocketAsync();
                 WebSocket = GetWebSocketClient();
                 await WebSocket.StartOrFail()
-                    .ContinueWith(t => SendPingAsync());
+                    .ContinueWith(t => SendPingAsync())
+                    ;
+                if (commandsOnConnect is not null && WebSocket is not null)
+                {
+                    // Send command
+                    for (int i = 0; i < commandsOnConnect?.Length; i++)
+                    {
+                        WebSocket.Send(commandsOnConnect[i]);
+                    }
+                }
             }
             catch (Exception exc)
             {
@@ -361,7 +373,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new JsonConvertEventArgs()
                 {
                     Exception = jecx,
-                    OriginalString = msg.Text,
+                    OriginalString = msg?.Text,
                     Message = jecx.Message,
                 });
             }

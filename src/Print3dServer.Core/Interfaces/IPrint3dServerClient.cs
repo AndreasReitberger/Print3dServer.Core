@@ -13,7 +13,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region General
         public Print3dServerTarget Target { get; set; }
-        public Guid Id { get; set; }
         #endregion
 
         #region Instance
@@ -104,6 +103,11 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public int NumberOfToolHeads { get; set; }
         public int ActiveToolheadIndex { get; set; }
 
+        public int NumberOfSensors { get; set; }
+
+        public int NumberOfFans { get; set; }
+        public string ActiveFanIndex { get; set; }
+
         public bool IsMultiExtruder { get; set; }
         public bool HasHeatedBed { get; set; }
         public bool HasFan { get; set; }
@@ -171,7 +175,9 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public ObservableCollection<IPrint3dJob> Jobs { get; set; }
         public ObservableCollection<IPrint3dJobStatus> ActiveJobs { get; set; }
         public ObservableCollection<IWebCamConfig> WebCams { get; set; }
-        public ObservableCollection<IPrint3dFan> Fans { get; set; }
+        //public ObservableCollection<IPrint3dFan> Fans { get; set; }
+        public ConcurrentDictionary<string, ISensorComponent> Sensors { get; set; }
+        public ConcurrentDictionary<string, IPrint3dFan> Fans { get; set; }
         public ConcurrentDictionary<int, IToolhead> Toolheads { get; set; }
         public ConcurrentDictionary<int, IHeaterComponent> HeatedBeds { get; set; }
         public ConcurrentDictionary<int, IHeaterComponent> HeatedChambers { get; set; }
@@ -227,14 +233,21 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region OnlineCheck
         public Task CheckOnlineAsync(int timeout = 10000);
         public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
-        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource cts = default);
+        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default);
         public Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
         #endregion
 
         #region Refreshing
         public Task RefreshAllAsync();
-        public Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
+        #endregion
+
+        #region Files
         public Task<ObservableCollection<IGcode>> GetFilesAsync();
+        /*
+        public Task<IRestApiRequestRespone?> DeleteFileAsync(string filePath);
+        public Task<IRestApiRequestRespone?> UploadFileAsync(string filePath);
+        */
+        public Task<byte[]?> DownloadFileAsync(string filePath);
         #endregion
 
         #region Proxy
@@ -247,18 +260,19 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region WebSocket
         public string BuildPingCommand(object? data);
-        public Task StartListeningAsync(bool stopActiveListening = false);
-        public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null);
+        public Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null);
+        public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null, string[]? commandsOnConnect = null);
         public Task StopListeningAsync();
-        public Task ConnectWebSocketAsync(string target);
+        public Task ConnectWebSocketAsync(string target, string commandOnConnect);
+        public Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null);
         public Task DisconnectWebSocketAsync();
         public Task SendWebSocketCommandAsync(string command);
         public Task SendPingAsync();
-
-        public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions);
+        public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions, string[]? commandsOnConnect = null);
         #endregion
 
         #region Printer
+        public Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
         public Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true);
         public Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true);
         public Task<bool> SendGcodeAsync(string command, object? data = null, string? targetUri = null);

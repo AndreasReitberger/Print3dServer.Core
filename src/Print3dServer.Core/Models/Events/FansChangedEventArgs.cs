@@ -1,13 +1,13 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
-using System.Collections.ObjectModel;
+using System.Collections.Concurrent;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
-    public partial class PrintersChangedEventArgs : Print3dBaseEventArgs, IPrintersChangedEventArgs
+    public partial class FansChangedEventArgs : Print3dBaseEventArgs, IFansChangedEventArgs
     {
         #region Properties
-        public ObservableCollection<IPrinter3d> NewPrinters { get; set; } = [];
+        public ConcurrentDictionary<string, IPrint3dFan> Fans { get; set; } = [];
         #endregion
 
         #region Overrides

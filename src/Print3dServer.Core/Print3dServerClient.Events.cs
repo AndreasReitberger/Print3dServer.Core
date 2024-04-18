@@ -7,7 +7,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Event Handlers
 
         #region Debug
-        public event EventHandler<IgnoredJsonResultsChangedEventArgs> IgnoredJsonResultsChanged;
+        public event EventHandler<IgnoredJsonResultsChangedEventArgs>? IgnoredJsonResultsChanged;
         protected virtual void OnIgnoredJsonResultsChanged(IgnoredJsonResultsChangedEventArgs e)
         {
             IgnoredJsonResultsChanged?.Invoke(this, e);
@@ -16,37 +16,37 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region WebSocket
 
-        public event EventHandler<Print3dBaseEventArgs> WebSocketConnected;
+        public event EventHandler<Print3dBaseEventArgs>? WebSocketConnected;
         protected virtual void OnWebSocketConnected(Print3dBaseEventArgs e)
         {
             WebSocketConnected?.Invoke(this, e);
         }
 
-        public event EventHandler<Print3dBaseEventArgs> WebSocketDisconnected;
+        public event EventHandler<Print3dBaseEventArgs>? WebSocketDisconnected;
         protected virtual void OnWebSocketDisconnected(Print3dBaseEventArgs e)
         {
             WebSocketDisconnected?.Invoke(this, e);
         }
 
-        public event EventHandler<ErrorEventArgs> WebSocketError;
+        public event EventHandler<ErrorEventArgs>? WebSocketError;
         protected virtual void OnWebSocketError(ErrorEventArgs e)
         {
             WebSocketError?.Invoke(this, e);
         }
 
-        public event EventHandler<WebsocketEventArgs> WebSocketMessageReceived;
+        public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
         protected virtual void OnWebSocketMessageReceived(WebsocketEventArgs e)
         {
             WebSocketMessageReceived?.Invoke(this, e);
         }
 
-        public event EventHandler<WebsocketEventArgs> WebSocketDataReceived;
+        public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
         protected virtual void OnWebSocketDataReceived(WebsocketEventArgs e)
         {
             WebSocketDataReceived?.Invoke(this, e);
         }
 
-        public event EventHandler<LoginRequiredEventArgs> LoginResultReceived;
+        public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
         protected virtual void OnLoginResultReceived(LoginRequiredEventArgs e)
         {
             LoginResultReceived?.Invoke(this, e);
@@ -56,19 +56,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ServerConnectionState
 
-        public event EventHandler<Print3dBaseEventArgs> ServerWentOffline;
+        public event EventHandler<Print3dBaseEventArgs>? ServerWentOffline;
         protected virtual void OnServerWentOffline(Print3dBaseEventArgs e)
         {
             ServerWentOffline?.Invoke(this, e);
         }
 
-        public event EventHandler<Print3dBaseEventArgs> ServerWentOnline;
+        public event EventHandler<Print3dBaseEventArgs>? ServerWentOnline;
         protected virtual void OnServerWentOnline(Print3dBaseEventArgs e)
         {
             ServerWentOnline?.Invoke(this, e);
         }
 
-        public event EventHandler<Print3dBaseEventArgs> ServerUpdateAvailable;
+        public event EventHandler<Print3dBaseEventArgs>? ServerUpdateAvailable;
         protected virtual void OnServerUpdateAvailable(Print3dBaseEventArgs e)
         {
             ServerUpdateAvailable?.Invoke(this, e);
@@ -77,7 +77,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Errors
 
-        public event EventHandler Error;
+        public event EventHandler? Error;
         protected virtual void OnError()
         {
             Error?.Invoke(this, EventArgs.Empty);
@@ -94,24 +94,24 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             Error?.Invoke(this, e);
         }
-        public event EventHandler<RestEventArgs> RestApiError;
+        public event EventHandler<RestEventArgs>? RestApiError;
         protected virtual void OnRestApiError(RestEventArgs e)
         {
             RestApiError?.Invoke(this, e);
         }
 
-        public event EventHandler<RestEventArgs> RestApiAuthenticationError;
+        public event EventHandler<RestEventArgs>? RestApiAuthenticationError;
         protected virtual void OnRestApiAuthenticationError(RestEventArgs e)
         {
             RestApiAuthenticationError?.Invoke(this, e);
         }
-        public event EventHandler<RestEventArgs> RestApiAuthenticationSucceeded;
+        public event EventHandler<RestEventArgs>? RestApiAuthenticationSucceeded;
         protected virtual void OnRestApiAuthenticationSucceeded(RestEventArgs e)
         {
             RestApiAuthenticationSucceeded?.Invoke(this, e);
         }
 
-        public event EventHandler<JsonConvertEventArgs> RestJsonConvertError;
+        public event EventHandler<JsonConvertEventArgs>? RestJsonConvertError;
         protected virtual void OnRestJsonConvertError(JsonConvertEventArgs e)
         {
             RestJsonConvertError?.Invoke(this, e);
@@ -121,61 +121,61 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ServerStateChanges
 
-        public event EventHandler<ListeningChangedEventArgs> ListeningChanged;
+        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
         protected virtual void OnListeningChangedEvent(ListeningChangedEventArgs e)
         {
             ListeningChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<SessionChangedEventArgs> SessionChanged;
+        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
         protected virtual void OnSessionChangedEvent(SessionChangedEventArgs e)
         {
             SessionChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<JobStartedEventArgs> JobsStarted;
+        public event EventHandler<JobStartedEventArgs>? JobsStarted;
         protected virtual void OnJobStarted(JobStartedEventArgs e)
         {
             JobsStarted?.Invoke(this, e);
         }
 
-        public event EventHandler<JobsChangedEventArgs> JobsChanged;
+        public event EventHandler<JobsChangedEventArgs>? JobsChanged;
         protected virtual void OnJobsChangedEvent(JobsChangedEventArgs e)
         {
             JobsChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<JobFinishedEventArgs> JobFinished;
+        public event EventHandler<JobFinishedEventArgs>? JobFinished;
         protected virtual void OnJobFinished(JobFinishedEventArgs e)
         {
             JobFinished?.Invoke(this, e);
         }
 
-        public event EventHandler<JobStatusFinishedEventArgs> JobStatusFinished;
+        public event EventHandler<JobStatusFinishedEventArgs>? JobStatusFinished;
         protected virtual void OnJobStatusFinished(JobStatusFinishedEventArgs e)
         {
             JobStatusFinished?.Invoke(this, e);
         }
 
-        public event EventHandler<TemperatureDataEventArgs> TemperatureDataReceived;
+        public event EventHandler<TemperatureDataEventArgs>? TemperatureDataReceived;
         protected virtual void OnTemperatureDataReceived(TemperatureDataEventArgs e)
         {
             TemperatureDataReceived?.Invoke(this, e);
         }
 
-        public event EventHandler<GcodesChangedEventArgs> GcodesChanged;
+        public event EventHandler<GcodesChangedEventArgs>? GcodesChanged;
         protected virtual void OnGcodesChangedEvent(GcodesChangedEventArgs e)
         {
             GcodesChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<GcodeGroupsChangedEventArgs> GcodeGroupsChanged;
+        public event EventHandler<GcodeGroupsChangedEventArgs>? GcodeGroupsChanged;
         protected virtual void OnGcodeGroupsChangedEvent(GcodeGroupsChangedEventArgs e)
         {
             GcodeGroupsChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<ActivePrinterChangedEventArgs> ActivePrinterChanged;
+        public event EventHandler<ActivePrinterChangedEventArgs>? ActivePrinterChanged;
         protected virtual void OnActivePrinterChangedEvent(ActivePrinterChangedEventArgs e)
         {
             ActivePrinterChanged?.Invoke(this, e);
@@ -184,19 +184,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Jobs & Queue
-        public event EventHandler<ActivePrintImageChangedEventArgs> ActivePrintImageChanged;
+        public event EventHandler<ActivePrintImageChangedEventArgs>? ActivePrintImageChanged;
         protected virtual void OnActivePrintImageChanged(ActivePrintImageChangedEventArgs e)
         {
             ActivePrintImageChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<JobListChangedEventArgs> JobListChanged;
+        public event EventHandler<JobListChangedEventArgs>? JobListChanged;
         protected virtual void OnJobListChangedEvent(JobListChangedEventArgs e)
         {
             JobListChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<JobStatusChangedEventArgs> JobStatusChanged;
+        public event EventHandler<JobStatusChangedEventArgs>? JobStatusChanged;
         protected virtual void OnJobStatusChangedEvent(JobStatusChangedEventArgs e)
         {
             JobStatusChanged?.Invoke(this, e);
@@ -204,7 +204,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Printers
-        public event EventHandler<PrintersChangedEventArgs> RemotePrintersChanged;
+        public event EventHandler<PrintersChangedEventArgs>? RemotePrintersChanged;
         protected virtual void OnRemotePrintersChanged(PrintersChangedEventArgs e)
         {
             RemotePrintersChanged?.Invoke(this, e);
@@ -212,13 +212,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region WebCams
-        public event EventHandler<WebCamConfigChangedEventArgs> WebCamConfigChanged;
+        public event EventHandler<WebCamConfigChangedEventArgs>? WebCamConfigChanged;
         protected virtual void OnWebCamConfigChanged(WebCamConfigChangedEventArgs e)
         {
             WebCamConfigChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<WebCamConfigsChangedEventArgs> WebCamConfigsChanged;
+        public event EventHandler<WebCamConfigsChangedEventArgs>? WebCamConfigsChanged;
         protected virtual void OnWebCamConfigsChanged(WebCamConfigsChangedEventArgs e)
         {
             WebCamConfigsChanged?.Invoke(this, e);
@@ -227,13 +227,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Heaters
-        public event EventHandler<HeaterChangedEventArgs> HeaterChanged;
+        public event EventHandler<HeaterChangedEventArgs>? HeaterChanged;
         protected virtual void OnHeaterChangedEvent(HeaterChangedEventArgs e)
         {
             HeaterChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<HeatersChangedEventArgs> HeatersChanged;
+        public event EventHandler<HeatersChangedEventArgs>? HeatersChanged;
         protected virtual void OnHeatersChangedEvent(HeatersChangedEventArgs e)
         {
             HeatersChanged?.Invoke(this, e);
@@ -242,16 +242,40 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Toolheads
-        public event EventHandler<ToolheadChangedEventArgs> ToolheadChanged;
+        public event EventHandler<ToolheadChangedEventArgs>? ToolheadChanged;
         protected virtual void OnToolheadChangedEvent(ToolheadChangedEventArgs e)
         {
             ToolheadChanged?.Invoke(this, e);
         }
 
-        public event EventHandler<ToolheadsChangedEventArgs> ToolheadsChanged;
+        public event EventHandler<ToolheadsChangedEventArgs>? ToolheadsChanged;
         protected virtual void OnToolheadsChangedEvent(ToolheadsChangedEventArgs e)
         {
             ToolheadsChanged?.Invoke(this, e);
+        }
+
+        #endregion
+        
+        #region Fans
+        public event EventHandler<FanChangedEventArgs>? FanChanged;
+        protected virtual void OnFanChangedEvent(FanChangedEventArgs e)
+        {
+            FanChanged?.Invoke(this, e);
+        }
+
+        public event EventHandler<FansChangedEventArgs>? FansChanged;
+        protected virtual void OnFansChangedEvent(FansChangedEventArgs e)
+        {
+            FansChanged?.Invoke(this, e);
+        }
+
+        #endregion
+        
+        #region Sensors
+        public event EventHandler<SensorsChangedEventArgs>? SensorsChanged;
+        protected virtual void OnSensorsChangedEvent(SensorsChangedEventArgs e)
+        {
+            SensorsChanged?.Invoke(this, e);
         }
 
         #endregion

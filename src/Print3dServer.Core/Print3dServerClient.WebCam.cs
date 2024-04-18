@@ -2,7 +2,6 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System.Collections.ObjectModel;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -10,11 +9,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class Print3dServerClient
     {
         #region Properties
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        bool hasWebCam = false;
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IWebCamConfig selectedWebCam;
-        partial void OnSelectedWebCamChanged(IWebCamConfig value)
+        IWebCamConfig? selectedWebCam;
+        partial void OnSelectedWebCamChanged(IWebCamConfig? value)
         {
             OnWebCamConfigChanged(new WebCamConfigChangedEventArgs()
             {
@@ -24,7 +26,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IWebCamConfig> webCams = new();
+        ObservableCollection<IWebCamConfig> webCams = [];
         partial void OnWebCamsChanged(ObservableCollection<IWebCamConfig> value)
         {
             OnWebCamConfigsChanged(new WebCamConfigsChangedEventArgs()
@@ -35,7 +37,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string webCamTargetUri;
+        string webCamTargetUri = string.Empty;
 
         [ObservableProperty]
         string webCamTarget = "/webcam/?action=stream";
@@ -66,7 +68,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public virtual async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null)
         {
             IRestApiRequestRespone? result = null;
-            ObservableCollection<IWebCamConfig> resultObject = new();
+            ObservableCollection<IWebCamConfig> resultObject = [];
             try
             {
                 result = await SendRestApiRequestAsync(

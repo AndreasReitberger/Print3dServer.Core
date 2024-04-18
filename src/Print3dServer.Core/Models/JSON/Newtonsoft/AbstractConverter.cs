@@ -15,10 +15,10 @@ namespace AndreasReitberger.API.Print3dServer.Core.JSON.Newtonsoft
         public override bool CanConvert(Type objectType)
             => objectType == typeof(TAbstract);
 
-        public override object ReadJson(JsonReader reader, Type type, object value, JsonSerializer jser)
+        public override object? ReadJson(JsonReader reader, Type type, object? value, JsonSerializer jser)
             => jser.Deserialize<TReal>(reader);
 
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer jser)
+        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer jser)
             => jser.Serialize(writer, value);
     }
 }

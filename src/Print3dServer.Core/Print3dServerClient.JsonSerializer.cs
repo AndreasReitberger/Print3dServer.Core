@@ -43,7 +43,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Methods
 
 #nullable enable
-        public T? GetObjectFromJsonSystem<T>(string json, JsonSerializerOptions? serializerSettings = null)
+        public T? GetObjectFromJsonSystem<T>(string? json, JsonSerializerOptions? serializerSettings = null)
         {
             try
             {
@@ -60,6 +60,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     //json += $"]";
                 }
 #endif
+                json ??= string.Empty;
                 return JsonSerializer.Deserialize<T?>(json, serializerSettings ?? JsonSerializerSettings);
             }
             catch (JsonException jexc)
