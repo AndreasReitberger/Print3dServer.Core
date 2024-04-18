@@ -40,7 +40,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public bool IsLoggedIn { get; set; }
         public bool AuthenticationFailed { get; set; }
         public string Username { get; set; }
-        public SecureString Password { get; set; }
+        public SecureString? Password { get; set; }
         #endregion
 
         #region States
@@ -69,12 +69,13 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string ProxyAddress { get; set; }
         public int ProxyPort { get; set; }
         public string ProxyUser { get; set; }
-        public SecureString ProxyPassword { get; set; }
+        public SecureString? ProxyPassword { get; set; }
 
         #endregion
 
         #region Timing
-        public Timer Timer { get; set; }
+        [Obsolete]
+        public Timer? Timer { get; set; }
         public int RefreshInterval { get; set; }
         #endregion
 
@@ -87,7 +88,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Printer States
-        public IPrint3dJobStatus ActiveJob { get; set; }
+        public IPrint3dJobStatus? ActiveJob { get; set; }
         public byte[] CurrentPrintImage { get; set; }
 
         public double TemperatureExtruderMain { get; set; }
@@ -117,12 +118,12 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Heaters
-        public IHeaterComponent ActiveHeatedBed { get; set; }
-        public IHeaterComponent ActiveHeatedChamber { get; set; }
+        public IHeaterComponent? ActiveHeatedBed { get; set; }
+        public IHeaterComponent? ActiveHeatedChamber { get; set; }
         #endregion
 
         #region ToolHead
-        public IToolhead ActiveToolhead { get; set; }   
+        public IToolhead? ActiveToolhead { get; set; }   
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
@@ -135,7 +136,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region WebCam
         public bool HasWebCam { get; set; }
-        public IWebCamConfig SelectedWebCam { get; set; }
+        public IWebCamConfig? SelectedWebCam { get; set; }
         public string WebCamTargetUri { get; set; }
         public string WebCamTarget { get; set; }
         public int WebCamIndex { get; set; }
@@ -144,7 +145,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Printer
 
-        public IPrinter3d ActivePrinter { get; set; }
+        public IPrinter3d? ActivePrinter { get; set; }
 
         #endregion
 
@@ -184,48 +185,48 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region EventHandlers
-        public event EventHandler<IgnoredJsonResultsChangedEventArgs> IgnoredJsonResultsChanged;
+        public event EventHandler<IgnoredJsonResultsChangedEventArgs>? IgnoredJsonResultsChanged;
 
-        public event EventHandler<Print3dBaseEventArgs> WebSocketConnected;
-        public event EventHandler<Print3dBaseEventArgs> WebSocketDisconnected;
-        public event EventHandler<ErrorEventArgs> WebSocketError;
-        public event EventHandler<WebsocketEventArgs> WebSocketMessageReceived;
-        public event EventHandler<WebsocketEventArgs> WebSocketDataReceived;
-        public event EventHandler<LoginRequiredEventArgs> LoginResultReceived;
+        public event EventHandler<Print3dBaseEventArgs>? WebSocketConnected;
+        public event EventHandler<Print3dBaseEventArgs>? WebSocketDisconnected;
+        public event EventHandler<ErrorEventArgs>? WebSocketError;
+        public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
+        public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
+        public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
 
-        public event EventHandler<Print3dBaseEventArgs> ServerWentOffline;
-        public event EventHandler<Print3dBaseEventArgs> ServerWentOnline;
-        public event EventHandler<Print3dBaseEventArgs> ServerUpdateAvailable;
+        public event EventHandler<Print3dBaseEventArgs>? ServerWentOffline;
+        public event EventHandler<Print3dBaseEventArgs>? ServerWentOnline;
+        public event EventHandler<Print3dBaseEventArgs>? ServerUpdateAvailable;
 
-        public event EventHandler Error;
-        public event EventHandler<RestEventArgs> RestApiError;
-        public event EventHandler<RestEventArgs> RestApiAuthenticationError;
-        public event EventHandler<RestEventArgs> RestApiAuthenticationSucceeded;
-        public event EventHandler<JsonConvertEventArgs> RestJsonConvertError;
+        public event EventHandler? Error;
+        public event EventHandler<RestEventArgs>? RestApiError;
+        public event EventHandler<RestEventArgs>? RestApiAuthenticationError;
+        public event EventHandler<RestEventArgs>? RestApiAuthenticationSucceeded;
+        public event EventHandler<JsonConvertEventArgs>? RestJsonConvertError;
 
-        public event EventHandler<ListeningChangedEventArgs> ListeningChanged;
-        public event EventHandler<SessionChangedEventArgs> SessionChanged;
-        public event EventHandler<JobStartedEventArgs> JobsStarted;
-        public event EventHandler<JobsChangedEventArgs> JobsChanged;
-        public event EventHandler<JobFinishedEventArgs> JobFinished;
-        public event EventHandler<JobStatusFinishedEventArgs> JobStatusFinished;
-        public event EventHandler<TemperatureDataEventArgs> TemperatureDataReceived;
-        public event EventHandler<GcodesChangedEventArgs> GcodesChanged;
-        public event EventHandler<GcodeGroupsChangedEventArgs> GcodeGroupsChanged;
-        public event EventHandler<ActivePrinterChangedEventArgs> ActivePrinterChanged;
-        public event EventHandler<ActivePrintImageChangedEventArgs> ActivePrintImageChanged;
-        public event EventHandler<JobListChangedEventArgs> JobListChanged;
+        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
+        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
+        public event EventHandler<JobStartedEventArgs>? JobsStarted;
+        public event EventHandler<JobsChangedEventArgs>? JobsChanged;
+        public event EventHandler<JobFinishedEventArgs>? JobFinished;
+        public event EventHandler<JobStatusFinishedEventArgs>? JobStatusFinished;
+        public event EventHandler<TemperatureDataEventArgs>? TemperatureDataReceived;
+        public event EventHandler<GcodesChangedEventArgs>? GcodesChanged;
+        public event EventHandler<GcodeGroupsChangedEventArgs>? GcodeGroupsChanged;
+        public event EventHandler<ActivePrinterChangedEventArgs>? ActivePrinterChanged;
+        public event EventHandler<ActivePrintImageChangedEventArgs>? ActivePrintImageChanged;
+        public event EventHandler<JobListChangedEventArgs>? JobListChanged;
 
-        public event EventHandler<PrintersChangedEventArgs> RemotePrintersChanged;
+        public event EventHandler<PrintersChangedEventArgs>? RemotePrintersChanged;
 
-        public event EventHandler<WebCamConfigChangedEventArgs> WebCamConfigChanged;
-        public event EventHandler<WebCamConfigsChangedEventArgs> WebCamConfigsChanged;
+        public event EventHandler<WebCamConfigChangedEventArgs>? WebCamConfigChanged;
+        public event EventHandler<WebCamConfigsChangedEventArgs>? WebCamConfigsChanged;
 
-        public event EventHandler<HeaterChangedEventArgs> HeaterChanged;
-        public event EventHandler<HeatersChangedEventArgs> HeatersChanged;
+        public event EventHandler<HeaterChangedEventArgs>? HeaterChanged;
+        public event EventHandler<HeatersChangedEventArgs>? HeatersChanged;
 
-        public event EventHandler<ToolheadChangedEventArgs> ToolheadChanged;
-        public event EventHandler<ToolheadsChangedEventArgs> ToolheadsChanged;
+        public event EventHandler<ToolheadChangedEventArgs>? ToolheadChanged;
+        public event EventHandler<ToolheadsChangedEventArgs>? ToolheadsChanged;
         #endregion
 
         #region Methods
@@ -242,7 +243,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Files
-        public Task<ObservableCollection<IGcode>> GetFilesAsync();
+        public Task<List<IGcode>> GetFilesAsync();
         /*
         public Task<IRestApiRequestRespone?> DeleteFileAsync(string filePath);
         public Task<IRestApiRequestRespone?> UploadFileAsync(string filePath);
@@ -272,7 +273,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Printer
-        public Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
+        public Task<List<IPrinter3d>> GetPrintersAsync();
         public Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true);
         public Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true);
         public Task<bool> SendGcodeAsync(string command, object? data = null, string? targetUri = null);
@@ -292,8 +293,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region WebCam
-        public Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync();
-        public Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null);
+        public Task<List<IWebCamConfig>?> GetWebCamConfigsAsync();
+        public Task<List<IWebCamConfig>?> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null);
         public string GetDefaultWebCamUri();
         public string GetWebCamUri(IWebCamConfig? config);
         public Task<string> GetWebCamUriAsync(int index = 0, bool refreshWebCamConfig = false);

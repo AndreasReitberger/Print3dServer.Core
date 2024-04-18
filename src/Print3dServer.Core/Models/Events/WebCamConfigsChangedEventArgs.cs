@@ -7,7 +7,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
     public partial class WebCamConfigsChangedEventArgs : Print3dBaseEventArgs, IWebCamConfigsChangedEventArgs
     {
         #region Properties
-        public ObservableCollection<IWebCamConfig> NewConfigs { get; set; } = new();
+        public List<IWebCamConfig> NewConfigs { get; set; } = [];
         #endregion
 
         #region Overrides

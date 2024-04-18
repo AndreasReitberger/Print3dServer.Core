@@ -7,7 +7,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
     public partial class GcodeGroupsChangedEventArgs : Print3dBaseEventArgs, IGcodeGroupsChangedEventArgs
     {
         #region Properties
-        public ObservableCollection<IGcodeGroup> NewModelGroups { get; set; } = new();
+        public List<IGcodeGroup> NewModelGroups { get; set; } = [];
         #endregion
 
         #region Overrides

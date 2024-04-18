@@ -367,7 +367,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnRemotePrintersChanged(new PrintersChangedEventArgs()
             {
                 SessionId = SessionId,
-                NewPrinters = value ?? [],
+                NewPrinters = [.. value],
                 Printer = GetActivePrinterSlug(),
                 AuthToken = ApiKey,
             });
@@ -383,7 +383,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnGcodeGroupsChangedEvent(new GcodeGroupsChangedEventArgs()
             {
-                NewModelGroups = value,
+                NewModelGroups = [.. value],
                 SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
@@ -397,7 +397,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnGcodesChangedEvent(new GcodesChangedEventArgs()
             {
-                NewModels = value,
+                NewModels = [.. value],
                 SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
@@ -428,7 +428,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnJobListChangedEvent(new JobListChangedEventArgs()
             {
-                NewJobList = value,
+                NewJobList = [.. value],
                 SessionId = SessionId,
                 CallbackId = -1,
                 Printer = GetActivePrinterSlug(),
@@ -1061,12 +1061,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Override this method
         /// </summary>
         /// <returns></returns>
-        public abstract Task<ObservableCollection<IPrinter3d>> GetPrintersAsync();
+        public abstract Task<List<IPrinter3d>> GetPrintersAsync();
         public virtual async Task SetPrinterActiveAsync(string slug, bool refreshPrinterList = true)
         {
             if (refreshPrinterList)
             {
-                Printers = await GetPrintersAsync().ConfigureAwait(false);
+                List<IPrinter3d> printers = await GetPrintersAsync().ConfigureAwait(false);
+                Printers = [.. printers];
             }
             IPrinter3d? printer = Printers?.FirstOrDefault(prt => prt?.Slug == slug);
             if (printer is not null)
@@ -1078,7 +1079,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             if (refreshPrinterList)
             {
-                Printers = await GetPrintersAsync().ConfigureAwait(false);
+                List<IPrinter3d> printers = await GetPrintersAsync().ConfigureAwait(false);
+                Printers = [.. printers];
             }
             if (Printers?.Count > index && index >= 0)
             {
@@ -1123,7 +1125,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Override this method
         /// </summary>
         /// <returns></returns>
-        public abstract Task<ObservableCollection<IGcode>> GetFilesAsync();
+        public abstract Task<List<IGcode>> GetFilesAsync();
 
         /// <summary>
         /// Override this method

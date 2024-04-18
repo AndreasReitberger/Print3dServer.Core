@@ -31,7 +31,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             OnWebCamConfigsChanged(new WebCamConfigsChangedEventArgs()
             {
-                NewConfigs = value,
+                NewConfigs = [.. value],
             });
         }
 
@@ -63,12 +63,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Methods
 
-        public abstract Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync();
+        public abstract Task<List<IWebCamConfig>?> GetWebCamConfigsAsync();
 
-        public virtual async Task<ObservableCollection<IWebCamConfig>> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null)
+        public virtual async Task<List<IWebCamConfig>?> GetWebCamConfigsAsync(string command, object? data = null, string? targetUri = null)
         {
             IRestApiRequestRespone? result = null;
-            ObservableCollection<IWebCamConfig> resultObject = [];
+            List<IWebCamConfig> resultObject = [];
             try
             {
                 result = await SendRestApiRequestAsync(
@@ -81,7 +81,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        cts: default
                        )
                     .ConfigureAwait(false);
-                return GetObjectFromJson<ObservableCollection<IWebCamConfig>>(result?.Result, NewtonsoftJsonSerializerSettings) ?? new();
+                return GetObjectFromJson<List<IWebCamConfig>>(result?.Result, NewtonsoftJsonSerializerSettings) ?? resultObject;
             }
             catch (JsonException jecx)
             {
@@ -89,7 +89,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     Exception = jecx,
                     OriginalString = result?.Result,
-                    TargetType = nameof(ObservableCollection<IWebCamConfig>),
+                    TargetType = nameof(List<IWebCamConfig>),
                     Message = jecx.Message,
                 });
                 return resultObject;
