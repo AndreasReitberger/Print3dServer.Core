@@ -24,7 +24,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Collections
-        ObservableCollection<IGcodeImage> GcodeImages { get; set; }
+        List<IGcodeImage> GcodeImages { get; set; }
         #endregion
     }
 }

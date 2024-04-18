@@ -1,5 +1,4 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
-using System.Collections.ObjectModel;
 using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
@@ -7,7 +6,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
     public partial class GcodesChangedEventArgs : Print3dBaseEventArgs, IGcodesChangedEventArgs
     {
         #region Properties
-        public ObservableCollection<IGcode> NewModels { get; set; } = new();
+        public List<IGcode> NewModels { get; set; } = [];
         #endregion
 
         #region Overrides

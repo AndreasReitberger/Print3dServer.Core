@@ -19,9 +19,9 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public long Size { get; set; }
         public string Permissions { get; set; }
         public string Group { get; set; }
-        public byte[] Thumbnail { get; set; }
-        public byte[] Image { get; set; }
-        public IGcodeMeta Meta { get; set; }
+        public byte[]? Thumbnail { get; set; }
+        public byte[]? Image { get; set; }
+        public IGcodeMeta? Meta { get; set; }
 
         #endregion
 

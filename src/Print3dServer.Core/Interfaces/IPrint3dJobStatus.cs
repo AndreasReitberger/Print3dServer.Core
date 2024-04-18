@@ -18,8 +18,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public TimeSpan? TotalPrintDurationGeneralized { get; set; }
         public string FileName { get; set; }
         public bool FileExists { get; set; }
-        public Print3dJobState State { get; set; }
-        public IGcodeMeta Meta { get; set; }
+        public Print3dJobState? State { get; set; }
+        public IGcodeMeta? Meta { get; set; }
         #endregion
     }
 }
