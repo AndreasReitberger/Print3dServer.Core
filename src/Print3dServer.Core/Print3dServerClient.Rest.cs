@@ -45,8 +45,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 if (respone is null) return apiRsponeResult;
                 if ((
-                    respone.StatusCode == HttpStatusCode.OK || respone.StatusCode == HttpStatusCode.NoContent) &&
-                    respone.ResponseStatus == ResponseStatus.Completed)
+                    respone.StatusCode == HttpStatusCode.OK || respone.StatusCode == HttpStatusCode.NoContent ||
+                    respone.StatusCode == HttpStatusCode.Created || respone.StatusCode == HttpStatusCode.Accepted
+                    ) && respone.ResponseStatus == ResponseStatus.Completed
+                    )
                 {
                     apiRsponeResult.IsOnline = true;
                     AuthenticationFailed = false;
@@ -256,189 +258,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
             return apiRsponeResult;
-        }
-
-        [Obsolete("Will be removed")]
-        internal async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
-            string filePath,
-            Dictionary<string, string> authHeaders,
-            string root = "/server/files/upload/",
-            string fileTarget = "gcodes",
-            string path = "",
-            string contentType = "multipart/form-data",
-            string fileTargetName = "file",
-            string fileContentType = "application/octet-stream",
-            int timeout = 100000
-            )
-        {
-            RestApiRequestRespone apiRsponeResult = new();
-            if (!IsOnline) return apiRsponeResult;
-
-            try
-            {
-                if (restClient == null)
-                {
-                    UpdateRestClientInstance();
-                }
-                CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
-                RestRequest request = new(root);
-
-                if (authHeaders?.Count > 0)
-                {
-                    foreach (var header in authHeaders)
-                    {
-                        //  "Authorization", $"Bearer {UserToken}"
-                        //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value);
-                    }
-                }
-
-                request.RequestFormat = DataFormat.Json;
-                request.Method = Method.Post;
-                request.AlwaysMultipartFormData = true;
-
-                //Multiform
-                request.AddHeader("Content-Type", contentType ?? "multipart/form-data");
-                request.AddFile(fileTargetName ?? "file", filePath, fileContentType ?? "application/octet-stream");
-                request.AddParameter("root", fileTarget, ParameterType.GetOrPost);
-                request.AddParameter("path", path, ParameterType.GetOrPost);
-
-                Uri? fullUri = restClient?.BuildUri(request);
-                try
-                {
-                    if (restClient is not null)
-                    {
-                        RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
-                        if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
-                            apiRsponeResult = res;
-                    }
-                }
-                catch (TaskCanceledException texp)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is reachable.
-                    if (!IsOnline)
-                    {
-                        OnError(new UnhandledExceptionEventArgs(texp, false));
-                    }
-                }
-                catch (HttpRequestException hexp)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                    if (!IsOnline)
-                    {
-                        OnError(new UnhandledExceptionEventArgs(hexp, false));
-                    }
-                }
-                catch (TimeoutException toexp)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                    if (!IsOnline)
-                    {
-                        OnError(new UnhandledExceptionEventArgs(toexp, false));
-                    }
-                }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-            return apiRsponeResult;
-        }
-
-        [Obsolete("Will be removed")]
-        internal async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
-            string fileName,
-            byte[] file,
-            Dictionary<string, string> authHeaders,
-            string root = "/server/files/upload/",
-            string fileTarget = "gcodes",
-            string path = "",
-            string contentType = "multipart/form-data",
-            string fileTargetName = "file",
-            string fileContentType = "application/octet-stream",
-            int timeout = 100000
-            )
-        {
-            RestApiRequestRespone apiRsponeResult = new();
-            if (!IsOnline) return apiRsponeResult;
-
-            try
-            {
-                if (restClient is null)
-                {
-                    UpdateRestClientInstance();
-                }
-                CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
-                RestRequest request = new("/server/files/upload");
-
-                if (authHeaders?.Count > 0)
-                {
-                    foreach (var header in authHeaders)
-                    {
-                        //  "Authorization", $"Bearer {UserToken}"
-                        //  "X-Api-Key", $"{ApiKey}"
-                        request.AddHeader(header.Key, header.Value);
-                    }
-                }
-
-                request.RequestFormat = DataFormat.Json;
-                request.Method = Method.Post;
-                request.AlwaysMultipartFormData = true;
-
-                //Multiform
-                request.AddHeader("Content-Type", contentType ?? "multipart/form-data");
-                request.AddFile(fileTargetName ?? "file", file, fileName, fileContentType ?? "application/octet-stream");
-                request.AddParameter("root", fileTarget, ParameterType.GetOrPost);
-                request.AddParameter("path", path, ParameterType.GetOrPost);
-
-                Uri? fullUri = restClient?.BuildUri(request);
-                try
-                {
-                    if (restClient is not null)
-                    {
-                        RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
-                        if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
-                            apiRsponeResult = res;
-                    }
-                }
-                catch (TaskCanceledException texp)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is reachable.
-                    if (!IsOnline)
-                    {
-                        OnError(new UnhandledExceptionEventArgs(texp, false));
-                    }
-                }
-                catch (HttpRequestException hexp)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                    if (!IsOnline)
-                    {
-                        OnError(new UnhandledExceptionEventArgs(hexp, false));
-                    }
-                }
-                catch (TimeoutException toexp)
-                {
-                    // Throws exception on timeout, not actually an error but indicates if the server is not reachable.
-                    if (!IsOnline)
-                    {
-                        OnError(new UnhandledExceptionEventArgs(toexp, false));
-                    }
-                }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-            return apiRsponeResult;
-        }
+        }   
 
         protected virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+            string rquestTargetUri,
             string fileName,
-            byte[] file,
-            string root,
+            byte[]? file,
             Dictionary<string, IAuthenticationHeader> authHeaders,
-            Dictionary<string, string> parameters,
+            Dictionary<string, string>? parameters = null,
+            string? localFilePath = null,
             string contentType = "multipart/form-data",
             string fileTargetName = "file",
             string fileContentType = "application/octet-stream",
@@ -450,12 +278,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
             try
             {
+                if (file is null && localFilePath is null)
+                    throw new ArgumentNullException(nameof(file), $"No file or localFilePath has been provided!");
                 if (restClient is null)
                 {
                     UpdateRestClientInstance();
                 }
                 CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
-                RestRequest request = new(root);
+                RestRequest request = new(rquestTargetUri);
 
                 if (authHeaders?.Count > 0)
                 {
@@ -508,13 +338,22 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
                 //Multiform
                 request.AddHeader("Content-Type", contentType ?? "multipart/form-data");
-                request.AddFile(fileTargetName ?? "file", file, fileName, fileContentType ?? "application/octet-stream");
-               
-                foreach(var para in parameters)
+                if (file is not null)
                 {
-                    request.AddParameter(para.Key, para.Value, ParameterType.GetOrPost);
+                    request.AddFile(fileTargetName ?? "file", file, fileName, fileContentType ?? "application/octet-stream");
+                }
+                else if (localFilePath is not null)
+                {
+                    request.AddFile(fileTargetName ?? "file", localFilePath, fileContentType ?? "application/octet-stream");
                 }
 
+                if (parameters?.Count > 0)
+                {
+                    foreach (var para in parameters)
+                    {
+                        request.AddParameter(para.Key, para.Value, ParameterType.GetOrPost);
+                    }
+                }
                 Uri? fullUri = restClient?.BuildUri(request);
                 try
                 {
