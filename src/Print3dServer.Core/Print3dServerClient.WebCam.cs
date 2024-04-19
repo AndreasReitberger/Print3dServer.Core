@@ -81,7 +81,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        cts: default
                        )
                     .ConfigureAwait(false);
-                return GetObjectFromJson<List<IWebCamConfig>>(result?.Result, NewtonsoftJsonSerializerSettings) ?? resultObject;
+                return GetObjectFromJson<List<IWebCamConfig>>(result?.Result, DefaultNewtonsoftJsonSerializerSettings) ?? resultObject;
             }
             catch (JsonException jecx)
             {
