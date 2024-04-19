@@ -272,6 +272,18 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions, string[]? commandsOnConnect = null);
         #endregion
 
+        #region Rest
+        public Task<IRestApiRequestRespone?> SendRestApiRequestAsync(string? requestTargetUri, Method method, string? command,
+            Dictionary<string, IAuthenticationHeader> authHeaders, object? jsonObject = null, CancellationTokenSource? cts = default, Dictionary<string, string>? urlSegments = null
+            );
+
+        public Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(string requestTargetUri, Dictionary<string, IAuthenticationHeader> authHeaders, string? fileName, byte[]? file,
+            Dictionary<string, string>? parameters = null, string? localFilePath = null,
+            string contentType = "multipart/form-data", string fileTargetName = "file", string fileContentType = "application/octet-stream", int timeout = 100000
+            );
+        
+        #endregion
+
         #region Printer
         public Task<List<IPrinter3d>> GetPrintersAsync();
         public Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true);

@@ -6,7 +6,7 @@ using System.Net;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
-    public partial class Print3dServerClient
+    public partial class Print3dServerClient : IPrint3dServerClient
     {
         #region Methods
 
@@ -109,7 +109,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Rest Api
-        protected virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
             string? requestTargetUri,
             Method method,
             string? command,
@@ -260,11 +260,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return apiRsponeResult;
         }   
 
-        protected virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
-            string rquestTargetUri,
-            string fileName,
-            byte[]? file,
+        public virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+            string requestTargetUri,
             Dictionary<string, IAuthenticationHeader> authHeaders,
+            string? fileName = null,
+            byte[]? file = null,
             Dictionary<string, string>? parameters = null,
             string? localFilePath = null,
             string contentType = "multipart/form-data",
@@ -278,14 +278,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
             try
             {
+                // If there is no file specified
                 if (file is null && localFilePath is null)
-                    throw new ArgumentNullException(nameof(file), $"No file or localFilePath has been provided!");
+                    // and there are no additional parameters supplied, throw
+                    if(parameters?.Count == 0)
+                        throw new ArgumentNullException(
+                            $"{nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}", 
+                            $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!");
                 if (restClient is null)
                 {
                     UpdateRestClientInstance();
                 }
                 CancellationTokenSource cts = new(new TimeSpan(0, 0, 0, 0, timeout));
-                RestRequest request = new(rquestTargetUri);
+                RestRequest request = new(requestTargetUri);
 
                 if (authHeaders?.Count > 0)
                 {
@@ -338,7 +343,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
                 //Multiform
                 request.AddHeader("Content-Type", contentType ?? "multipart/form-data");
-                if (file is not null)
+                if (file is not null & !string.IsNullOrEmpty(fileName))
                 {
                     request.AddFile(fileTargetName ?? "file", file, fileName, fileContentType ?? "application/octet-stream");
                 }
