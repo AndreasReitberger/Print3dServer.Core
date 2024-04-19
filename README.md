@@ -1,6 +1,9 @@
 # Print3dServer.Core
 A C# based core library for our 3d Print Server nugets (Moonraker, Repetier Server, OctoPrint and so on)
 
+# Nuget
+[![NuGet](https://img.shields.io/nuget/v/Print3dServer.Core.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Print3dServer.Core/)
+
 ## Available print servers
 - OctoPrint (https://github.com/AndreasReitberger/OctoPrintRestApiSharp)
 - Repetier Server (https://github.com/AndreasReitberger/RepetierServerSharpApi)
