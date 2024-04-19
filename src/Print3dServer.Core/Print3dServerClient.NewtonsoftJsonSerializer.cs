@@ -30,6 +30,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 #else
         #region Release
+        [ObservableProperty]
+        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        JsonSerializerSettings newtonsoftJsonSerializerSettings = DefaultNewtonsoftJsonSerializerSettings;
+
         public static JsonSerializerSettings DefaultNewtonsoftJsonSerializerSettings = new()
         {
             // Ignore if the json respone has more or less properties than the target class
