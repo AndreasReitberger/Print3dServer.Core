@@ -343,7 +343,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
                 //Multiform
                 request.AddHeader("Content-Type", contentType ?? "multipart/form-data");
-                if (file is not null & !string.IsNullOrEmpty(fileName))
+                if (file is not null && !string.IsNullOrEmpty(fileName))
                 {
                     request.AddFile(fileTargetName ?? "file", file, fileName, fileContentType ?? "application/octet-stream");
                 }
