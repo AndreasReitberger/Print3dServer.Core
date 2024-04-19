@@ -6,8 +6,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class QueryActionResult : ObservableObject, IQueryActionResult
     {
         #region Properties
-        [ObservableProperty]
-        [JsonProperty("ok")]
+        [ObservableProperty, JsonIgnore]
+        [property: JsonProperty("ok")]
         bool ok;
         #endregion
 

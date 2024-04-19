@@ -61,7 +61,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 }
 #endif
                 json ??= string.Empty;
-                return JsonSerializer.Deserialize<T?>(json, serializerSettings ?? JsonSerializerSettings);
+                return JsonSerializer.Deserialize<T?>(json, serializerSettings ?? DefaultJsonSerializerSettings);
             }
             catch (JsonException jexc)
             {
