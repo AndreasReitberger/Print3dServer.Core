@@ -1,6 +1,16 @@
 # Print3dServer.Core
 A C# based core library for our 3d Print Server nugets (Moonraker, Repetier Server, OctoPrint and so on)
 
+# Support me
+If you want to support me, you can order over following affilate links (I'll get a small share from your purchase from the corresponding store).
+
+- Prusa: http://www.prusa3d.com/#a_aid=AndreasReitberger *
+- Jake3D: https://tidd.ly/3x9JOBp * 
+- Amazon: https://amzn.to/2Z8PrDu *
+
+(*) Affiliate link
+Thank you very much for supporting me!
+
 # Nuget
 [![NuGet](https://img.shields.io/nuget/v/Print3dServer.Core.svg?style=flat-square&label=nuget)](https://www.nuget.org/packages/Print3dServer.Core/)
 
