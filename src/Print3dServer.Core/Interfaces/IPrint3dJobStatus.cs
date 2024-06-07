@@ -13,6 +13,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double? EndTime { get; set; }
         public DateTime? EndTimeGeneralized { get; set; }
         public double? FilamentUsed { get; set; }
+        public double? RemainingPrintTime { get; set; }
         public double? PrintDuration { get; set; }
         public TimeSpan? PrintDurationGeneralized { get; set; }
         public double? TotalPrintDuration { get; set; }
