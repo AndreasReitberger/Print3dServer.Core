@@ -6,8 +6,13 @@
         Shutdown,
         InProgress,
         Cancelled,
-        Paused,
-
+        Paused, 
+        Operational,
+        Connecting,
+        Printing,
+        Closed,
+        Offline,
+        Unknown,
         Error = 99,
     }
 }

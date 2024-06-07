@@ -116,7 +116,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 RestClientOptions options = new(FullWebAddress)
                 {
                     ThrowOnAnyError = true,
-                    MaxTimeout = 10000,
+                    Timeout = TimeSpan.FromMilliseconds(10000),
                 };
                 HttpClientHandler httpHandler = new()
                 {

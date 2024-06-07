@@ -46,6 +46,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region States
         public bool IsActive { get; set; }
         public bool IsOnline { get; set; }
+        public bool IsPrinting { get; set; }
+        public bool IsPaused { get; set; }
         public bool IsConnecting { get; set; }
         public bool IsConnectedPrinterOnline { get; set; }
         public bool IsRefreshing { get; set; }

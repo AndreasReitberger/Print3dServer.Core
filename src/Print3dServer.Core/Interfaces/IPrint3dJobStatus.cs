@@ -7,6 +7,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Properties
         public string JobId { get; set; }
         public double? Done { get; set; }
+        public double? DonePercentage { get; set; }
         public double? StartTime { get; set; }
         public DateTime? StartTimeGeneralized { get; set; }
         public double? EndTime { get; set; }
