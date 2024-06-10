@@ -45,6 +45,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region States
         public bool IsActive { get; set; }
+        public bool IsReady { get; }
         public bool IsOnline { get; set; }
         public bool IsPrinting { get; set; }
         public bool IsPaused { get; set; }
@@ -246,6 +247,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Files
         public Task<List<IGcode>> GetFilesAsync();
+        public Task<List<IGcodeGroup>> GetModelGroupsAsync(string path = "");
         /*
         public Task<IRestApiRequestRespone?> DeleteFileAsync(string filePath);
         public Task<IRestApiRequestRespone?> UploadFileAsync(string filePath);

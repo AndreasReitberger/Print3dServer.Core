@@ -1145,6 +1145,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// </summary>
         /// <returns></returns>
         public abstract Task<List<IGcode>> GetFilesAsync();
+        public abstract Task<List<IGcodeGroup>> GetModelGroupsAsync(string path = "");
 
         /// <summary>
         /// Override this method
