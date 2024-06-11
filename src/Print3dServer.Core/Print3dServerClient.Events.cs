@@ -181,6 +181,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             ActivePrinterChanged?.Invoke(this, e);
         }
 
+        public event EventHandler<IsPrintingStateChangedEventArgs>? IsPrintingStateChanged;
+        protected virtual void OnIsPrintingStateChanged(IsPrintingStateChangedEventArgs e)
+        {
+            IsPrintingStateChanged?.Invoke(this, e);
+        }
         #endregion
 
         #region Jobs & Queue

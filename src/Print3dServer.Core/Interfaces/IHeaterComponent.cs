@@ -13,12 +13,13 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public long Error { get; set; }
 
         public Printer3dHeaterType Type { get; set; }
+        public Printer3dToolHeadState State { get; }
         #endregion  
 
         #region Methods
 
         public Task<bool> SetTemperatureAsync(IPrint3dServerClient client, string command, object? data);
-
+        public Printer3dToolHeadState GetCurrentState();
         #endregion
     }
 }

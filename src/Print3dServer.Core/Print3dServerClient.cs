@@ -285,11 +285,30 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region PrinterState
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool isPrinting = false;
+        bool isPrinting = false; partial void OnIsPrintingChanged(bool value)
+        {
+            OnIsPrintingStateChanged(new IsPrintingStateChangedEventArgs()
+            {
+                IsPrinting = value,
+                IsPaused = IsPaused,
+                SessionId = SessionId,
+                CallbackId = -1,
+            });
+        }
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         bool isPaused = false;
+        partial void OnIsPausedChanged(bool value)
+        {
+            OnIsPrintingStateChanged(new IsPrintingStateChangedEventArgs()
+            {
+                IsPrinting = IsPrinting,
+                IsPaused = value,
+                SessionId = SessionId,
+                CallbackId = -1,
+            });
+        }
 
         [ObservableProperty]
         [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
@@ -1126,6 +1145,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// </summary>
         /// <returns></returns>
         public abstract Task<List<IGcode>> GetFilesAsync();
+        public abstract Task<List<IGcodeGroup>> GetModelGroupsAsync(string path = "");
 
         /// <summary>
         /// Override this method

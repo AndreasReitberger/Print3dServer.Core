@@ -464,7 +464,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
                 request.RequestFormat = DataFormat.Json;
                 request.Method = Method.Get;
-                request.Timeout = timeout;
+                request.Timeout = TimeSpan.FromMilliseconds(timeout);
                 if (urlSegments?.Count > 0)
                 {
                     foreach (KeyValuePair<string, string> segment in urlSegments)
