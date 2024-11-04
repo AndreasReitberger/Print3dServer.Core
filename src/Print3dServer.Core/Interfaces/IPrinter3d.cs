@@ -19,8 +19,11 @@
         public long? Start { get; set; }
         public long? TotalLines { get; set; }
         public double? PrintStarted { get; set; }
+        public DateTime? PrintStartedGeneralized { get; set; }
         public double? PrintDuration { get; set; }
+        public TimeSpan? PrintDurationGeneralized { get; set; }
         public double? PrintDurationEstimated { get; set; }
+        public TimeSpan? PrintDurationEstimatedGeneralized { get; set; }
         public double? Extruder1Temperature { get; set; }
         public double? Extruder2Temperature { get; set; }
         public double? Extruder3Temperature { get; set; }
@@ -30,6 +33,7 @@
         public double? HeatedChamberTemperature { get; set; }
         public double? PrintProgress { get; set; }
         public double? RemainingPrintDuration { get; set; }
+        public TimeSpan? RemainingPrintDurationGeneralized { get; set; }
         public byte[] CurrentPrintImage { get; set; }
         public int? Repeat { get; set; }
 

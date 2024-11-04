@@ -14,6 +14,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public double Modified { get;set; }
         public double Volume { get;set; }
         public double Filament { get;set; }
+        public double? Created { get;set; }
+        public DateTime? CreatedGeneralized { get;set; }
         public double PrintTime { get;set; }
         public TimeSpan? PrintTimeGeneralized { get;set; }
         public long Size { get; set; }

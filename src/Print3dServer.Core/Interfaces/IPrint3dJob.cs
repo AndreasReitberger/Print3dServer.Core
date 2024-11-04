@@ -8,6 +8,8 @@
         public DateTime? TimeAddedGeneralized { get; set; }
         public double? TimeInQueue { get; set; }
         public DateTime? TimeInQueueGeneralized { get; set; }
+        public double? PrintTime { get; set; }
+        public TimeSpan? PrintTimeGeneralized { get; set; }
         public string FileName { get; set; }
         #endregion
 
