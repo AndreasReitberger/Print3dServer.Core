@@ -2,6 +2,7 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
+using System.Diagnostics;
 using System.Net;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -224,6 +225,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     if (restClient is not null)
                     { 
                         RestResponse? respone = await restClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
+#if DEBUG
+                        Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
+#endif
                         if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
                             apiRsponeResult = res;
                     }

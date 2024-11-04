@@ -23,7 +23,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Utilities
         {
             try
             {
-                TimeSpan ts = TimeSpan.FromSeconds(Convert.ToDouble(hours));
+                TimeSpan ts = TimeSpan.FromHours(Convert.ToDouble(hours));
                 if (!withMiliSeconds)
                     ts = new TimeSpan(ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
                 return ts;
@@ -92,6 +92,21 @@ namespace AndreasReitberger.API.Print3dServer.Core.Utilities
             {
                 DateTime dt = DateTime.MinValue;
                 TimeSpan ts = TimeSpan.FromSeconds(Convert.ToDouble(unixDate));
+                dt = new DateTime(1970, 1, 1, 0, 0, 0, 0).Add(ts).ToLocalTime();
+
+                return dt;
+            }
+            catch (Exception)
+            {
+                return DateTime.MinValue;
+            }
+        }
+        public static DateTime FromUnixDoubleMiliseconds(double? miliSeconds)
+        {
+            try
+            {
+                DateTime dt = DateTime.MinValue;
+                TimeSpan ts = TimeSpan.FromMilliseconds(Convert.ToInt64(miliSeconds));
                 dt = new DateTime(1970, 1, 1, 0, 0, 0, 0).Add(ts).ToLocalTime();
 
                 return dt;
