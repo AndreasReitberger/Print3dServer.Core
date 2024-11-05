@@ -155,7 +155,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
                             {
                                 apiKey = authHeaders?.FirstOrDefault(x => x.Key == "oneshottoken").Value?.Token;
                                 if(apiKey is not null)
-                                    request.AddHeader("Authorization", $"Bearer {SessionId}");
+                                    //request.AddHeader("Authorization", $"Bearer {SessionId}");
+                                    request.AddHeader("Authorization", $"Bearer {apiKey}");
+                            }
+                            else if (authHeaders?.ContainsKey("usertoken") is true)
+                            {
+                                apiKey = authHeaders?.FirstOrDefault(x => x.Key == "usertoken").Value?.Token;
+                                if(apiKey is not null)
+                                    //request.AddHeader("Authorization", $"Bearer {SessionId}");
+                                    request.AddHeader("Authorization", $"Bearer {apiKey}");
                             }
                             else if (!string.IsNullOrEmpty(SessionId))
                             {
