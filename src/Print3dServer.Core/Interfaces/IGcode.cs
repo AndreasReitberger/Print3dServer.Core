@@ -11,7 +11,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string PrinterName { get; set; }
         public GcodeImageType ImageType { get; set; }
         public GcodeTimeBaseTarget TimeBaseTarget { get; set; }
-        public double Modified { get;set; }
+        public double? Modified { get;set; }
         public double Volume { get;set; }
         public double Filament { get;set; }
         public double? Created { get;set; }
