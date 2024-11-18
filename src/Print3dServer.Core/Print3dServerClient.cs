@@ -13,8 +13,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public abstract partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
     {
         #region Variables
-        //protected RestClient? restClient;
-        //protected HttpClient? httpClient;
         protected int _retries = 0;
         #endregion
 
@@ -563,7 +561,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Dtor
         ~Print3dServerClient()
         {
-            
+            if (WebSocket is not null && WebSocket.IsRunning)
+            {
+                WebSocket.Stop(System.Net.WebSockets.WebSocketCloseStatus.NormalClosure, $"{nameof(Print3dServerClient)} was disposed...");
+            }
         }
         #endregion
 
