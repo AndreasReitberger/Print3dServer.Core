@@ -126,7 +126,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 cts ??= new(DefaultTimeout);                
                 requestTargetUri ??= string.Empty;
                 command ??= string.Empty;
-                if (restClient == null)
+                if (RestClient == null)
                 {
                     UpdateRestClientInstance();
                 }
@@ -227,12 +227,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                 }
 
-                Uri? fullUri = restClient?.BuildUri(request);
+                Uri? fullUri = RestClient?.BuildUri(request);
                 try
                 {
-                    if (restClient is not null)
+                    if (RestClient is not null)
                     { 
-                        RestResponse? respone = await restClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
+                        RestResponse? respone = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
 #if DEBUG
                         Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
 #endif
@@ -297,7 +297,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         throw new ArgumentNullException(
                             $"{nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}", 
                             $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!");
-                if (restClient is null)
+                if (RestClient is null)
                 {
                     UpdateRestClientInstance();
                 }
@@ -371,12 +371,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         request.AddParameter(para.Key, para.Value, ParameterType.GetOrPost);
                     }
                 }
-                Uri? fullUri = restClient?.BuildUri(request);
+                Uri? fullUri = RestClient?.BuildUri(request);
                 try
                 {
-                    if (restClient is not null)
+                    if (RestClient is not null)
                     {
-                        RestResponse respone = await restClient.ExecuteAsync(request, cts.Token);
+                        RestResponse respone = await RestClient.ExecuteAsync(request, cts.Token);
                         if (ValidateResponse(respone, fullUri) is RestApiRequestRespone res)
                             apiRsponeResult = res;
                     }
@@ -424,7 +424,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                if (restClient is null)
+                if (RestClient is null)
                 {
                     UpdateRestClientInstance();
                 }
@@ -485,11 +485,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     }
                 }
 
-                Uri? fullUrl = restClient?.BuildUri(request);
+                Uri? fullUrl = RestClient?.BuildUri(request);
                 CancellationTokenSource cts = new(timeout);
-                if (restClient is not null)
+                if (RestClient is not null)
                 {
-                    byte[]? respone = await restClient.DownloadDataAsync(request, cts.Token)
+                    byte[]? respone = await RestClient.DownloadDataAsync(request, cts.Token)
                         .ConfigureAwait(false);
                     return respone;
                 }

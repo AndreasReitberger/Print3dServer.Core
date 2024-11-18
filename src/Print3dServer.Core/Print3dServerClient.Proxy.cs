@@ -125,13 +125,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     AllowAutoRedirect = true,
                 };
 
-                httpClient = new(handler: httpHandler, disposeHandler: true);
-                restClient = new(httpClient: httpClient, options: options);
+                HttpClient = new(handler: httpHandler, disposeHandler: true);
+                RestClient = new(httpClient: HttpClient, options: options);
             }
             else
             {
-                httpClient = null;
-                restClient = new(baseUrl: FullWebAddress);
+                HttpClient = new();
+                RestClient = new(baseUrl: FullWebAddress);
             }
         }
 
