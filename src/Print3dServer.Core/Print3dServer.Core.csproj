@@ -2,7 +2,7 @@
 
   <Import Project="..\..\common.props" />
   <PropertyGroup>
-	<TargetFrameworks>netstandard2.1;net6</TargetFrameworks>
+	<TargetFrameworks>netstandard2.1;net8</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<RootNamespace>AndreasReitberger.API.Print3dServer.Core</RootNamespace>
@@ -23,7 +23,7 @@
 		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
 		<PackageReference Include="RestSharp" Version="112.1.0" />
-		<PackageReference Include="System.Text.Json" Version="8.0.5" />
+		<PackageReference Include="System.Text.Json" Version="9.0.0" />
 		<PackageReference Include="Websocket.Client" Version="5.1.2" />
 		
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
