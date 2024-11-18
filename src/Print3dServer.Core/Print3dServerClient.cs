@@ -13,8 +13,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public abstract partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
     {
         #region Variables
-        protected RestClient? restClient;
-        protected HttpClient? httpClient;
+        //protected RestClient? restClient;
+        //protected HttpClient? httpClient;
         protected int _retries = 0;
         #endregion
 
@@ -856,9 +856,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             try
             {
-                if (httpClient != null)
+                if (HttpClient != null)
                 {
-                    httpClient.CancelPendingRequests();
+                    HttpClient.CancelPendingRequests();
                     UpdateRestClientInstance();
                 }
             }
