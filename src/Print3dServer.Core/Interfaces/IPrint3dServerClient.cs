@@ -1,5 +1,7 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Events;
+using AndreasReitberger.API.REST.Events;
+using AndreasReitberger.API.REST.Interfaces;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
 using System.Net;
@@ -7,7 +9,7 @@ using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
-    public interface IPrint3dServerClient : IPrint3dBase
+    public interface IPrint3dServerClient : IRestApiClient
     {
         #region Properties
 
@@ -16,8 +18,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Instance
-        public bool UpdateInstance { get; set; }
-        public static IPrint3dServerClient? Instance { get; set; }
+        public new static IPrint3dServerClient? Instance { get; set; }
         #endregion
 
         #region Connection
@@ -35,10 +36,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region Auth
-        Dictionary<string, IAuthenticationHeader> AuthHeaders { get; set; }
         public bool LoginRequired { get; set; }
         public bool IsLoggedIn { get; set; }
-        public bool AuthenticationFailed { get; set; }
         public string Username { get; set; }
         public SecureString? Password { get; set; }
         #endregion
@@ -46,39 +45,16 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region States
         public bool IsActive { get; set; }
         public bool IsReady { get; }
-        public bool IsOnline { get; set; }
         public bool IsPrinting { get; set; }
         public bool IsPaused { get; set; }
-        public bool IsConnecting { get; set; }
         public bool IsConnectedPrinterOnline { get; set; }
         public bool IsRefreshing { get; set; }
-        public bool IsInitialized { get; set; }
         public bool IsListening { get; set; }
         public bool InitialDataFetched { get; set; }
         public bool UpdateAvailable { get; set; }
         #endregion
 
-        #region Api
-        public string ApiVersion { get; set; }
-        public string ApiTargetPath { get; set; }
-
-        #endregion
-
-        #region Proxy
-
-        public bool EnableProxy { get; set; }
-        public bool ProxyUserUsesDefaultCredentials { get; set; }
-        public bool SecureProxyConnection { get; set; }
-        public string ProxyAddress { get; set; }
-        public int ProxyPort { get; set; }
-        public string ProxyUser { get; set; }
-        public SecureString? ProxyPassword { get; set; }
-
-        #endregion
-
         #region Timing
-        [Obsolete]
-        public Timer? Timer { get; set; }
         public int RefreshInterval { get; set; }
         #endregion
 
@@ -201,12 +177,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public event EventHandler<Print3dBaseEventArgs>? ServerWentOnline;
         public event EventHandler<Print3dBaseEventArgs>? ServerUpdateAvailable;
 
-        public event EventHandler? Error;
-        public event EventHandler<RestEventArgs>? RestApiError;
-        public event EventHandler<RestEventArgs>? RestApiAuthenticationError;
-        public event EventHandler<RestEventArgs>? RestApiAuthenticationSucceeded;
-        public event EventHandler<JsonConvertEventArgs>? RestJsonConvertError;
-
         public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
         public event EventHandler<SessionChangedEventArgs>? SessionChanged;
         public event EventHandler<JobStartedEventArgs>? JobsStarted;
@@ -234,13 +204,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Methods
 
-        #region OnlineCheck
-        public Task CheckOnlineAsync(int timeout = 10000);
-        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
-        public Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default);
-        public Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000);
-        #endregion
-
         #region Refreshing
         public Task RefreshAllAsync();
         #endregion
@@ -255,14 +218,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task<byte[]?> DownloadFileAsync(string filePath);
         #endregion
 
-        #region Proxy
-        public Uri GetProxyUri();
-        public WebProxy GetCurrentProxy();
-        public void UpdateRestClientInstance();
-        public void SetProxy(bool secure, string address, int port, bool enable = true);
-        public void SetProxy(bool secure, string address, int port, string user = "", SecureString? password = null, bool enable = true);
-        #endregion
-
         #region WebSocket
         public string BuildPingCommand(object? data);
         public Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null);
@@ -274,18 +229,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Task SendWebSocketCommandAsync(string command);
         public Task SendPingAsync();
         public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions, string[]? commandsOnConnect = null);
-        #endregion
-
-        #region Rest
-        public Task<IRestApiRequestRespone?> SendRestApiRequestAsync(string? requestTargetUri, Method method, string? command,
-            Dictionary<string, IAuthenticationHeader> authHeaders, object? jsonObject = null, CancellationTokenSource? cts = default, Dictionary<string, string>? urlSegments = null
-            );
-
-        public Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(string requestTargetUri, Dictionary<string, IAuthenticationHeader> authHeaders, string? fileName, byte[]? file,
-            Dictionary<string, string>? parameters = null, string? localFilePath = null,
-            string contentType = "multipart/form-data", string fileTargetName = "file", string fileContentType = "application/octet-stream", int timeout = 100000
-            );
-        
         #endregion
 
         #region Printer
@@ -314,13 +257,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string GetDefaultWebCamUri();
         public string GetWebCamUri(IWebCamConfig? config);
         public Task<string> GetWebCamUriAsync(int index = 0, bool refreshWebCamConfig = false);
-        #endregion
-
-        #region Misc
-
-        public void CancelCurrentRequests();
-        public IAuthenticationHeader? GetAuthHeader(string key);
-        public void AddOrUpdateAuthHeader(string key, string value, int order = 0);
         #endregion
 
         #endregion
