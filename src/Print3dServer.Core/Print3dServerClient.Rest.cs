@@ -1,12 +1,9 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
-using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.REST;
-using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Net;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -19,7 +16,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Rest Api
-        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+        [Obsolete("Use the common RestApiClient.SendRestApiRequestAsync instead")]
+        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestLegacyAsync(
             string? requestTargetUri,
             Method method,
             string? command,
@@ -179,9 +177,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
             return apiRsponeResult;
-        }   
+        }
 
-        public virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        [Obsolete("Use the common RestApiClient.SendMultipartFormDataFileRestApiRequestAsync instead")]
+        public virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestLegacyAsync(
             string requestTargetUri,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             string? fileName = null,
@@ -324,7 +323,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Download
-        public virtual async Task<byte[]?> DownloadFileFromUriAsync(
+        public new virtual async Task<byte[]?> DownloadFileFromUriAsync(
             string path,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? urlSegments = null,

@@ -3,6 +3,7 @@ using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Exceptions;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.REST;
+using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.Core.Utilities;
 using Newtonsoft.Json;
@@ -117,7 +118,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
         string sessionId = string.Empty;
         partial void OnSessionIdChanged(string value)
         {
-            AddOrUpdateAuthHeader("session", value);
+            switch (Target)
+            {
+                case Print3dServerTarget.Moonraker:
+                    AddOrUpdateAuthHeader("Authorization", value, AuthenticationHeaderTarget.Header); 
+                    break;
+                case Print3dServerTarget.RepetierServer:
+                    AddOrUpdateAuthHeader("sess", value, AuthenticationHeaderTarget.UrlSegment);
+                    break;
+                case Print3dServerTarget.OctoPrint:
+                case Print3dServerTarget.PrusaConnect:
+                case Print3dServerTarget.Custom:
+                default:
+                    AddOrUpdateAuthHeader("session", value, AuthenticationHeaderTarget.Header);
+                    break;
+            }
             OnSessionChangedEvent(new()
             {
                 SessionId = value,
@@ -160,16 +175,20 @@ namespace AndreasReitberger.API.Print3dServer.Core
         string apiKey = string.Empty;
         partial void OnApiKeyChanged(string value)
         {
+            // Octoprint: https://docs.octoprint.org/en/master/api/general.html#authorization
+            // Repetier Server: https://www.repetier-server.com/manuals/programming/API/index.html
             switch (Target)
             {
+                case Print3dServerTarget.PrusaConnect:
                 case Print3dServerTarget.Custom:
                     break;
-                case Print3dServerTarget.PrusaConnect:
+                case Print3dServerTarget.RepetierServer:
+                    AddOrUpdateAuthHeader("apikey", value, AuthenticationHeaderTarget.UrlSegment);
+                    break;
                 case Print3dServerTarget.OctoPrint:
                 case Print3dServerTarget.Moonraker:
-                case Print3dServerTarget.RepetierServer:
                 default:
-                    AddOrUpdateAuthHeader("apikey", value);
+                    AddOrUpdateAuthHeader("X-Api-Key", value, AuthenticationHeaderTarget.Header);
                     break;
             }
             WebSocketTargetUri = GetWebSocketTargetUri();

@@ -1,6 +1,4 @@
-﻿using System.Collections.ObjectModel;
-
-namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
+﻿namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
     public interface IJobListChangedEventArgs : IPrint3dBaseEventArgs
     {

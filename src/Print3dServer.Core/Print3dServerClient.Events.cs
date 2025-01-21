@@ -1,4 +1,5 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
+using AndreasReitberger.API.REST.Events;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -77,44 +78,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Errors
 
-        public event EventHandler? Error;
-        protected virtual void OnError()
-        {
-            Error?.Invoke(this, EventArgs.Empty);
-        }
+        public new event EventHandler? Error;
         protected virtual void OnError(ErrorEventArgs e)
         {
             Error?.Invoke(this, e);
-        }
-        protected virtual void OnError(UnhandledExceptionEventArgs e)
-        {
-            Error?.Invoke(this, e);
-        }
-        protected virtual void OnError(JsonConvertEventArgs e)
-        {
-            Error?.Invoke(this, e);
-        }
-        public event EventHandler<RestEventArgs>? RestApiError;
-        protected virtual void OnRestApiError(RestEventArgs e)
-        {
-            RestApiError?.Invoke(this, e);
-        }
-
-        public event EventHandler<RestEventArgs>? RestApiAuthenticationError;
-        protected virtual void OnRestApiAuthenticationError(RestEventArgs e)
-        {
-            RestApiAuthenticationError?.Invoke(this, e);
-        }
-        public event EventHandler<RestEventArgs>? RestApiAuthenticationSucceeded;
-        protected virtual void OnRestApiAuthenticationSucceeded(RestEventArgs e)
-        {
-            RestApiAuthenticationSucceeded?.Invoke(this, e);
-        }
-
-        public event EventHandler<JsonConvertEventArgs>? RestJsonConvertError;
-        protected virtual void OnRestJsonConvertError(JsonConvertEventArgs e)
-        {
-            RestJsonConvertError?.Invoke(this, e);
         }
 
         #endregion
