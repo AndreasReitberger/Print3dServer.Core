@@ -10,28 +10,28 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Properties
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int activeToolheadIndex = 0;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial int ActiveToolheadIndex { get; set; } = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int numberOfToolHeads = 0;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial int NumberOfToolHeads { get; set; } = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool isMultiExtruder = false;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial bool IsMultiExtruder { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasHeatedBed = false;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial bool HasHeatedBed { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasHeatedChamber = false;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial bool HasHeatedChamber { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IToolhead? activeToolhead;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial IToolhead? ActiveToolhead { get; set; }
         partial void OnActiveToolheadChanged(IToolhead? value)
         {
             OnToolheadChangedEvent(new()
@@ -43,8 +43,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ConcurrentDictionary<int, IToolhead> toolheads = [];
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial ConcurrentDictionary<int, IToolhead> Toolheads { get; set; } = [];
         partial void OnToolheadsChanged(ConcurrentDictionary<int, IToolhead> value)
         {
             OnToolheadsChangedEvent(new()
@@ -59,8 +59,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IHeaterComponent? activeHeatedBed;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial IHeaterComponent? ActiveHeatedBed { get; set; }
         partial void OnActiveHeatedBedChanged(IHeaterComponent? value)
         {
             OnHeaterChangedEvent(new()
@@ -72,8 +72,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ConcurrentDictionary<int, IHeaterComponent> heatedBeds = [];
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial ConcurrentDictionary<int, IHeaterComponent> HeatedBeds { get; set; } = [];
         partial void OnHeatedBedsChanged(ConcurrentDictionary<int, IHeaterComponent> value)
         {
             OnHeatersChangedEvent(new()
@@ -87,8 +87,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IHeaterComponent? activeHeatedChamber;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial IHeaterComponent? ActiveHeatedChamber { get; set; }
         partial void OnActiveHeatedChamberChanged(IHeaterComponent? value)
         {
             OnHeaterChangedEvent(new()
@@ -100,8 +100,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ConcurrentDictionary<int, IHeaterComponent> heatedChambers = [];
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial ConcurrentDictionary<int, IHeaterComponent> HeatedChambers { get; set; } = [];
         partial void OnHeatedChambersChanged(ConcurrentDictionary<int, IHeaterComponent> value)
         {
             OnHeatersChangedEvent(new()

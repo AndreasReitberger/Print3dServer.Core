@@ -12,12 +12,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Properties
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasWebCam = false;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial bool HasWebCam { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IWebCamConfig? selectedWebCam;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial IWebCamConfig? SelectedWebCam { get; set; }
         partial void OnSelectedWebCamChanged(IWebCamConfig? value)
         {
             OnWebCamConfigChanged(new WebCamConfigChangedEventArgs()
@@ -27,8 +27,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ObservableCollection<IWebCamConfig> webCams = [];
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial ObservableCollection<IWebCamConfig> WebCams { get; set; } = [];
         partial void OnWebCamsChanged(ObservableCollection<IWebCamConfig> value)
         {
             OnWebCamConfigsChanged(new WebCamConfigsChangedEventArgs()
@@ -38,25 +38,25 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string webCamTargetUri = string.Empty;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial string WebCamTargetUri { get; set; } = string.Empty;
 
         [ObservableProperty]
-        string webCamTarget = "/webcam/?action=stream";
+        public partial string WebCamTarget { get; set; } = "/webcam/?action=stream";
         partial void OnWebCamTargetChanged(string value)
         {
             WebCamTargetUri = GetDefaultWebCamUri();
         }
 
         [ObservableProperty]
-        int webCamIndex = 0;
+        public partial int WebCamIndex { get; set; } = 0;
         partial void OnWebCamIndexChanged(int value)
         {
             WebCamTargetUri = GetDefaultWebCamUri();
         }
 
         [ObservableProperty]
-        string webCamMultiCamTarget = "?cam=";
+        public partial string WebCamMultiCamTarget { get; set; } = "?cam=";
         partial void OnWebCamMultiCamTargetChanged(string value)
         {
             WebCamTargetUri = GetDefaultWebCamUri();

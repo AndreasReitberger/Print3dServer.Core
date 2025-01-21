@@ -11,10 +11,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Methods
 
-        #region ValidateResult
-
-        #endregion
-
         #region Rest Api
         [Obsolete("Use the common RestApiClient.SendRestApiRequestAsync instead")]
         public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestLegacyAsync(
