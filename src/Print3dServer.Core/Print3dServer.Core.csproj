@@ -20,10 +20,11 @@
 
 	<ItemGroup>
 		<PackageReference Include="RCoreSharp" Version="1.0.9" />
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
 		<PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+		<PackageReference Include="RestApiClientSharp" Version="1.0.1" />
 		<PackageReference Include="RestSharp" Version="112.1.0" />
-		<PackageReference Include="System.Text.Json" Version="9.0.0" />
+		<PackageReference Include="System.Text.Json" Version="9.0.1" />
 		<PackageReference Include="Websocket.Client" Version="5.1.2" />
 		
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />

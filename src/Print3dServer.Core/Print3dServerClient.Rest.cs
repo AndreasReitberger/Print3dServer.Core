@@ -1,9 +1,9 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
-using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using AndreasReitberger.API.REST;
+using AndreasReitberger.API.REST.Interfaces;
 using Newtonsoft.Json;
 using System.Diagnostics;
-using System.Net;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -13,104 +13,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ValidateResult
 
-        protected virtual bool GetQueryResult(string? result, bool emptyResultIsValid = false)
-        {
-            try
-            {
-                if ((string.IsNullOrEmpty(result) || result == "{}") && emptyResultIsValid)
-                    return true;
-                IQueryActionResult? actionResult = GetObjectFromJson<QueryActionResult>(result);
-                return actionResult?.Ok ?? false;
-            }
-            catch (JsonException jecx)
-            {
-                OnError(new JsonConvertEventArgs()
-                {
-                    Exception = jecx,
-                    OriginalString = result,
-                    Message = jecx.Message,
-                });
-                return false;
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-                return false;
-            }
-        }
-
-        protected virtual IRestApiRequestRespone ValidateResponse(RestResponse? respone, Uri? targetUri)
-        {
-            RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
-            try
-            {
-                if (respone is null) return apiRsponeResult;
-                if ((
-                    respone.StatusCode == HttpStatusCode.OK || respone.StatusCode == HttpStatusCode.NoContent ||
-                    respone.StatusCode == HttpStatusCode.Created || respone.StatusCode == HttpStatusCode.Accepted
-                    ) && respone.ResponseStatus == ResponseStatus.Completed
-                    )
-                {
-                    apiRsponeResult.IsOnline = true;
-                    AuthenticationFailed = false;
-                    apiRsponeResult.Result = respone.Content;
-                    apiRsponeResult.Succeeded = true;
-                    apiRsponeResult.EventArgs = new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    };
-                }
-                else if (respone.StatusCode == HttpStatusCode.NonAuthoritativeInformation
-                    || respone.StatusCode == HttpStatusCode.Forbidden
-                    || respone.StatusCode == HttpStatusCode.Unauthorized
-                    )
-                {
-                    apiRsponeResult.IsOnline = true;
-                    apiRsponeResult.HasAuthenticationError = true;
-                    apiRsponeResult.EventArgs = new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    };
-                }
-                else if (respone.StatusCode == HttpStatusCode.Conflict)
-                {
-                    apiRsponeResult.IsOnline = true;
-                    apiRsponeResult.HasAuthenticationError = false;
-                    apiRsponeResult.EventArgs = new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    };
-                }
-                else
-                {
-                    OnRestApiError(new RestEventArgs()
-                    {
-                        Status = respone.ResponseStatus.ToString(),
-                        Exception = respone.ErrorException,
-                        Message = respone.ErrorMessage,
-                        Uri = targetUri,
-                    });
-                }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-            return apiRsponeResult;
-        }
         #endregion
 
         #region Rest Api
-        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestAsync(
+        [Obsolete("Use the common RestApiClient.SendRestApiRequestAsync instead")]
+        public virtual async Task<IRestApiRequestRespone?> SendRestApiRequestLegacyAsync(
             string? requestTargetUri,
             Method method,
             string? command,
@@ -270,9 +177,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
             return apiRsponeResult;
-        }   
+        }
 
-        public virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestAsync(
+        [Obsolete("Use the common RestApiClient.SendMultipartFormDataFileRestApiRequestAsync instead")]
+        public virtual async Task<IRestApiRequestRespone?> SendMultipartFormDataFileRestApiRequestLegacyAsync(
             string requestTargetUri,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             string? fileName = null,
@@ -415,7 +323,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Download
-        public virtual async Task<byte[]?> DownloadFileFromUriAsync(
+        public new virtual async Task<byte[]?> DownloadFileFromUriAsync(
             string path,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? urlSegments = null,

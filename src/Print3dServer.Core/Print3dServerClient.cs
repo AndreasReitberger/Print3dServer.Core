@@ -2,6 +2,9 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Exceptions;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using AndreasReitberger.API.REST;
+using AndreasReitberger.API.REST.Enums;
+using AndreasReitberger.API.REST.Interfaces;
 using AndreasReitberger.Core.Utilities;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
@@ -10,12 +13,8 @@ using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
-    public abstract partial class Print3dServerClient : ObservableObject, IPrint3dServerClient
+    public abstract partial class Print3dServerClient : RestApiClient, IPrint3dServerClient
     {
-        #region Variables
-        protected int _retries = 0;
-        #endregion
-
         #region Properties
 
         #region Base
@@ -32,7 +31,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Instance
    
-        public static IPrint3dServerClient? Instance;
+        public new static IPrint3dServerClient? Instance;
 
         [ObservableProperty]
         bool isActive = false;
@@ -119,7 +118,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
         string sessionId = string.Empty;
         partial void OnSessionIdChanged(string value)
         {
-            AddOrUpdateAuthHeader("session", value);
+            switch (Target)
+            {
+                case Print3dServerTarget.Moonraker:
+                    AddOrUpdateAuthHeader("Authorization", value, AuthenticationHeaderTarget.Header); 
+                    break;
+                case Print3dServerTarget.RepetierServer:
+                    AddOrUpdateAuthHeader("sess", value, AuthenticationHeaderTarget.UrlSegment);
+                    break;
+                case Print3dServerTarget.OctoPrint:
+                case Print3dServerTarget.PrusaConnect:
+                case Print3dServerTarget.Custom:
+                default:
+                    AddOrUpdateAuthHeader("session", value, AuthenticationHeaderTarget.Header);
+                    break;
+            }
             OnSessionChangedEvent(new()
             {
                 SessionId = value,
@@ -162,16 +175,20 @@ namespace AndreasReitberger.API.Print3dServer.Core
         string apiKey = string.Empty;
         partial void OnApiKeyChanged(string value)
         {
+            // Octoprint: https://docs.octoprint.org/en/master/api/general.html#authorization
+            // Repetier Server: https://www.repetier-server.com/manuals/programming/API/index.html
             switch (Target)
             {
+                case Print3dServerTarget.PrusaConnect:
                 case Print3dServerTarget.Custom:
                     break;
-                case Print3dServerTarget.PrusaConnect:
+                case Print3dServerTarget.RepetierServer:
+                    AddOrUpdateAuthHeader("apikey", value, AuthenticationHeaderTarget.UrlSegment);
+                    break;
                 case Print3dServerTarget.OctoPrint:
                 case Print3dServerTarget.Moonraker:
-                case Print3dServerTarget.RepetierServer:
                 default:
-                    AddOrUpdateAuthHeader("apikey", value);
+                    AddOrUpdateAuthHeader("X-Api-Key", value, AuthenticationHeaderTarget.Header);
                     break;
             }
             WebSocketTargetUri = GetWebSocketTargetUri();
@@ -667,21 +684,21 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Online Check
-        public virtual async Task CheckOnlineAsync(int timeout = 10000)
+        public new virtual async Task CheckOnlineAsync(int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(FullWebAddress, AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public virtual async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public new virtual async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default)
+        public new virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, CancellationTokenSource? cts = default)
         {
             if (IsConnecting) return; // Avoid multiple calls
             IsConnecting = true;
@@ -700,14 +717,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        authHeaders: authHeaders,
                        cts: cts)
                     .ConfigureAwait(false);
-                    /*
-                    IRestApiRequestRespone? respone = await SendOnlineCheckRestApiRequestAsync(
-                       commandBase, command,
-                       authHeaders: authHeaders,
-                       cts: cts)
-                    .ConfigureAwait(false);
-                    */
-
                     isReachable = respone?.IsOnline == true;
                 }
                 catch (InvalidOperationException iexc)
@@ -744,6 +753,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
+        /*
         public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             try
@@ -780,6 +790,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return false;
             }
         }
+        */
         
         public virtual async Task<bool> SendGcodeAsync(string command = "send", object? data = null, string? targetUri = null)
         {
@@ -827,46 +838,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
             IsRefreshing = false;
-        }
-        #endregion
-
-        #region Misc
-
-        public virtual void AddOrUpdateAuthHeader(string key, string value, int order = 0)
-        {
-            if (AuthHeaders?.ContainsKey(key) is true)
-            {
-                AuthHeaders[key] = new AuthenticationHeader() { Token = value, Order = order };
-            }
-            else
-            {
-                AuthHeaders?.Add(key, new AuthenticationHeader() { Token = value, Order = order });
-            }
-        }
-
-        public virtual IAuthenticationHeader? GetAuthHeader(string key)
-        {
-            if (AuthHeaders?.ContainsKey(key) is true)
-            {
-                return AuthHeaders?[key]; 
-            }
-            return null;
-        }
-
-        public virtual void CancelCurrentRequests()
-        {
-            try
-            {
-                if (HttpClient != null)
-                {
-                    HttpClient.CancelPendingRequests();
-                    UpdateRestClientInstance();
-                }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
         }
         #endregion
 
@@ -1186,12 +1157,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Dispose
-        public void Dispose()
+        public new void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-        protected void Dispose(bool disposing)
+        protected new void Dispose(bool disposing)
         {
             // Ordinarily, we release unmanaged resources here;
             // but all are wrapped by safe handles.
@@ -1203,15 +1174,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _ = DisconnectWebSocketAsync();
             }
         }
-        #endregion
-
-        #region Clone
-
-        public object Clone()
-        {
-            return MemberwiseClone();
-        }
-
         #endregion
     }
 }
