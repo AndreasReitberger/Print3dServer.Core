@@ -1,8 +1,8 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <Import Project="..\..\common.props" />
   <PropertyGroup>
-	<TargetFrameworks>netstandard2.1;net8</TargetFrameworks>
+	<TargetFrameworks>netstandard2.1;net8;net9</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
 	<RootNamespace>AndreasReitberger.API.Print3dServer.Core</RootNamespace>
