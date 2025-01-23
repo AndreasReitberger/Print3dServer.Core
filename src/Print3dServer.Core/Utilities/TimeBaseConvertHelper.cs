@@ -43,7 +43,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Utilities
                 TimeSpan ts = TimeSpan.FromSeconds(Convert.ToDouble(seconds));
                 if (!withMiliSeconds)
                     ts = new TimeSpan(ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
-                
+
                 return ts;
             }
             catch (Exception)
@@ -59,7 +59,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Utilities
             try
             {
                 TimeSpan ts = TimeSpan.FromSeconds(Convert.ToDouble(hours));
-                if(!withMiliSeconds)
+                if (!withMiliSeconds)
                     ts = new TimeSpan(ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
                 DateTime eta = DateTime.Now.Add(ts);
                 return eta;
@@ -75,8 +75,8 @@ namespace AndreasReitberger.API.Print3dServer.Core.Utilities
             try
             {
                 TimeSpan ts = TimeSpan.FromSeconds(Convert.ToDouble(seconds));
-                if (!withMiliSeconds)               
-                    ts = new TimeSpan(ts.Days, ts.Hours, ts.Minutes, ts.Seconds);         
+                if (!withMiliSeconds)
+                    ts = new TimeSpan(ts.Days, ts.Hours, ts.Minutes, ts.Seconds);
                 DateTime eta = DateTime.Now.Add(ts);
                 return eta;
             }

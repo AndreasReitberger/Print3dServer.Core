@@ -5,7 +5,7 @@
         #region Properties
 
         public Guid Id { get; set; }
-        public string Name { get; set; }     
+        public string Name { get; set; }
         public string DirectoryName { get; set; }
         public string Path { get; set; }
         public string Root { get; set; }

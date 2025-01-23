@@ -6,7 +6,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
     public partial class FanChangedEventArgs : Print3dBaseEventArgs, IFanChangedEventArgs
     {
         #region Properties
-        public string? Name { get; set; }  
+        public string? Name { get; set; }
         public IPrint3dFan? Fan { get; set; }
         #endregion
 

@@ -45,11 +45,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public partial string WebSocketTarget { get; set; } = "/socket/";
         partial void OnWebSocketTargetChanged(string value)
         {
-            if(value?.StartsWith("/") is true)
+            if (value?.StartsWith("/") is true)
             {
                 WebSocketTarget = string.Join("", value.Skip(1));
             }
-            if(value?.EndsWith("/") is true)
+            if (value?.EndsWith("/") is true)
             {
                 WebSocketTarget = string.Join("", value.Take(value.Length - 1));
             }
@@ -160,7 +160,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
- 
+
         public virtual Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
 
         public virtual string BuildPingCommand(object? data = null)
@@ -182,11 +182,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     data = new
                     {
                         action = "ping",
-                        /*data = $"{{\"source\":\"{"App"}\"}}",*/                   
+                        /*data = $"{{\"source\":\"{"App"}\"}}",*/
                         data = new
                         {
                             source = "App"
-                        },                      
+                        },
                         printer = GetActivePrinterSlug(),
                         callback_id = PingCounter
                     };
@@ -229,7 +229,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             await ConnectWebSocketAsync(target, commandsOnConnect: commandsOnConnect).ConfigureAwait(false);
             IsListening = true;
         }
-       
+
         public virtual async Task StopListeningAsync()
         {
             CancelCurrentRequests();
@@ -325,7 +325,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         else RefreshCounter++;
                         if (IsOnline)
                         {
-                            if(OnRefresh is not null)
+                            if (OnRefresh is not null)
                             {
                                 await OnRefresh.Invoke().ConfigureAwait(false);
 #if DEBUG
@@ -392,7 +392,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 //StopPingTimer();
                 OnWebSocketDisconnected(new Print3dBaseEventArgs()
                 {
-                    Message = 
+                    Message =
                     $"WebSocket connection to {WebSocket} closed. Connection state while closing was '{(IsOnline ? "online" : "offline")}'" +
                     $"\n-- Connection closed: {info?.Type} | {info?.CloseStatus} | {info?.CloseStatusDescription}",
                     Printer = GetActivePrinterSlug(),

@@ -100,7 +100,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region ToolHead
-        public IToolhead? ActiveToolhead { get; set; }   
+        public IToolhead? ActiveToolhead { get; set; }
         public double X { get; set; }
         public double Y { get; set; }
         public double Z { get; set; }
@@ -139,7 +139,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region Data Convertion
 
-        public ConcurrentDictionary<string, string> IgnoredJsonResults { get;set; }
+        public ConcurrentDictionary<string, string> IgnoredJsonResults { get; set; }
 
 
         #endregion

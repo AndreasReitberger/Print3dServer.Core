@@ -5,7 +5,7 @@
         #region Properties
         public bool On { get; set; }
         public long? Voltage { get; set; }
-        public int? Speed { get; }      
+        public int? Speed { get; }
         public int? Percent { get; }
         #endregion
 

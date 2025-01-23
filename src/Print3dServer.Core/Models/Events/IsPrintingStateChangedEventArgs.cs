@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
     public partial class IsPrintingStateChangedEventArgs : Print3dBaseEventArgs, IIsPrintingStateChangedEventArgs
-    { 
+    {
         #region Properties
         public bool IsPrinting { get; set; }
         public bool IsPaused { get; set; }

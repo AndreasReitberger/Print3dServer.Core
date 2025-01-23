@@ -53,7 +53,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 Toolheads = value,
                 Printer = GetActivePrinterSlug(),
             });
-            ActiveToolhead = value?.ContainsKey(ActiveToolheadIndex) is true ? 
+            ActiveToolhead = value?.ContainsKey(ActiveToolheadIndex) is true ?
                 value?[ActiveToolheadIndex] : value?.FirstOrDefault().Value;
         }
 

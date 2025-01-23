@@ -43,7 +43,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 Fans = value,
                 Printer = GetActivePrinterSlug(),
             });
-            ActiveFan = value?.ContainsKey(ActiveFanIndex) is true ? 
+            ActiveFan = value?.ContainsKey(ActiveFanIndex) is true ?
                 value?[ActiveFanIndex] : value?.FirstOrDefault().Value;
         }
 
