@@ -1,10 +1,8 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Events;
-using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Net;
 using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
@@ -39,7 +37,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public bool LoginRequired { get; set; }
         public bool IsLoggedIn { get; set; }
         public string Username { get; set; }
-        public SecureString? Password { get; set; }
+        public string? Password { get; set; }
         #endregion
 
         #region States

@@ -1,5 +1,4 @@
-﻿using System.Security;
-using Newtonsoft.Json;
+﻿using Newtonsoft.Json;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -8,16 +7,15 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Properties
         [ObservableProperty]
-        bool isLoggedIn = false;
-
-        [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string username = string.Empty;
+        public partial bool IsLoggedIn { get; set; } = false;
 
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        SecureString? password;
+        public partial string Username { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial string? Password { get; set; }
         #endregion
 
     }

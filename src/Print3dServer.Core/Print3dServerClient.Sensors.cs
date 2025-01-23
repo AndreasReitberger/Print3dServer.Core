@@ -9,12 +9,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Properties
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int numberOfSensors = 0;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial int NumberOfSensors { get; set; } = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ConcurrentDictionary<string, ISensorComponent> sensors = [];
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial ConcurrentDictionary<string, ISensorComponent> Sensors { get; set; } = [];
         partial void OnSensorsChanged(ConcurrentDictionary<string, ISensorComponent> value)
         {
             OnSensorsChangedEvent(new()

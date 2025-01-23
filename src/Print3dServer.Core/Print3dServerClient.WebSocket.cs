@@ -2,7 +2,6 @@
 using AndreasReitberger.API.REST.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Websocket.Client;
 
@@ -12,38 +11,38 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Properties
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        WebsocketClient? webSocket;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial WebsocketClient? WebSocket { get; set; }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        long lastPingTimestamp;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial long LastPingTimestamp { get; set; }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int pingInterval = 60;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial int PingInterval { get; set; } = 60;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        long pingCounter = 0;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial long PingCounter { get; set; } = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        long lastRefreshTimestamp;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial long LastRefreshTimestamp { get; set; }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int refreshCounter = 0;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial int RefreshCounter { get; set; } = 0;
 
         [ObservableProperty]
-        string pingCommand = string.Empty;
+        public partial string PingCommand { get; set; } = string.Empty;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string webSocketTargetUri = string.Empty;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial string WebSocketTargetUri { get; set; } = string.Empty;
 
         [ObservableProperty]
-        string webSocketTarget = "/socket/";
+        public partial string WebSocketTarget { get; set; } = "/socket/";
         partial void OnWebSocketTargetChanged(string value)
         {
             if(value?.StartsWith("/") is true)
@@ -61,9 +60,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        [ObservableProperty, Obsolete("Use IsListening instead")]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool isListeningToWebsocket = false;
+        [ObservableProperty]
+        [field: Obsolete("Use IsListening instead")]
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial bool IsListeningToWebsocket { get; set; } = false;
         partial void OnIsListeningToWebsocketChanged(bool value)
         {
             OnListeningChangedEvent(new ListeningChangedEventArgs()

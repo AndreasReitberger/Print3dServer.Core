@@ -1,5 +1,4 @@
-﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
-using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 
@@ -10,20 +9,20 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Properties
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        string activeFanIndex = string.Empty;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial string ActiveFanIndex { get; set; } = string.Empty;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        int numberOfFans = 0;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial int NumberOfFans { get; set; } = 0;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        bool hasFan = false;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial bool HasFan { get; set; } = false;
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        IPrint3dFan? activeFan;
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial IPrint3dFan? ActiveFan { get; set; }
         partial void OnActiveFanChanged(IPrint3dFan? value)
         {
             OnFanChangedEvent(new()
@@ -35,8 +34,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [property: JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        ConcurrentDictionary<string, IPrint3dFan> fans = [];
+        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        public partial ConcurrentDictionary<string, IPrint3dFan> Fans { get; set; } = [];
         partial void OnFansChanged(ConcurrentDictionary<string, IPrint3dFan> value)
         {
             OnFansChangedEvent(new()
