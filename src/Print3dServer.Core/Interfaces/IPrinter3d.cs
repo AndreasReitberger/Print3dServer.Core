@@ -11,7 +11,7 @@
         public bool IsPaused { get; set; }
         public bool IsPrinting { get; set; }
         public string ActiveJobId { get; set; }
-        public string ActiveJobName { get; set;}
+        public string ActiveJobName { get; set; }
         public string? ActiveJobState { get; set; }
         public long? LineSent { get; set; }
         public long? Layers { get; set; }

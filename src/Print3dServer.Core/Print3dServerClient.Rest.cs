@@ -26,7 +26,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             RestApiRequestRespone apiRsponeResult = new() { IsOnline = IsOnline };
             try
             {
-                cts ??= new(DefaultTimeout);                
+                cts ??= new(DefaultTimeout);
                 requestTargetUri ??= string.Empty;
                 command ??= string.Empty;
                 if (RestClient == null)
@@ -57,14 +57,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
                             else if (authHeaders?.ContainsKey("oneshottoken") is true)
                             {
                                 apiKey = authHeaders?.FirstOrDefault(x => x.Key == "oneshottoken").Value?.Token;
-                                if(apiKey is not null)
+                                if (apiKey is not null)
                                     //request.AddHeader("Authorization", $"Bearer {SessionId}");
                                     request.AddHeader("Authorization", $"Bearer {apiKey}");
                             }
                             else if (authHeaders?.ContainsKey("usertoken") is true)
                             {
                                 apiKey = authHeaders?.FirstOrDefault(x => x.Key == "usertoken").Value?.Token;
-                                if(apiKey is not null)
+                                if (apiKey is not null)
                                     //request.AddHeader("Authorization", $"Bearer {SessionId}");
                                     request.AddHeader("Authorization", $"Bearer {apiKey}");
                             }
@@ -134,7 +134,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 try
                 {
                     if (RestClient is not null)
-                    { 
+                    {
                         RestResponse? respone = await RestClient.ExecuteAsync(request, cts.Token).ConfigureAwait(false);
 #if DEBUG
                         Debug.WriteLine($"REST: Result = '{(respone?.IsSuccessful is true ? "successfully" : "failed")} (Code: {respone?.StatusCode})'\n{respone?.Content}");
@@ -197,9 +197,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 // If there is no file specified
                 if (file is null && localFilePath is null)
                     // and there are no additional parameters supplied, throw
-                    if(parameters?.Count == 0)
+                    if (parameters?.Count == 0)
                         throw new ArgumentNullException(
-                            $"{nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}", 
+                            $"{nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}",
                             $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!");
                 if (RestClient is null)
                 {

@@ -4,7 +4,7 @@ using Newtonsoft.Json;
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
     public partial class JobStatusChangedEventArgs : Print3dBaseEventArgs, IJobStatusChangedEventArgs
-    { 
+    {
         #region Properties
         public IPrint3dJobStatus? NewJobStatus { get; set; }
         public IPrint3dJobStatus? PreviousJobStatus { get; set; }

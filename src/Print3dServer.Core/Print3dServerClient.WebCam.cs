@@ -119,10 +119,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         break;
                     case Print3dServerTarget.RepetierServer:
                         // $"{FullWebAddress}/printer/{(type == RepetierWebcamType.Dynamic ? "cammjpg" : "camjpg")}/{currentPrinter}?cam={camIndex}&apikey={ApiKey}";
-                        baseStream += $"{GetActivePrinterSlug()}{WebCamMultiCamTarget}{WebCamIndex}"; 
+                        baseStream += $"{GetActivePrinterSlug()}{WebCamMultiCamTarget}{WebCamIndex}";
                         token = GetAuthHeader("apikey")?.Token;
                         if (!string.IsNullOrEmpty(token))
-                            baseStream += $"&apikey={token}";                    
+                            baseStream += $"&apikey={token}";
                         break;
                     case Print3dServerTarget.PrusaConnect:
                     case Print3dServerTarget.Custom:

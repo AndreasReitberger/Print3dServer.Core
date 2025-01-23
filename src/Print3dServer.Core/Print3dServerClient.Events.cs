@@ -227,7 +227,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         #endregion
-        
+
         #region Fans
         public event EventHandler<FanChangedEventArgs>? FanChanged;
         protected virtual void OnFanChangedEvent(FanChangedEventArgs e)
@@ -242,7 +242,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         #endregion
-        
+
         #region Sensors
         public event EventHandler<SensorsChangedEventArgs>? SensorsChanged;
         protected virtual void OnSensorsChangedEvent(SensorsChangedEventArgs e)

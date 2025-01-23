@@ -6,7 +6,7 @@
         Shutdown,
         InProgress,
         Cancelled,
-        Paused, 
+        Paused,
         Operational,
         Connecting,
         Printing,

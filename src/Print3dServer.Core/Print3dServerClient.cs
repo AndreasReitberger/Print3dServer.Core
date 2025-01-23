@@ -103,7 +103,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             switch (Target)
             {
                 case Print3dServerTarget.Moonraker:
-                    AddOrUpdateAuthHeader("Authorization", value, AuthenticationHeaderTarget.Header); 
+                    AddOrUpdateAuthHeader("Authorization", value, AuthenticationHeaderTarget.Header);
                     break;
                 case Print3dServerTarget.RepetierServer:
                     AddOrUpdateAuthHeader("sess", value, AuthenticationHeaderTarget.UrlSegment);
@@ -661,7 +661,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             cts?.Dispose();
         }
 
-        public new virtual async Task CheckOnlineAsync(string commandBase,Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public new virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
         {
             CancellationTokenSource cts = new(timeout);
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
@@ -680,7 +680,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     // Send a blank api request in order to check if the server is reachable
                     IRestApiRequestRespone? respone = await SendRestApiRequestAsync(
-                       requestTargetUri: commandBase, 
+                       requestTargetUri: commandBase,
                        method: Method.Get,
                        command: command,
                        jsonObject: null,
@@ -761,7 +761,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
         */
-        
+
         public virtual async Task<bool> SendGcodeAsync(string command = "send", object? data = null, string? targetUri = null)
         {
             try
@@ -906,16 +906,16 @@ namespace AndreasReitberger.API.Print3dServer.Core
             try
             {
                 // "{{\"id\":{0}}}", id
-                data ??= new 
+                data ??= new
                 {
                     id = job.JobId,
                 };
                 IRestApiRequestRespone? result =
                     await SendRestApiRequestAsync(
-                        requestTargetUri: targetUri ?? ApiTargetPath, 
-                        method: Method.Post, 
-                        command: command ?? "continueJob", 
-                        authHeaders: AuthHeaders, 
+                        requestTargetUri: targetUri ?? ApiTargetPath,
+                        method: Method.Post,
+                        command: command ?? "continueJob",
+                        authHeaders: AuthHeaders,
                         jsonObject: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
@@ -1033,8 +1033,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             IPrinter3d? printer = Printers?.FirstOrDefault(prt => prt?.Slug == slug);
             if (printer is not null)
                 ActivePrinter = printer;
-            else 
-                ActivePrinter = Printers?.FirstOrDefault(printer => printer.IsOnline); 
+            else
+                ActivePrinter = Printers?.FirstOrDefault(printer => printer.IsOnline);
         }
         public virtual async Task SetPrinterActiveAsync(int index = -1, bool refreshPrinterList = true)
         {

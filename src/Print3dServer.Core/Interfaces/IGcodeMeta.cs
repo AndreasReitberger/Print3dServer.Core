@@ -9,7 +9,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string FileName { get; set; }
         public double? PrintStartTime { get; set; }
         public long FileSize { get; set; }
-        public double Modified { get;set; }
+        public double Modified { get; set; }
         public string Slicer { get; set; }
         public string SlicerVersion { get; set; }
         public double LayerHeight { get; set; }
