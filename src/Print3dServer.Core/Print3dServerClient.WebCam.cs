@@ -91,7 +91,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     Exception = jecx,
                     OriginalString = result?.Result,
-                    TargetType = nameof(List<IWebCamConfig>),
+                    TargetType = nameof(List<>),
                     Message = jecx.Message,
                 });
                 return resultObject;
