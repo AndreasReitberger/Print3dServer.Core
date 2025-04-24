@@ -29,19 +29,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Instance
 
-        public new static IPrint3dServerClient? Instance;
-
-        /*
-        [ObservableProperty]
-        public partial bool UpdateInstance { get; set; } = false;
-        partial void OnUpdateInstanceChanged(bool value)
-        {
-            if (value)
-            {
-                InitInstance(ServerAddress, Port, ApiKey, IsSecure);
-            }
-        }
-        */
+        public new static IPrint3dServerClient? Instance { get; private set; }
 
         #endregion
 
@@ -371,7 +359,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             OnRemotePrintersChanged(new PrintersChangedEventArgs()
             {
                 SessionId = SessionId,
-                NewPrinters = [.. value],
+                NewPrinters = value is null ? [] : [.. value],
                 Printer = GetActivePrinterSlug(),
                 AuthToken = ApiKey,
             });
@@ -502,6 +490,18 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public string FullWebAddress => $"{(IsSecure ? "https" : "http")}://{ServerAddress}:{Port}";
 
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+#if NET6_0_OR_GREATER
+        public bool IsReady
+            => !string.IsNullOrEmpty(ServerAddress) && Port > 0 && //  !string.IsNullOrEmpty(API)) &&
+            (
+                // Address
+                (R_IPv4Address().IsMatch(ServerAddress) || R_IPv6Address().IsMatch(ServerAddress) || R_Fqdn().IsMatch(ServerAddress)) &&
+                // API-Key (also allow empty key if the user performs a login instead
+                (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern)) ||
+                // Or validation rules are overriden
+                OverrideValidationRules
+            );
+#else
         public bool IsReady
         {
             get
@@ -519,6 +519,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     );
             }
         }
+#endif
         #endregion
 
         #endregion
@@ -824,7 +825,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 else
                 {
                     string cmd = string.Format("G28{0}{1}{2}", x ? " X0 " : "", y ? " Y0 " : "", z ? " Z0 " : "");
-                    result = await SendGcodeAsync(command: "send", new { cmd = cmd }, targetUri: targetUri).ConfigureAwait(false);
+                    result = await SendGcodeAsync(command: "send", new { cmd }, targetUri: targetUri).ConfigureAwait(false);
                 }
                 return result;
             }
