@@ -199,8 +199,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     // and there are no additional parameters supplied, throw
                     if (parameters?.Count == 0)
                         throw new ArgumentNullException(
-                            $"{nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}",
-                            $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!");
+                            nameof(parameters),
+                            $"No file, localFilePath and paramaters have been provided! Set at least one of those three parameters!\n" +
+                            $"{nameof(SendMultipartFormDataFileRestApiRequestLegacyAsync)}: {nameof(file)} / {nameof(localFilePath)} / {nameof(parameters)}");
                 if (RestClient is null)
                 {
                     UpdateRestClientInstance();
@@ -319,7 +320,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Download
-        public new virtual async Task<byte[]?> DownloadFileFromUriAsync(
+        public virtual async Task<byte[]?> DownloadFileFromUriAsync(
             string path,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? urlSegments = null,

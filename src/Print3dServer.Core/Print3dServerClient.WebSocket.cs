@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 using Websocket.Client;
+#if DEBUG
+using System.Diagnostics;
+#endif
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -165,39 +168,30 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         public virtual string BuildPingCommand(object? data = null)
         {
-            switch (Target)
+            data = Target switch
             {
-                case Enums.Print3dServerTarget.Moonraker:
-                    // Example: {{\"jsonrpc\":\"2.0\",\"method\":\"server.info\",\"params\":{{}},\"id\":1}}
+                // Example: {{\"jsonrpc\":\"2.0\",\"method\":\"server.info\",\"params\":{{}},\"id\":1}}
+                Enums.Print3dServerTarget.Moonraker => new
+                {
+                    jsonrpc = "2.0",
+                    method = "server.info",
+                    @params = new { },
+                    id = PingCounter,
+                },
+                //Example: $"{{\"action\":\"ping\",\"data\":{{\"source\":\"{"App"}\"}},\"printer\":\"{GetActivePrinterSlug()}\",\"callback_id\":{PingCounter}}}"
+                Enums.Print3dServerTarget.RepetierServer => new
+                {
+                    action = "ping",
+                    /*data = $"{{\"source\":\"{"App"}\"}}",*/
                     data = new
                     {
-                        jsonrpc = "2.0",
-                        method = "server.info",
-                        @params = new { },
-                        id = PingCounter,
-                    };
-                    break;
-                case Enums.Print3dServerTarget.RepetierServer:
-                    //Example: $"{{\"action\":\"ping\",\"data\":{{\"source\":\"{"App"}\"}},\"printer\":\"{GetActivePrinterSlug()}\",\"callback_id\":{PingCounter}}}"
-                    data = new
-                    {
-                        action = "ping",
-                        /*data = $"{{\"source\":\"{"App"}\"}}",*/
-                        data = new
-                        {
-                            source = "App"
-                        },
-                        printer = GetActivePrinterSlug(),
-                        callback_id = PingCounter
-                    };
-                    break;
-                case Enums.Print3dServerTarget.OctoPrint:
-                case Enums.Print3dServerTarget.PrusaConnect:
-                case Enums.Print3dServerTarget.Custom:
-                default:
-                    data = new { };
-                    break;
-            }
+                        source = "App"
+                    },
+                    printer = GetActivePrinterSlug(),
+                    callback_id = PingCounter
+                },
+                _ => new { },
+            };
             return JsonConvert.SerializeObject(data);
         }
 
@@ -258,9 +252,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 #endif            
                 await DisconnectWebSocketAsync();
                 WebSocket = GetWebSocketClient();
-                await WebSocket.StartOrFail()
-                    .ContinueWith(t => SendPingAsync())
-                    ;
+                await WebSocket.StartOrFail().ContinueWith(t => SendPingAsync());
                 if (commandsOnConnect is not null && WebSocket is not null)
                 {
                     // Send command
@@ -339,7 +331,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         }
                     });
                 }
-                if (string.IsNullOrEmpty(SessionId) && msg.Text.ToLower().Contains("session"))
+                if (string.IsNullOrEmpty(SessionId) && msg.Text.Contains("session", StringComparison.CurrentCultureIgnoreCase))
                 {
                     JObject? obj = JsonConvert.DeserializeObject<JObject>(msg.Text);
                     switch (Target)
