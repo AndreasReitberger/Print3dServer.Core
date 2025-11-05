@@ -5,7 +5,7 @@ using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.Core.Utilities;
+using AndreasReitberger.Shared.Core.Utilities;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
@@ -495,7 +495,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
             => !string.IsNullOrEmpty(ServerAddress) && Port > 0 && //  !string.IsNullOrEmpty(API)) &&
             (
                 // Address
-                (R_IPv4Address().IsMatch(ServerAddress) || R_IPv6Address().IsMatch(ServerAddress) || R_Fqdn().IsMatch(ServerAddress)) &&
+                (
+                RegexHelper.IPv4AddressValuesGeneratedRegex().IsMatch(ServerAddress) || 
+                RegexHelper.IPv6AddressGeneratedRegex().IsMatch(ServerAddress) || 
+                RegexHelper.FqdnGeneratedRegex().IsMatch(ServerAddress)) &&
                 // API-Key (also allow empty key if the user performs a login instead
                 (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern)) ||
                 // Or validation rules are overriden
@@ -510,10 +513,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     !string.IsNullOrEmpty(ServerAddress) && Port > 0 && //  !string.IsNullOrEmpty(API)) &&
                     (
                         // Address
-                        (Regex.IsMatch(ServerAddress, RegexHelper.IPv4AddressRegex) || Regex.IsMatch(ServerAddress, RegexHelper.IPv6AddressRegex) || Regex.IsMatch(ServerAddress, RegexHelper.Fqdn)) &&
+                        (
+                        Regex.IsMatch(ServerAddress, RegexHelper.IPv4AddressRegex) || 
+                        Regex.IsMatch(ServerAddress, RegexHelper.IPv6AddressRegex) || 
+                        Regex.IsMatch(ServerAddress, RegexHelper.Fqdn)) &&
                         // API-Key (also allow empty key if the user performs a login instead
                         (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern))
-                    ||
+                        ||
                         // Or validation rules are overriden
                         OverrideValidationRules
                     );
