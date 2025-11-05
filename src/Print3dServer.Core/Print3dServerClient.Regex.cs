@@ -1,5 +1,5 @@
-﻿#if NET6_0_OR_GREATER
-using AndreasReitberger.Core.Utilities;
+﻿#if NET6_0_OR_GREATER && false
+using AndreasReitberger.Shared.Core.Utilities;
 using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core
