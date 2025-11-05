@@ -54,6 +54,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
                             {
                                 request.AddHeader("X-Api-Key", $"{apiKey}");
                             }
+                            // Is used for WebSocket auth only
+                            /*
                             else if (authHeaders?.ContainsKey("oneshottoken") is true)
                             {
                                 apiKey = authHeaders?.FirstOrDefault(x => x.Key == "oneshottoken").Value?.Token;
@@ -61,6 +63,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                                     //request.AddHeader("Authorization", $"Bearer {SessionId}");
                                     request.AddHeader("Authorization", $"Bearer {apiKey}");
                             }
+                            */
                             else if (authHeaders?.ContainsKey("usertoken") is true)
                             {
                                 apiKey = authHeaders?.FirstOrDefault(x => x.Key == "usertoken").Value?.Token;
