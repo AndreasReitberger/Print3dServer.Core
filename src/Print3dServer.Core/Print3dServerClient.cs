@@ -34,10 +34,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region RefreshTimer
-        [ObservableProperty]
-        [Obsolete("Try to replace with WebSocket pinging")]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial Timer? Timer { get; set; }
 
         [ObservableProperty]
         public partial int RefreshInterval { get; set; } = 5;

@@ -63,19 +63,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        [ObservableProperty]
-        [field: Obsolete("Use IsListening instead")]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial bool IsListeningToWebsocket { get; set; } = false;
-        partial void OnIsListeningToWebsocketChanged(bool value)
-        {
-            OnListeningChangedEvent(new ListeningChangedEventArgs()
-            {
-                SessionId = SessionId,
-                IsListening = IsListening,
-                IsListeningToWebSocket = value,
-            });
-        }
         #endregion
 
         #region Methods
