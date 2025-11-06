@@ -21,10 +21,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         public partial Print3dServerTarget Target { get; set; } = Print3dServerTarget.Custom;
-
+        /*
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial Func<Task>? OnRefresh { get; set; }
+        */
         #endregion
 
         #region Instance
@@ -35,6 +36,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region RefreshTimer
 
+        /*
         [ObservableProperty]
         public partial int RefreshInterval { get; set; } = 5;
         partial void OnRefreshIntervalChanged(int value)
@@ -44,7 +46,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
             }
         }
-
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool IsListening { get; set; } = false;
@@ -57,7 +58,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 IsListeningToWebSocket = value,
             });
         }
-
+        */
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool InitialDataFetched { get; set; } = false;
@@ -81,7 +82,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial string SessionId { get; set; } = string.Empty;
+        public new partial string SessionId { get; set; } = string.Empty;
         partial void OnSessionIdChanged(string value)
         {
             switch (Target)
@@ -104,7 +105,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 SessionId = value,
                 Session = value,
                 AuthToken = ApiKey,
-                Printer = GetActivePrinterSlug(),
+                Message = GetActivePrinterSlug(),
             });
         }
 
@@ -114,6 +115,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         public partial string CheckOnlineTargetUri { get; set; } = string.Empty;
 
+        /*
         [ObservableProperty]
         public partial string ServerAddress { get; set; } = string.Empty;
         partial void OnServerAddressChanged(string value)
@@ -121,10 +123,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             UpdateRestClientInstance();
             _ = UpdateWebSocketAsync();
         }
+        */
 
         [ObservableProperty]
         public partial bool LoginRequired { get; set; } = false;
-
+        /*
         [ObservableProperty]
         public partial bool IsSecure { get; set; } = false;
         partial void OnIsSecureChanged(bool value)
@@ -136,6 +139,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _ = UpdateWebSocketAsync();
             }
         }
+        */
 
         [ObservableProperty]
         public partial string ApiKey { get; set; } = string.Empty;
@@ -167,6 +171,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         public partial string ApiKeyRegexPattern { get; set; } = string.Empty;
 
+        /*
         [ObservableProperty]
         public partial int Port { get; set; } = 3344;
         partial void OnPortChanged(int value)
@@ -178,6 +183,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _ = UpdateWebSocketAsync();
             }
         }
+        */
 
         [ObservableProperty]
         public partial bool OverrideValidationRules { get; set; } = false;
@@ -187,6 +193,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public new partial bool IsOnline { get; set; } = false;
         partial void OnIsOnlineChanged(bool value)
         {
+            base.IsOnline = value;
             if (value)
             {
                 OnServerWentOnline(new Print3dBaseEventArgs()
@@ -483,44 +490,33 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ReadOnly
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public string FullWebAddress => $"{(IsSecure ? "https" : "http")}://{ServerAddress}:{Port}";
+        public string FullWebAddress => $"{ApiTargetPath}{(!string.IsNullOrEmpty(ApiVersion) ? $"/{ApiVersion}" : string.Empty)}";
+        //$"{(IsSecure ? "https" : "http")}://{ApiTargetPath}:{Port}{(!string.IsNullOrEmpty(ApiVersion) ? $"/{ApiVersion}" : string.Empty)}";
 
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
 #if NET6_0_OR_GREATER
         public bool IsReady
-            => !string.IsNullOrEmpty(ServerAddress) && Port > 0 && //  !string.IsNullOrEmpty(API)) &&
+            => !string.IsNullOrEmpty(ApiTargetPath) &&
             (
                 // Address
-                (
-                RegexHelper.IPv4AddressValuesGeneratedRegex().IsMatch(ServerAddress) || 
-                RegexHelper.IPv6AddressGeneratedRegex().IsMatch(ServerAddress) || 
-                RegexHelper.FqdnGeneratedRegex().IsMatch(ServerAddress)) &&
+                //Uri.TryCreate(ApiTargetPath, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeWs) &&
                 // API-Key (also allow empty key if the user performs a login instead
                 (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern)) ||
                 // Or validation rules are overriden
                 OverrideValidationRules
             );
 #else
-        public bool IsReady
-        {
-            get
-            {
-                return
-                    !string.IsNullOrEmpty(ServerAddress) && Port > 0 && //  !string.IsNullOrEmpty(API)) &&
-                    (
-                        // Address
-                        (
-                        Regex.IsMatch(ServerAddress, RegexHelper.IPv4AddressRegex) || 
-                        Regex.IsMatch(ServerAddress, RegexHelper.IPv6AddressRegex) || 
-                        Regex.IsMatch(ServerAddress, RegexHelper.Fqdn)) &&
-                        // API-Key (also allow empty key if the user performs a login instead
-                        (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern))
-                        ||
-                        // Or validation rules are overriden
-                        OverrideValidationRules
-                    );
-            }
-        }
+        public bool IsReady   
+            => !string.IsNullOrEmpty(ApiTargetPath) &&
+            (
+                // Address
+                //Regex.IsMatch(ApiTargetPath, @"/^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-zA-Z]+):([0-9]{1,5})$/") &&
+                // API-Key (also allow empty key if the user performs a login instead
+                (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern))
+                ||
+                // Or validation rules are overriden
+                OverrideValidationRules
+            ); 
 #endif
         #endregion
 
@@ -532,20 +528,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
             Id = Guid.NewGuid();
             UpdateRestClientInstance();
         }
-
-        public Print3dServerClient(string serverAddress, string api, int port, bool isSecure = false)
+        public Print3dServerClient(string serverAddress)
         {
             Id = Guid.NewGuid();
-            InitInstance(serverAddress, port, api, isSecure);
+            InitInstance(serverAddress, "");
+            UpdateRestClientInstance();
+        }
+        public Print3dServerClient(string serverAddress, string api) : base(serverAddress)
+        {
+            Id = Guid.NewGuid();
+            InitInstance(serverAddress, api);
             UpdateRestClientInstance();
         }
 
-        public Print3dServerClient(string serverAddress, int port, bool isSecure = false)
-        {
-            Id = Guid.NewGuid();
-            InitInstance(serverAddress, port, "", isSecure);
-            UpdateRestClientInstance();
-        }
         #endregion
 
         #region Dtor
@@ -629,14 +624,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 //OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-        public virtual void InitInstance(string serverAddress, int port, string api = "", bool isSecure = false)
+        public virtual void InitInstance(string serverAddress, string api = "")
         {
             try
             {
-                ServerAddress = serverAddress;
+                ApiTargetPath = serverAddress;
                 ApiKey = api;
-                Port = port;
-                IsSecure = isSecure;
 
                 Instance = this;
                 if (Instance != null)

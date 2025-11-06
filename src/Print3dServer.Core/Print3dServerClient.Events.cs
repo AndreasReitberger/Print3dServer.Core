@@ -1,5 +1,4 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
-using AndreasReitberger.API.REST.Events;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -17,6 +16,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region WebSocket
 
+        /*
         public event EventHandler<Print3dBaseEventArgs>? WebSocketConnected;
         protected virtual void OnWebSocketConnected(Print3dBaseEventArgs e)
         {
@@ -34,7 +34,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             WebSocketError?.Invoke(this, e);
         }
-
         public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
         protected virtual void OnWebSocketMessageReceived(WebsocketEventArgs e)
         {
@@ -52,7 +51,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         {
             LoginResultReceived?.Invoke(this, e);
         }
-
+        */
         #endregion
 
         #region ServerConnectionState
@@ -88,18 +87,18 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ServerStateChanges
 
+        /*
         public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
         protected virtual void OnListeningChangedEvent(ListeningChangedEventArgs e)
         {
             ListeningChanged?.Invoke(this, e);
         }
-
         public event EventHandler<SessionChangedEventArgs>? SessionChanged;
         protected virtual void OnSessionChangedEvent(SessionChangedEventArgs e)
         {
             SessionChanged?.Invoke(this, e);
         }
-
+        */
         public event EventHandler<JobStartedEventArgs>? JobsStarted;
         protected virtual void OnJobStarted(JobStartedEventArgs e)
         {

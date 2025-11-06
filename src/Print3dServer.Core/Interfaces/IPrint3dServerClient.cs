@@ -3,7 +3,6 @@ using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
-using System.Security;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
@@ -22,14 +21,11 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #region Connection
         public string SessionId { get; set; }
         public string ServerName { get; set; }
-        public string ServerAddress { get; set; }
         public string ApiKey { get; set; }
         public string ApiKeyRegexPattern { get; set; }
         public string CheckOnlineTargetUri { get; set; }
-        public int Port { get; set; }
         public int DefaultTimeout { get; set; }
         public int RetriesWhenOffline { get; set; }
-        public bool IsSecure { get; set; }
         public bool OverrideValidationRules { get; set; }
         #endregion
 
@@ -163,20 +159,20 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         #region EventHandlers
         public event EventHandler<IgnoredJsonResultsChangedEventArgs>? IgnoredJsonResultsChanged;
-
+        /*
         public event EventHandler<Print3dBaseEventArgs>? WebSocketConnected;
         public event EventHandler<Print3dBaseEventArgs>? WebSocketDisconnected;
         public event EventHandler<ErrorEventArgs>? WebSocketError;
         public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
         public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
         public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
-
+        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
+        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
+        */
         public event EventHandler<Print3dBaseEventArgs>? ServerWentOffline;
         public event EventHandler<Print3dBaseEventArgs>? ServerWentOnline;
         public event EventHandler<Print3dBaseEventArgs>? ServerUpdateAvailable;
 
-        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
-        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
         public event EventHandler<JobStartedEventArgs>? JobsStarted;
         public event EventHandler<JobsChangedEventArgs>? JobsChanged;
         public event EventHandler<JobFinishedEventArgs>? JobFinished;
@@ -217,16 +213,17 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         #endregion
 
         #region WebSocket
+        /*
         public string BuildPingCommand(object? data);
         public Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null);
         public Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunctions = null, string[]? commandsOnConnect = null);
         public Task StopListeningAsync();
-        public Task ConnectWebSocketAsync(string target, string commandOnConnect);
-        public Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null);
         public Task DisconnectWebSocketAsync();
         public Task SendWebSocketCommandAsync(string command);
-        public Task SendPingAsync();
         public Task UpdateWebSocketAsync(Func<Task>? refreshFunctions, string[]? commandsOnConnect = null);
+        public Task ConnectWebSocketAsync(string target, string commandOnConnect);
+        public Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null);
+        */
         #endregion
 
         #region Printer
