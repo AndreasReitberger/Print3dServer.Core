@@ -19,14 +19,8 @@
   </PropertyGroup>
 
 	<ItemGroup>
-		<PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.0" />
-		<PackageReference Include="Newtonsoft.Json" Version="13.0.4" />
-		<PackageReference Include="RestApiClientSharp" Version="1.0.6" />
-		<PackageReference Include="RestSharp" Version="112.1.0" />
-		<PackageReference Include="SharedNetCoreLibrary" Version="1.1.19" />
-		<PackageReference Include="System.Text.Json" Version="9.0.10" />
-		<PackageReference Include="Websocket.Client" Version="5.3.0" />
-		
+		<PackageReference Include="RestApiClientSharp" Version="1.0.7-preview" />
+		<PackageReference Include="SharedNetCoreLibrary" Version="1.1.19" />		
 		<None Include="..\..\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 

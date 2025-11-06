@@ -4,6 +4,10 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Text.RegularExpressions;
 using Websocket.Client;
+using WebsocketEventArgs = AndreasReitberger.API.REST.Events.WebsocketEventArgs;
+using System.Net;
+
+
 #if DEBUG
 using System.Diagnostics;
 #endif
@@ -13,6 +17,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class Print3dServerClient
     {
         #region Properties
+        /*
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial WebsocketClient? WebSocket { get; set; }
@@ -43,8 +48,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial string WebSocketTargetUri { get; set; } = string.Empty;
-
-        [ObservableProperty]
+        */
+        [ObservableProperty, Obsolete("Set the `WebSocketTargetUri` instead to the full path")]
         public partial string WebSocketTarget { get; set; } = "/socket/";
         partial void OnWebSocketTargetChanged(string value)
         {
@@ -69,7 +74,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         protected virtual string GetWebSocketTargetUri()
         {
-            string webSocketTarget = $"{(IsSecure ? "wss" : "ws")}://{ServerAddress}:{Port}/{WebSocketTarget}";
+            //string webSocketTarget = $"{WebSocketTargetUri}/{WebSocketTarget}";
+            string webSocketTarget = $"{WebSocketTargetUri}";
             switch (Target)
             {
                 case Enums.Print3dServerTarget.Moonraker:
@@ -123,6 +129,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         /// Source: https://github.com/Z0rdak/RepetierSharp/blob/main/RepetierConnection.cs
         /// </summary>
         /// <returns></returns>
+        /*
         protected virtual WebsocketClient GetWebSocketClient()
         {
             WebsocketClient client = new(new Uri(GetWebSocketTargetUri()))
@@ -134,26 +141,18 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 if (info.Type == ReconnectionType.Initial)
                 {
                     IsListening = true;
-                    // Only query messages at this point when using a api-key or no auth
-                    /*
-                    if (Session.AuthType != AuthenticationType.Credentials)
-                    {
-                        this.QueryOpenMessages();
-                    }
-                    */
                 }
                 Task.Run(async () => await SendPingAsync());
             });
             client.DisconnectionHappened.Subscribe(info => WebSocket_Closed(info));
             client.MessageReceived.Subscribe(msg => WebSocket_MessageReceived(msg));
             return client;
-        }
-
-        public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());
-
+        }*/
+        /*
+        public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());     
         public virtual Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
-
-        public virtual string BuildPingCommand(object? data = null)
+        */
+        public override string BuildPingCommand(object? data = null)
         {
             data = Target switch
             {
@@ -181,7 +180,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             };
             return JsonConvert.SerializeObject(data);
         }
-
+        /*
         public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
         {
             if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
@@ -220,10 +219,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
             IsListening = false;
         }
-
-        public virtual Task ConnectWebSocketAsync(string target, string commandOnConnect)
+        public virtual Task ConnectWebSocketAsync(string target, string commandOnConnect, CookieContainer? cookies = null)
             => ConnectWebSocketAsync(target: target, commandsOnConnect: commandOnConnect is not null ? [commandOnConnect] : null);
-        public virtual async Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null)
+        public virtual async Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null, CookieContainer? cookies = null)
         {
             try
             {
@@ -254,6 +252,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
+
         public virtual async Task DisconnectWebSocketAsync()
         {
             try
@@ -270,8 +269,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
+        */
 
-        protected virtual void WebSocket_MessageReceived(ResponseMessage? msg)
+        protected override void WebSocket_MessageReceived(ResponseMessage? msg)
         {
             try
             {
@@ -280,17 +280,19 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     return;
                 }
                 long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
+                /* Pinging happens in a separate task now
                 if (LastPingTimestamp + PingInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
                 {
                     PingCounter++;
                     LastPingTimestamp = timestamp;
-                    Task.Run(SendPingAsync);
+                    Task.Run(async() => SendPingAsync().ConfigureAwait(false));
 #if DEBUG
                     Debug.WriteLine($"WS-Ping sent from {Target}: {DateTime.Now}");
 #endif
                 }
+                */
                 // Handle refreshing more often the pinging
-                if (LastRefreshTimestamp + RefreshInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
+                if (LastRefreshTimestamp + RefreshInterval < timestamp)
                 {
                     LastRefreshTimestamp = timestamp;
                     Task.Run(async () =>
@@ -362,7 +364,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-
+        /*
         protected virtual void WebSocket_Closed(DisconnectionInfo? info)
         {
             try
@@ -373,7 +375,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 {
                     Message =
                     $"WebSocket connection to {WebSocket} closed. Connection state while closing was '{(IsOnline ? "online" : "offline")}'" +
-                    $"\n-- Connection closed: {info?.Type} | {info?.CloseStatus} | {info?.CloseStatusDescription}",
+                    $"\n-- Connection closed: Type = '{info?.Type}' | CloseStatus = '{info?.CloseStatus}' | CloseStatusDescription = '{info?.CloseStatusDescription}'",
                     Printer = GetActivePrinterSlug(),
                 });
             }
@@ -382,7 +384,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-
+        */
         #endregion
     }
 }
