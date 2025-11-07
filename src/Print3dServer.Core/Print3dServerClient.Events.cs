@@ -14,46 +14,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
         #endregion
 
-        #region WebSocket
-
-        /*
-        public event EventHandler<Print3dBaseEventArgs>? WebSocketConnected;
-        protected virtual void OnWebSocketConnected(Print3dBaseEventArgs e)
-        {
-            WebSocketConnected?.Invoke(this, e);
-        }
-
-        public event EventHandler<Print3dBaseEventArgs>? WebSocketDisconnected;
-        protected virtual void OnWebSocketDisconnected(Print3dBaseEventArgs e)
-        {
-            WebSocketDisconnected?.Invoke(this, e);
-        }
-
-        public event EventHandler<ErrorEventArgs>? WebSocketError;
-        protected virtual void OnWebSocketError(ErrorEventArgs e)
-        {
-            WebSocketError?.Invoke(this, e);
-        }
-        public event EventHandler<WebsocketEventArgs>? WebSocketMessageReceived;
-        protected virtual void OnWebSocketMessageReceived(WebsocketEventArgs e)
-        {
-            WebSocketMessageReceived?.Invoke(this, e);
-        }
-
-        public event EventHandler<WebsocketEventArgs>? WebSocketDataReceived;
-        protected virtual void OnWebSocketDataReceived(WebsocketEventArgs e)
-        {
-            WebSocketDataReceived?.Invoke(this, e);
-        }
-
-        public event EventHandler<LoginRequiredEventArgs>? LoginResultReceived;
-        protected virtual void OnLoginResultReceived(LoginRequiredEventArgs e)
-        {
-            LoginResultReceived?.Invoke(this, e);
-        }
-        */
-        #endregion
-
         #region ServerConnectionState
 
         public event EventHandler<Print3dBaseEventArgs>? ServerWentOffline;
@@ -87,18 +47,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region ServerStateChanges
 
-        /*
-        public event EventHandler<ListeningChangedEventArgs>? ListeningChanged;
-        protected virtual void OnListeningChangedEvent(ListeningChangedEventArgs e)
-        {
-            ListeningChanged?.Invoke(this, e);
-        }
-        public event EventHandler<SessionChangedEventArgs>? SessionChanged;
-        protected virtual void OnSessionChangedEvent(SessionChangedEventArgs e)
-        {
-            SessionChanged?.Invoke(this, e);
-        }
-        */
         public event EventHandler<JobStartedEventArgs>? JobsStarted;
         protected virtual void OnJobStarted(JobStartedEventArgs e)
         {

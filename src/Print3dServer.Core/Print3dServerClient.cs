@@ -21,11 +21,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         public partial Print3dServerTarget Target { get; set; } = Print3dServerTarget.Custom;
-        /*
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial Func<Task>? OnRefresh { get; set; }
-        */
+
         #endregion
 
         #region Instance
@@ -35,30 +31,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region RefreshTimer
-
-        /*
-        [ObservableProperty]
-        public partial int RefreshInterval { get; set; } = 5;
-        partial void OnRefreshIntervalChanged(int value)
-        {
-            if (IsListening)
-            {
-                _ = StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: OnRefresh);
-            }
-        }
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial bool IsListening { get; set; } = false;
-        partial void OnIsListeningChanged(bool value)
-        {
-            OnListeningChangedEvent(new ListeningChangedEventArgs()
-            {
-                SessionId = SessionId,
-                IsListening = value,
-                IsListeningToWebSocket = value,
-            });
-        }
-        */
+      
         [ObservableProperty]
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public partial bool InitialDataFetched { get; set; } = false;
@@ -115,31 +88,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
         [ObservableProperty]
         public partial string CheckOnlineTargetUri { get; set; } = string.Empty;
 
-        /*
-        [ObservableProperty]
-        public partial string ServerAddress { get; set; } = string.Empty;
-        partial void OnServerAddressChanged(string value)
-        {
-            UpdateRestClientInstance();
-            _ = UpdateWebSocketAsync();
-        }
-        */
-
         [ObservableProperty]
         public partial bool LoginRequired { get; set; } = false;
-        /*
-        [ObservableProperty]
-        public partial bool IsSecure { get; set; } = false;
-        partial void OnIsSecureChanged(bool value)
-        {
-            UpdateRestClientInstance();
-            WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListening)
-            {
-                _ = UpdateWebSocketAsync();
-            }
-        }
-        */
 
         [ObservableProperty]
         public partial string ApiKey { get; set; } = string.Empty;
@@ -170,20 +120,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         [ObservableProperty]
         public partial string ApiKeyRegexPattern { get; set; } = string.Empty;
-
-        /*
-        [ObservableProperty]
-        public partial int Port { get; set; } = 3344;
-        partial void OnPortChanged(int value)
-        {
-            UpdateRestClientInstance();
-            WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListening)
-            {
-                _ = UpdateWebSocketAsync();
-            }
-        }
-        */
 
         [ObservableProperty]
         public partial bool OverrideValidationRules { get; set; } = false;
@@ -719,45 +655,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        /*
-        public virtual async Task<bool> CheckIfApiIsValidAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
-        {
-            try
-            {
-                if (IsOnline)
-                {
-                    RestApiRequestRespone? respone = await SendRestApiRequestAsync(
-                        requestTargetUri: commandBase,
-                        method: Method.Get,
-                        command: command,
-                        authHeaders: authHeaders,
-                        cts: new(timeout))
-                        .ConfigureAwait(false) as RestApiRequestRespone;
-                    if (respone?.HasAuthenticationError is true)
-                    {
-                        AuthenticationFailed = true;
-                        if (respone.EventArgs is RestEventArgs rArgs)
-                            OnRestApiAuthenticationError(rArgs);
-                    }
-                    else
-                    {
-                        AuthenticationFailed = false;
-                        if (respone?.EventArgs is RestEventArgs rArgs)
-                            OnRestApiAuthenticationSucceeded(rArgs);
-                    }
-                    return AuthenticationFailed;
-                }
-                else
-                    return false;
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-                return false;
-            }
-        }
-        */
-
         public virtual async Task<bool> SendGcodeAsync(string command = "send", object? data = null, string? targetUri = null)
         {
             try
@@ -1116,10 +1013,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 return false;
             return Id.Equals(item.Id);
         }
-        public override int GetHashCode()
-        {
-            return Id.GetHashCode();
-        }
+        public override int GetHashCode() => Id.GetHashCode();
+        
         #endregion
 
         #region Dispose
