@@ -17,38 +17,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
     public partial class Print3dServerClient
     {
         #region Properties
-        /*
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial WebsocketClient? WebSocket { get; set; }
-
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial long LastPingTimestamp { get; set; }
-
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial int PingInterval { get; set; } = 60;
-
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial long PingCounter { get; set; } = 0;
-
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial long LastRefreshTimestamp { get; set; }
-
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial int RefreshCounter { get; set; } = 0;
-
-        [ObservableProperty]
-        public partial string PingCommand { get; set; } = string.Empty;
-
-        [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
-        public partial string WebSocketTargetUri { get; set; } = string.Empty;
-        */
+        
         [ObservableProperty, Obsolete("Set the `WebSocketTargetUri` instead to the full path")]
         public partial string WebSocketTarget { get; set; } = "/socket/";
         partial void OnWebSocketTargetChanged(string value)
@@ -125,33 +94,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
             return webSocketTarget;
         }
 
-        /// <summary>
-        /// Source: https://github.com/Z0rdak/RepetierSharp/blob/main/RepetierConnection.cs
-        /// </summary>
-        /// <returns></returns>
-        /*
-        protected virtual WebsocketClient GetWebSocketClient()
-        {
-            WebsocketClient client = new(new Uri(GetWebSocketTargetUri()))
-            {
-                ReconnectTimeout = TimeSpan.FromSeconds(15)
-            };
-            client.ReconnectionHappened.Subscribe(info =>
-            {
-                if (info.Type == ReconnectionType.Initial)
-                {
-                    IsListening = true;
-                }
-                Task.Run(async () => await SendPingAsync());
-            });
-            client.DisconnectionHappened.Subscribe(info => WebSocket_Closed(info));
-            client.MessageReceived.Subscribe(msg => WebSocket_MessageReceived(msg));
-            return client;
-        }*/
-        /*
-        public virtual Task SendPingAsync() => SendWebSocketCommandAsync(BuildPingCommand());     
-        public virtual Task SendWebSocketCommandAsync(string command) => Task.Run(() => WebSocket?.Send(command));
-        */
         public override string BuildPingCommand(object? data = null)
         {
             data = Target switch
@@ -180,97 +122,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             };
             return JsonConvert.SerializeObject(data);
         }
-        /*
-        public virtual async Task UpdateWebSocketAsync(Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
-        {
-            if (!string.IsNullOrEmpty(WebSocketTargetUri) && IsInitialized)
-            {
-                await StartListeningAsync(target: WebSocketTargetUri, stopActiveListening: true, refreshFunction: refreshFunction, commandsOnConnect: commandsOnConnect)
-                    .ConfigureAwait(false);
-            }
-        }
-        public virtual Task StartListeningAsync(bool stopActiveListening = false, string[]? commandsOnConnect = null)
-            => StartListeningAsync(GetWebSocketTargetUri(), stopActiveListening, OnRefresh, commandsOnConnect: commandsOnConnect);
-
-        public virtual async Task StartListeningAsync(string target, bool stopActiveListening = false, Func<Task>? refreshFunction = null, string[]? commandsOnConnect = null)
-        {
-            if (IsListening)// avoid multiple sessions
-            {
-                if (stopActiveListening)
-                {
-                    await StopListeningAsync();
-                }
-                else
-                {
-                    return; // StopListening();
-                }
-            }
-            OnRefresh = refreshFunction;
-            await ConnectWebSocketAsync(target, commandsOnConnect: commandsOnConnect).ConfigureAwait(false);
-            IsListening = true;
-        }
-
-        public virtual async Task StopListeningAsync()
-        {
-            CancelCurrentRequests();
-            if (IsListening)
-            {
-                await DisconnectWebSocketAsync().ConfigureAwait(false);
-            }
-            IsListening = false;
-        }
-        public virtual Task ConnectWebSocketAsync(string target, string commandOnConnect, CookieContainer? cookies = null)
-            => ConnectWebSocketAsync(target: target, commandsOnConnect: commandOnConnect is not null ? [commandOnConnect] : null);
-        public virtual async Task ConnectWebSocketAsync(string target, string[]? commandsOnConnect = null, CookieContainer? cookies = null)
-        {
-            try
-            {
-#if NET6_0_OR_GREATER
-                bool targetValid = Uri.TryCreate(target, UriKind.Absolute, out var uriResult)
-                    && (uriResult.Scheme == Uri.UriSchemeWs || uriResult.Scheme == Uri.UriSchemeWss);
-                if (!targetValid) return;
-#else
-                if (!string.IsNullOrEmpty(target) && Regex.IsMatch(target, @"/^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-zA-Z]+):([0-9]{1,5})$/"))
-                {
-                    return;
-                }
-#endif            
-                await DisconnectWebSocketAsync();
-                WebSocket = GetWebSocketClient();
-                await WebSocket.StartOrFail().ContinueWith(t => SendPingAsync());
-                if (commandsOnConnect is not null && WebSocket is not null)
-                {
-                    // Send command
-                    for (int i = 0; i < commandsOnConnect?.Length; i++)
-                    {
-                        WebSocket.Send(commandsOnConnect[i]);
-                    }
-                }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-
-        public virtual async Task DisconnectWebSocketAsync()
-        {
-            try
-            {
-                if (WebSocket is not null)
-                {
-                    await Task.Delay(10);
-                    WebSocket.Dispose();
-                    WebSocket = null;
-                }
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-        */
-
+        
         protected override void WebSocket_MessageReceived(ResponseMessage? msg)
         {
             try
@@ -364,27 +216,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 OnError(new UnhandledExceptionEventArgs(exc, false));
             }
         }
-        /*
-        protected virtual void WebSocket_Closed(DisconnectionInfo? info)
-        {
-            try
-            {
-                IsListening = false;
-                //StopPingTimer();
-                OnWebSocketDisconnected(new Print3dBaseEventArgs()
-                {
-                    Message =
-                    $"WebSocket connection to {WebSocket} closed. Connection state while closing was '{(IsOnline ? "online" : "offline")}'" +
-                    $"\n-- Connection closed: Type = '{info?.Type}' | CloseStatus = '{info?.CloseStatus}' | CloseStatusDescription = '{info?.CloseStatusDescription}'",
-                    Printer = GetActivePrinterSlug(),
-                });
-            }
-            catch (Exception exc)
-            {
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-        */
         #endregion
     }
 }
