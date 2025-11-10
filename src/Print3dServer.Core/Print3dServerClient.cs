@@ -102,12 +102,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 case Print3dServerTarget.Custom:
                     break;
                 case Print3dServerTarget.RepetierServer:
-                    AddOrUpdateAuthHeader("apikey", value, AuthenticationHeaderTarget.UrlSegment);
+                    AddOrUpdateAuthHeader("apikey", value, AuthenticationHeaderTarget.UrlSegment, 0, AuthenticationTypeTarget.Both);
                     break;
                 case Print3dServerTarget.OctoPrint:
                 case Print3dServerTarget.Moonraker:
                 default:
-                    AddOrUpdateAuthHeader("X-Api-Key", value, AuthenticationHeaderTarget.Header);
+                    AddOrUpdateAuthHeader("X-Api-Key", value, AuthenticationHeaderTarget.Header, 0, AuthenticationTypeTarget.Both);
                     break;
             }
             WebSocketTargetUri = GetWebSocketTargetUri();
