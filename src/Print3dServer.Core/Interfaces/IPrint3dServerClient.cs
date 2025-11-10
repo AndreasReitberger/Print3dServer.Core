@@ -127,7 +127,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public long PingCounter { get; set; }
         public int PingInterval { get; set; }
         public string WebSocketTargetUri { get; set; }
-        public string WebSocketTarget { get; set; }
         public long LastPingTimestamp { get; set; }
         public long LastRefreshTimestamp { get; set; }
         public Func<Task>? OnRefresh { get; set; }

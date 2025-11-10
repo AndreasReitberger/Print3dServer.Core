@@ -39,7 +39,7 @@ namespace Print3dServer.Core.Test
                 _client.Target = Print3dServerTarget.OctoPrint;
                 _client.ApiKeyRegexPattern = RegexHelper.OctoPrintApiKey;
                 //_client.Port = 80;
-                _client.WebSocketTarget = "sockjs/websocket";
+                //_client.WebSocketTargetUri = $"{targetUri}/sockjs/websocket";
                 _client.WebCamTarget = "/webcam/?action=stream";
                 return this;
             }
@@ -50,7 +50,7 @@ namespace Print3dServer.Core.Test
                 WithApiKey(apiKey, Print3dServerTarget.Moonraker);
                 _client.Target = Print3dServerTarget.Moonraker;
                 //_client.Port = 80;
-                _client.WebSocketTarget = "websocket";
+                //_client.WebSocketTargetUri = $"{targetUri}/websocket";
                 _client.WebCamTarget = "/webcam/?action=stream";
                 return this;
             }

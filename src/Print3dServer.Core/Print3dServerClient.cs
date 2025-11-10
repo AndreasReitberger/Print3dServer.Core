@@ -5,7 +5,6 @@ using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
-using AndreasReitberger.Shared.Core.Utilities;
 using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
