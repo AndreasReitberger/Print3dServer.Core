@@ -1,11 +1,8 @@
-﻿using AndreasReitberger.API.Print3dServer.Core.Events;
-using AndreasReitberger.API.REST.Events;
+﻿using AndreasReitberger.API.REST.Events;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using System.Text.RegularExpressions;
 using Websocket.Client;
 using WebsocketEventArgs = AndreasReitberger.API.REST.Events.WebsocketEventArgs;
-using System.Net;
 
 
 #if DEBUG
@@ -18,6 +15,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Properties
         
+        /*
         [ObservableProperty, Obsolete("Set the `WebSocketTargetUri` instead to the full path")]
         public partial string WebSocketTarget { get; set; } = "/socket/";
         partial void OnWebSocketTargetChanged(string value)
@@ -36,7 +34,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 _ = UpdateWebSocketAsync();
             }
         }
-
+        */
         #endregion
 
         #region Methods
