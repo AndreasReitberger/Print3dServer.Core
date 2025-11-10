@@ -152,22 +152,22 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         {
                             RefreshCounter = 0;
                             await CheckOnlineAsync(commandBase: CheckOnlineTargetUri, authHeaders: AuthHeaders, timeout: 3).ConfigureAwait(false);
-                        }
-                        else RefreshCounter++;
-                        if (IsOnline)
-                        {
-                            if (OnRefresh is not null)
+                            if (IsOnline)
                             {
-                                await OnRefresh.Invoke().ConfigureAwait(false);
+                                if (OnRefresh is not null)
+                                {
+                                    await OnRefresh.Invoke().ConfigureAwait(false);
 #if DEBUG
-                                Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - On refresh done");
+                                    Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - On refresh done");
 #endif
+                                }
+                            }
+                            else if (IsListening)
+                            {
+                                await StopListeningAsync().ConfigureAwait(false); // StopListening();
                             }
                         }
-                        else if (IsListening)
-                        {
-                            await StopListeningAsync().ConfigureAwait(false); // StopListening();
-                        }
+                        else RefreshCounter++;                       
                     });
                 }
                 if (string.IsNullOrEmpty(SessionId) && msg.Text.Contains("session", StringComparison.CurrentCultureIgnoreCase))
