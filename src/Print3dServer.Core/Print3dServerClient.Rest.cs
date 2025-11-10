@@ -1,9 +1,6 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
-using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
-using System.Diagnostics;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -16,7 +13,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             string path,
             Dictionary<string, IAuthenticationHeader> authHeaders,
             Dictionary<string, string>? urlSegments = null,
-            int timeout = 10000
+            int timeout = 10
             )
         {
             try
@@ -73,7 +70,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
                 request.RequestFormat = DataFormat.Json;
                 request.Method = Method.Get;
-                request.Timeout = TimeSpan.FromMilliseconds(timeout);
+                request.Timeout = TimeSpan.FromSeconds(timeout);
                 if (urlSegments?.Count > 0)
                 {
                     foreach (KeyValuePair<string, string> segment in urlSegments)
@@ -83,7 +80,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 }
 
                 Uri? fullUrl = RestClient?.BuildUri(request);
-                CancellationTokenSource cts = new(timeout);
+                CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
                 if (RestClient is not null)
                 {
                     byte[]? respone = await RestClient.DownloadDataAsync(request, cts.Token)

@@ -585,16 +585,16 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Online Check
-        public new virtual async Task CheckOnlineAsync(int timeout = 10000)
+        public new virtual async Task CheckOnlineAsync(int timeout = 10)
         {
-            CancellationTokenSource cts = new(timeout);
+            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync(FullWebAddress, AuthHeaders, "", cts).ConfigureAwait(false);
             cts?.Dispose();
         }
 
-        public new virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10000)
+        public new virtual async Task CheckOnlineAsync(string commandBase, Dictionary<string, IAuthenticationHeader> authHeaders, string? command = null, int timeout = 10)
         {
-            CancellationTokenSource cts = new(timeout);
+            CancellationTokenSource cts = new(TimeSpan.FromSeconds(timeout));
             await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             cts?.Dispose();
         }
@@ -649,7 +649,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 // Retry with shorter timeout to see if the connection loss is real
                 _retries++;
-                cts = new(3500);
+                cts = new(TimeSpan.FromSeconds(3));
                 await CheckOnlineAsync(commandBase, authHeaders, command, cts).ConfigureAwait(false);
             }
         }

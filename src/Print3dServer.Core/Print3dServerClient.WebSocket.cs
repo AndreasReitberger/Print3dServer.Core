@@ -151,7 +151,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         if (RefreshCounter > 5)
                         {
                             RefreshCounter = 0;
-                            await CheckOnlineAsync(commandBase: CheckOnlineTargetUri, authHeaders: AuthHeaders, timeout: 3500).ConfigureAwait(false);
+                            await CheckOnlineAsync(commandBase: CheckOnlineTargetUri, authHeaders: AuthHeaders, timeout: 3).ConfigureAwait(false);
                         }
                         else RefreshCounter++;
                         if (IsOnline)
