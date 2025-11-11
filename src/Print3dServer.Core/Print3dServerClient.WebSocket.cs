@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Websocket.Client;
 using WebsocketEventArgs = AndreasReitberger.API.REST.Events.WebsocketEventArgs;
-
+using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 
 #if DEBUG
 using System.Diagnostics;
@@ -11,37 +11,19 @@ using System.Diagnostics;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
-    public partial class Print3dServerClient
+    public partial class Print3dServerClient : IPrint3dServerClient
     {
         #region Properties
-        
-        /*
-        [ObservableProperty, Obsolete("Set the `WebSocketTargetUri` instead to the full path")]
-        public partial string WebSocketTarget { get; set; } = "/socket/";
-        partial void OnWebSocketTargetChanged(string value)
-        {
-            if (value?.StartsWith("/") is true)
-            {
-                WebSocketTarget = string.Join("", value.Skip(1));
-            }
-            if (value?.EndsWith("/") is true)
-            {
-                WebSocketTarget = string.Join("", value.Take(value.Length - 1));
-            }
-            WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListening)
-            {
-                _ = UpdateWebSocketAsync();
-            }
-        }
-        */
+
+        [ObservableProperty]
+        public partial int OnRefreshInterval { get; set; } = 5;
+
         #endregion
 
         #region Methods
 
         protected virtual string GetWebSocketTargetUri()
         {
-            //string webSocketTarget = $"{WebSocketTargetUri}/{WebSocketTarget}";
             string webSocketTarget = $"{WebSocketTargetUri}";
             switch (Target)
             {
@@ -130,45 +112,28 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     return;
                 }
                 long timestamp = DateTimeOffset.Now.ToUnixTimeSeconds();
-                /* Pinging happens in a separate task now
-                if (LastPingTimestamp + PingInterval < DateTimeOffset.Now.ToUnixTimeSeconds())
-                {
-                    PingCounter++;
-                    LastPingTimestamp = timestamp;
-                    Task.Run(async() => SendPingAsync().ConfigureAwait(false));
-#if DEBUG
-                    Debug.WriteLine($"WS-Ping sent from {Target}: {DateTime.Now}");
-#endif
-                }
-                */
                 // Handle refreshing more often the pinging
                 if (LastRefreshTimestamp + RefreshInterval < timestamp)
                 {
                     LastRefreshTimestamp = timestamp;
-                    Task.Run(async () =>
+                    if (RefreshCounter > OnRefreshInterval)
                     {
-                        // Check online state on each 5. ping
-                        if (RefreshCounter > 5)
+                        RefreshCounter = 0;
+                        if (OnRefresh is not null)
                         {
-                            RefreshCounter = 0;
-                            await CheckOnlineAsync(commandBase: CheckOnlineTargetUri, authHeaders: AuthHeaders, timeout: 3).ConfigureAwait(false);
-                        }
-                        else RefreshCounter++;
-                        if (IsOnline)
-                        {
-                            if (OnRefresh is not null)
+                            Task.Run(async () =>
                             {
-                                await OnRefresh.Invoke().ConfigureAwait(false);
+                                if (OnRefresh is not null)
+                                {
+                                    await OnRefresh.Invoke().ConfigureAwait(false);
 #if DEBUG
-                                Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - On refresh done");
+                                    Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - On refresh done");
 #endif
-                            }
+                                }
+                            });
                         }
-                        else if (IsListening)
-                        {
-                            await StopListeningAsync().ConfigureAwait(false); // StopListening();
-                        }
-                    });
+                    }
+                    else RefreshCounter++;
                 }
                 if (string.IsNullOrEmpty(SessionId) && msg.Text.Contains("session", StringComparison.CurrentCultureIgnoreCase))
                 {
