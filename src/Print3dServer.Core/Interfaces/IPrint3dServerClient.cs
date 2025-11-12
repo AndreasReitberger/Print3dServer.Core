@@ -24,8 +24,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string ApiKey { get; set; }
         public string ApiKeyRegexPattern { get; set; }
         public string CheckOnlineTargetUri { get; set; }
-        public int DefaultTimeout { get; set; }
-        public int RetriesWhenOffline { get; set; }
         public bool OverrideValidationRules { get; set; }
         #endregion
 
