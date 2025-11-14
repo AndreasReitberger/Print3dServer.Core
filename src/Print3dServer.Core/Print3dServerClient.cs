@@ -117,8 +117,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             }
         }
 
-        [ObservableProperty]
+        [ObservableProperty, Obsolete("Use `ApiKeyRegex` instead")]
         public partial string ApiKeyRegexPattern { get; set; } = string.Empty;
+
+        [ObservableProperty]
+        public partial Regex? ApiKeyRegex { get; set; }
 
         [ObservableProperty]
         public partial bool OverrideValidationRules { get; set; } = false;
@@ -436,7 +439,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 // Address
                 //Uri.TryCreate(ApiTargetPath, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeWs) &&
                 // API-Key (also allow empty key if the user performs a login instead
-                (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern)) ||
+                string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern) || ApiKeyRegex?.IsMatch(ApiKey) is true ||
                 // Or validation rules are overriden
                 OverrideValidationRules
             );
@@ -447,8 +450,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 // Address
                 //Regex.IsMatch(ApiTargetPath, @"/^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-zA-Z]+):([0-9]{1,5})$/") &&
                 // API-Key (also allow empty key if the user performs a login instead
-                (string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern))
-                ||
+                string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern) || ApiKeyRegex?.IsMatch(ApiKey) is true ||
                 // Or validation rules are overriden
                 OverrideValidationRules
             ); 
