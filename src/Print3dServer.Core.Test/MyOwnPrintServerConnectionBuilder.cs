@@ -2,6 +2,7 @@
 using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.Shared.Core.Utilities;
+using System.Text.RegularExpressions;
 
 namespace Print3dServer.Core.Test
 {
@@ -25,7 +26,7 @@ namespace Print3dServer.Core.Test
                 WithServerAddress(targetUri);
                 WithApiKey(apiKey, Print3dServerTarget.RepetierServer);
                 _client.Target = Print3dServerTarget.RepetierServer;
-                _client.ApiKeyRegexPattern = RegexHelper.RepetierServerProApiKey;
+                _client.ApiKeyRegex = RegexHelper.RepetierServerProApiKeyGeneratedRegex();
                 _client.WebCamTarget = "/printer/cammjpg/";
                 _client.EnablePing = true;
                 _client.PingInterval = 5;
@@ -37,7 +38,7 @@ namespace Print3dServer.Core.Test
                 WithServerAddress(targetUri);
                 WithApiKey(apiKey, Print3dServerTarget.OctoPrint);
                 _client.Target = Print3dServerTarget.OctoPrint;
-                _client.ApiKeyRegexPattern = RegexHelper.OctoPrintApiKey;
+                _client.ApiKeyRegex = RegexHelper.OctoPrintApiKeyGeneratedRegex();
                 //_client.Port = 80;
                 //_client.WebSocketTargetUri = $"{targetUri}/sockjs/websocket";
                 _client.WebCamTarget = "/webcam/?action=stream";
@@ -61,10 +62,10 @@ namespace Print3dServer.Core.Test
                 return this;
             }
 
-            public MyOwnPrintServerConnectionBuilder AsCustom(string apiKeyRegexPattern = "")
+            public MyOwnPrintServerConnectionBuilder AsCustom(Regex apiKeyRegex)
             {
                 _client.Target = Print3dServerTarget.Custom;
-                _client.ApiKeyRegexPattern = apiKeyRegexPattern;
+                _client.ApiKeyRegex = apiKeyRegex;
                 return this;
             }
 

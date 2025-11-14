@@ -3,6 +3,7 @@ using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.REST.Interfaces;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 {
@@ -22,7 +23,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public string SessionId { get; set; }
         public string ServerName { get; set; }
         public string ApiKey { get; set; }
-        public string ApiKeyRegexPattern { get; set; }
+        public Regex? ApiKeyRegex { get; set; }
         public string CheckOnlineTargetUri { get; set; }
         public bool OverrideValidationRules { get; set; }
         #endregion
