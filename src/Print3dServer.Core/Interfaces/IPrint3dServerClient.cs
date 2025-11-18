@@ -15,10 +15,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
         public Print3dServerTarget Target { get; set; }
         #endregion
 
-        #region Instance
-        public new static IPrint3dServerClient? Instance { get; set; }
-        #endregion
-
         #region Connection
         public string SessionId { get; set; }
         public string ServerName { get; set; }
@@ -119,17 +115,6 @@ namespace AndreasReitberger.API.Print3dServer.Core.Interfaces
 
         public IPrinter3d? ActivePrinter { get; set; }
 
-        #endregion
-
-        #region WebSocket
-        public string PingCommand { get; set; }
-        public long PingCounter { get; set; }
-        public int PingInterval { get; set; }
-        public int OnRefreshInterval { get; set; }
-        public string WebSocketTargetUri { get; set; }
-        public long LastPingTimestamp { get; set; }
-        public long LastRefreshTimestamp { get; set; }
-        public Func<Task>? OnRefresh { get; set; }
         #endregion
 
         #region Data Convertion

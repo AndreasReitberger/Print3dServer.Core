@@ -13,18 +13,12 @@ namespace AndreasReitberger.API.Print3dServer.Core
 {
     public partial class Print3dServerClient : IPrint3dServerClient
     {
-        #region Properties
-
-        [ObservableProperty]
-        public partial int OnRefreshInterval { get; set; } = 5;
-
-        #endregion
-
         #region Methods
 
         protected virtual string GetWebSocketTargetUri()
         {
             string webSocketTarget = $"{WebSocketTargetUri}";
+            if (string.IsNullOrEmpty(webSocketTarget)) return string.Empty;
             switch (Target)
             {
                 case Enums.Print3dServerTarget.Moonraker:
@@ -55,6 +49,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 case Enums.Print3dServerTarget.RepetierServer:
                     if (AuthHeaders?.ContainsKey("apikey") is true)
                     {
+                        //if (string.IsNullOrEmpty(webSocketTarget))
+                        //    webSocketTarget = $"{ApiTargetPath}/socket";
                         webSocketTarget += $"?apikey={AuthHeaders?["apikey"].Token}";
                     }
                     break;
@@ -125,7 +121,9 @@ namespace AndreasReitberger.API.Print3dServer.Core
                             {
                                 if (OnRefresh is not null)
                                 {
+                                    //IsRefreshing = true;
                                     await OnRefresh.Invoke().ConfigureAwait(false);
+                                    //IsRefreshing = false;
 #if DEBUG
                                     Debug.WriteLine($"Data refreshed {Target}: {DateTime.Now} - On refresh done");
 #endif
