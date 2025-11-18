@@ -23,12 +23,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #endregion
 
-        #region Instance
-
-        public new static IPrint3dServerClient? Instance { get; private set; }
-
-        #endregion
-
         #region RefreshTimer
       
         [ObservableProperty]
@@ -279,6 +273,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public partial IPrinter3d? ActivePrinter { get; set; }
         partial void OnActivePrinterChanging(IPrinter3d? value)
         {
+            if (!IsConnecting)
+            {
+                _ = Task.Run(RefreshAllAsync);
+            }
             OnActivePrinterChangedEvent(new ActivePrinterChangedEventArgs()
             {
                 SessionId = SessionId,
@@ -468,13 +466,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public Print3dServerClient(string serverAddress)
         {
             Id = Guid.NewGuid();
-            InitInstance(serverAddress, "");
+            Init(serverAddress, "");
             UpdateRestClientInstance();
         }
         public Print3dServerClient(string serverAddress, string api) : base(serverAddress)
         {
             Id = Guid.NewGuid();
-            InitInstance(serverAddress, api);
+            Init(serverAddress, api);
             UpdateRestClientInstance();
         }
 
@@ -530,51 +528,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Public
 
         #region Init
-        public virtual void InitInstance()
-        {
-            try
-            {
-                Instance = this;
-                if (Instance != null)
-                {
-                    Instance.UpdateInstance = false;
-                    Instance.IsInitialized = true;
-                }
-                UpdateInstance = false;
-                IsInitialized = true;
-            }
-            catch (Exception exc)
-            {
-                //UpdateInstance = true;
-                OnError(new UnhandledExceptionEventArgs(exc, false));
-                IsInitialized = false;
-            }
-        }
-        public static void UpdateSingleInstance(Print3dServerClient Inst)
-        {
-            try
-            {
-                Instance = Inst;
-            }
-            catch (Exception)
-            {
-                //OnError(new UnhandledExceptionEventArgs(exc, false));
-            }
-        }
-        public virtual void InitInstance(string serverAddress, string api = "")
+ 
+        public virtual void Init(string serverAddress, string api = "")
         {
             try
             {
                 ApiTargetPath = serverAddress;
                 ApiKey = api;
 
-                Instance = this;
-                if (Instance != null)
-                {
-                    Instance.UpdateInstance = false;
-                    Instance.IsInitialized = true;
-                }
-                UpdateInstance = false;
                 IsInitialized = true;
             }
             catch (Exception exc)
