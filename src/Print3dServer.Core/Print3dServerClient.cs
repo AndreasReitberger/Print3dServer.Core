@@ -427,7 +427,6 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region ReadOnly
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
         public string FullWebAddress => $"{ApiTargetPath}{(!string.IsNullOrEmpty(ApiVersion) ? $"/{ApiVersion}" : string.Empty)}";
-        //$"{(IsSecure ? "https" : "http")}://{ApiTargetPath}:{Port}{(!string.IsNullOrEmpty(ApiVersion) ? $"/{ApiVersion}" : string.Empty)}";
 
         [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
 #if NET6_0_OR_GREATER
@@ -435,9 +434,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             => !string.IsNullOrEmpty(ApiTargetPath) &&
             (
                 // Address
-                //Uri.TryCreate(ApiTargetPath, UriKind.Absolute, out var uriResult) && (uriResult.Scheme == Uri.UriSchemeWs) &&
                 // API-Key (also allow empty key if the user performs a login instead
-                string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern) || ApiKeyRegex?.IsMatch(ApiKey) is true ||
+                string.IsNullOrEmpty(ApiKey) || ApiKeyRegex?.IsMatch(ApiKey) is true ||
                 // Or validation rules are overriden
                 OverrideValidationRules
             );
@@ -446,9 +444,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
             => !string.IsNullOrEmpty(ApiTargetPath) &&
             (
                 // Address
-                //Regex.IsMatch(ApiTargetPath, @"/^(wss?:\/\/)([0-9]{1,3}(?:\.[0-9]{1,3}){3}|[a-zA-Z]+):([0-9]{1,5})$/") &&
                 // API-Key (also allow empty key if the user performs a login instead
-                string.IsNullOrEmpty(ApiKey) || Regex.IsMatch(ApiKey, ApiKeyRegexPattern) || ApiKeyRegex?.IsMatch(ApiKey) is true ||
+                string.IsNullOrEmpty(ApiKey) || ApiKeyRegex?.IsMatch(ApiKey) is true ||
                 // Or validation rules are overriden
                 OverrideValidationRules
             ); 
