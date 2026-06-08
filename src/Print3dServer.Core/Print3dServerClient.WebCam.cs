@@ -77,13 +77,13 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        requestTargetUri: targetUri,
                        method: Method.Post,
                        command: command,
-                       jsonObject: data,
+                       body: data,
                        authHeaders: AuthHeaders,
                        //urlSegments: urlSegments,
                        cts: default
                        )
                     .ConfigureAwait(false);
-                return GetObjectFromJson<List<IWebCamConfig>>(result?.Result, DefaultNewtonsoftJsonSerializerSettings) ?? resultObject;
+                return GetObjectFromJsonSystem<List<IWebCamConfig>>(result?.Result, DefaultJsonSerializerSettings) ?? resultObject;
             }
             catch (JsonException jecx)
             {

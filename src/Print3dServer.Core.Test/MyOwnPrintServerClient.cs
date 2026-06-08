@@ -25,7 +25,7 @@ namespace Print3dServer.Core.Test
                        requestTargetUri: targetUri,
                        method: Method.Post,
                        command: "",
-                       jsonObject: null,
+                       body: null,
                        authHeaders: AuthHeaders
                        )
                     .ConfigureAwait(false);
@@ -69,7 +69,7 @@ namespace Print3dServer.Core.Test
                        requestTargetUri: targetUri,
                        method: Method.Post,
                        command: "",
-                       jsonObject: null,
+                       body: null,
                        authHeaders: AuthHeaders
                        )
                     .ConfigureAwait(false);
@@ -111,7 +111,7 @@ namespace Print3dServer.Core.Test
                        requestTargetUri: targetUri,
                        method: Method.Post,
                        command: "listModelGroups",
-                       jsonObject: null,
+                       body: null,
                        authHeaders: AuthHeaders
                        )
                     .ConfigureAwait(false);
