@@ -105,7 +105,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                     break;
             }
             WebSocketTargetUri = GetWebSocketTargetUri();
-            if (IsInitialized && IsListening)
+            if (IsListening)
             {
                 _ = UpdateWebSocketAsync();
             }
@@ -532,14 +532,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
             {
                 ApiTargetPath = serverAddress;
                 ApiKey = api;
-
-                IsInitialized = true;
             }
             catch (Exception exc)
             {
                 //UpdateInstance = true;
                 OnError(new UnhandledExceptionEventArgs(exc, false));
-                IsInitialized = false;
             }
         }
         #endregion
@@ -574,7 +571,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        requestTargetUri: commandBase,
                        method: Method.Get,
                        command: command,
-                       jsonObject: null,
+                       body: null,
                        authHeaders: authHeaders,
                        cts: cts)
                     .ConfigureAwait(false);
@@ -628,7 +625,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "continueJob",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -697,7 +694,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "setExtruderTemperature",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -718,7 +715,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "setBedTemperature",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -739,7 +736,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "setChamberTemperature",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -768,7 +765,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "continueJob",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -794,7 +791,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "removeJob",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -815,7 +812,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "continueJob",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -836,7 +833,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "pauseJob",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -857,7 +854,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "stopJob",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
@@ -920,7 +917,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                         method: Method.Post,
                         command: command ?? "setFanSpeed",
                         authHeaders: AuthHeaders,
-                        jsonObject: data)
+                        body: data)
                     .ConfigureAwait(false);
                 return GetQueryResult(result?.Result, true);
             }
