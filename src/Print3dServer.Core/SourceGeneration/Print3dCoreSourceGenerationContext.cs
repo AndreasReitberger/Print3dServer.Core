@@ -1,5 +1,6 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Exceptions;
+using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.Print3dServer.Core.TypeConverters;
 using AndreasReitberger.API.REST.SourceGeneration;
 using System.Text.Json.Serialization;
@@ -32,8 +33,9 @@ namespace AndreasReitberger.API.Print3dServer.Core.SourceGeneration
     [JsonSerializable(typeof(WebCamConfigsChangedEventArgs))]
     [JsonSerializable(typeof(ServerNotReachableException))]
     [JsonSerializable(typeof(Print3dServerClient))]
+    [JsonSerializable(typeof(List<IWebCamConfig>))]
     [JsonSourceGenerationOptions(WriteIndented = true, Converters = [typeof(RegexConverter)])]
-    public partial class Print3dCoreSourceGenerationContext : RestSourceGenerationContext
+    public partial class Print3dCoreSourceGenerationContext : JsonSerializerContext
     {
     }
 }

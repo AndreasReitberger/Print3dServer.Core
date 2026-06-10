@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+﻿using System.Text.Json.Serialization;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -10,11 +10,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public partial bool IsLoggedIn { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial string Username { get; set; } = string.Empty;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial string? Password { get; set; }
         #endregion
 

@@ -1,5 +1,5 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
-using Newtonsoft.Json;
+using AndreasReitberger.API.Print3dServer.Core.SourceGeneration;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
@@ -11,7 +11,7 @@ namespace AndreasReitberger.API.Print3dServer.Core.Events
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, Print3dCoreSourceGenerationContext.Default.IsPrintingStateChangedEventArgs);
         #endregion
     }
 }

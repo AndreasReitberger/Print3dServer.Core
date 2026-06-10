@@ -1,6 +1,6 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
+using System.Text.Json.Serialization;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -9,11 +9,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Properties
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial int NumberOfSensors { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ConcurrentDictionary<string, ISensorComponent> Sensors { get; set; } = [];
         partial void OnSensorsChanged(ConcurrentDictionary<string, ISensorComponent> value)
         {

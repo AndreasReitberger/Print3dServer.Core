@@ -1,9 +1,9 @@
 ﻿using AndreasReitberger.API.REST.Events;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using Websocket.Client;
 using WebsocketEventArgs = AndreasReitberger.API.REST.Events.WebsocketEventArgs;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using System.Text.Json.Nodes;
+
 
 #if DEBUG
 using System.Diagnostics;
@@ -96,7 +96,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 },
                 _ => new { },
             };
-            return JsonConvert.SerializeObject(data);
+            return JsonSerializer.Serialize(data);
         }
         
         protected override void WebSocket_MessageReceived(ResponseMessage? msg)
@@ -135,14 +135,16 @@ namespace AndreasReitberger.API.Print3dServer.Core
                 }
                 if (string.IsNullOrEmpty(SessionId) && msg.Text.Contains("session", StringComparison.CurrentCultureIgnoreCase))
                 {
-                    JObject? obj = JsonConvert.DeserializeObject<JObject>(msg.Text);
+                    JsonObject? obj = JsonNode.Parse(msg.Text) as JsonObject;
+                    //JObject? obj = JsonConvert.DeserializeObject<JObject>(msg.Text);
                     switch (Target)
                     {
                         case Enums.Print3dServerTarget.Moonraker:
                             break;
                         case Enums.Print3dServerTarget.RepetierServer:
-                            var sessObj = obj?.SelectToken("session");
-                            SessionId = sessObj?.Value<string>() ?? "";
+                            //var sessObj = obj?.SelectToken("session");
+                            //SessionId = sessObj?.Value<string>() ?? "";
+                            SessionId = obj?["session"]?.GetValue<string>() ?? string.Empty;
                             break;
                         case Enums.Print3dServerTarget.OctoPrint:
                             break;

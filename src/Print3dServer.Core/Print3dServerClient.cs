@@ -2,12 +2,13 @@
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Exceptions;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using AndreasReitberger.API.Print3dServer.Core.SourceGeneration;
 using AndreasReitberger.API.REST;
 using AndreasReitberger.API.REST.Enums;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
 namespace AndreasReitberger.API.Print3dServer.Core
@@ -26,14 +27,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region RefreshTimer
       
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool InitialDataFetched { get; set; } = false;
 
         #endregion
 
         #region Debug
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ConcurrentDictionary<string, string> IgnoredJsonResults { get; set; } = [];
         partial void OnIgnoredJsonResultsChanged(ConcurrentDictionary<string, string> value)
         {
@@ -47,7 +48,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Connection
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public new partial string SessionId { get; set; } = string.Empty;
         partial void OnSessionIdChanged(string value)
         {
@@ -121,7 +122,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         public partial bool OverrideValidationRules { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public new partial bool IsOnline { get; set; } = false;
         partial void OnIsOnlineChanged(bool value)
         {
@@ -143,7 +144,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool IsRefreshing { get; set; } = false;
 
         #endregion
@@ -151,7 +152,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Update
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool UpdateAvailable { get; set; } = false;
         partial void OnUpdateAvailableChanged(bool value)
         {
@@ -183,14 +184,14 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region ConfigurationInfo
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool ShutdownAfterPrint { get; set; } = false;
 
         #endregion
 
         #region PrinterState
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool IsPrinting { get; set; } = false;
         partial void OnIsPrintingChanged(bool value)
         {
@@ -204,7 +205,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool IsPaused { get; set; } = false;
 
         partial void OnIsPausedChanged(bool value)
@@ -219,7 +220,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool IsConnectedPrinterOnline { get; set; } = false;
 
         #endregion
@@ -227,49 +228,49 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Temperatures
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double TemperatureExtruderMain { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double TemperatureExtruderSecondary { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double TemperatureHeatedBedMain { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double TemperatureHeatedChamberMain { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double SpeedFactor { get; set; } = 100;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double SpeedFactorTarget { get; set; } = 100;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double FlowFactor { get; set; } = 100;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double FlowFactorTarget { get; set; } = 100;
 
         #endregion
 
         #region Fans
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial int SpeedFanMain { get; set; } = 0;
 
         #endregion
 
         #region Printers
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial IPrinter3d? ActivePrinter { get; set; }
         partial void OnActivePrinterChanging(IPrinter3d? value)
         {
@@ -287,7 +288,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ObservableCollection<IPrinter3d> Printers { get; set; } = [];
         partial void OnPrintersChanged(ObservableCollection<IPrinter3d> value)
         {
@@ -308,7 +309,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Files
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ObservableCollection<IGcodeGroup> Groups { get; set; } = [];
         partial void OnGroupsChanged(ObservableCollection<IGcodeGroup> value)
         {
@@ -322,7 +323,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ObservableCollection<IGcode> Files { get; set; } = [];
         partial void OnFilesChanged(ObservableCollection<IGcode> value)
         {
@@ -339,7 +340,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
 
         #region Jobs
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial byte[] CurrentPrintImage { get; set; } = [];
         partial void OnCurrentPrintImageChanging(byte[] value)
         {
@@ -353,7 +354,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ObservableCollection<IPrint3dJob> Jobs { get; set; } = [];
         partial void OnJobsChanged(ObservableCollection<IPrint3dJob> value)
         {
@@ -367,7 +368,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial IPrint3dJobStatus? ActiveJob { get; set; }
         partial void OnActiveJobChanging(IPrint3dJobStatus? oldValue, IPrint3dJobStatus? newValue)
         {
@@ -381,7 +382,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ObservableCollection<IPrint3dJobStatus> ActiveJobs { get; set; } = [];
 
         #endregion
@@ -389,35 +390,35 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #region Position
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double X { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double Y { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial double Z { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial long Layer { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial long Layers { get; set; } = 0;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool YHomed { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool ZHomed { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool XHomed { get; set; } = false;
 
         #endregion
@@ -425,10 +426,10 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region ReadOnly
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public string FullWebAddress => $"{ApiTargetPath}{(!string.IsNullOrEmpty(ApiVersion) ? $"/{ApiVersion}" : string.Empty)}";
 
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
 #if NET6_0_OR_GREATER
         public bool IsReady
             => !string.IsNullOrEmpty(ApiTargetPath) &&
@@ -961,7 +962,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         #endregion
 
         #region Overrides
-        public override string ToString() => JsonConvert.SerializeObject(this, Formatting.Indented);
+        public override string ToString() => JsonSerializer.Serialize(this!, Print3dCoreSourceGenerationContext.Default.Print3dServerClient);
 
         public override bool Equals(object? obj)
         {
