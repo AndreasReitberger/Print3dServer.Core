@@ -1,10 +1,12 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Enums;
 using AndreasReitberger.API.Print3dServer.Core.Events;
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
+using AndreasReitberger.API.Print3dServer.Core.SourceGeneration;
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
+using AndreasReitberger.Shared.Core.Utilities;
 using System.Collections.ObjectModel;
+using System.Text.Json.Serialization;
 
 namespace AndreasReitberger.API.Print3dServer.Core
 {
@@ -12,11 +14,11 @@ namespace AndreasReitberger.API.Print3dServer.Core
     {
         #region Properties
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial bool HasWebCam { get; set; } = false;
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial IWebCamConfig? SelectedWebCam { get; set; }
         partial void OnSelectedWebCamChanged(IWebCamConfig? value)
         {
@@ -27,7 +29,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial ObservableCollection<IWebCamConfig> WebCams { get; set; } = [];
         partial void OnWebCamsChanged(ObservableCollection<IWebCamConfig> value)
         {
@@ -38,7 +40,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
         }
 
         [ObservableProperty]
-        [JsonIgnore, System.Text.Json.Serialization.JsonIgnore, XmlIgnore]
+        [JsonIgnore, XmlIgnore]
         public partial string WebCamTargetUri { get; set; } = string.Empty;
 
         [ObservableProperty]
@@ -83,7 +85,8 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        cts: default
                        )
                     .ConfigureAwait(false);
-                return GetObjectFromJsonSystem<List<IWebCamConfig>>(result?.Result, DefaultJsonSerializerSettings) ?? resultObject;
+                //return GetObjectFromJsonSystem<List<IWebCamConfig>>(result?.Result, DefaultJsonSerializerSettings) ?? resultObject;
+                return JsonConvertHelper.ToObject<List<IWebCamConfig>>(result?.Result, settings: Print3dCoreSourceGenerationContext.Default) ?? resultObject;
             }
             catch (JsonException jecx)
             {
