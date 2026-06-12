@@ -1,6 +1,5 @@
 ﻿using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.Print3dServer.Core.SourceGeneration;
-using System.Text.Json;
 
 namespace AndreasReitberger.API.Print3dServer.Core.Events
 {
