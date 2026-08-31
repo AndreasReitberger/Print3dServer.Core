@@ -2,8 +2,8 @@
 using AndreasReitberger.API.Print3dServer.Core.Interfaces;
 using AndreasReitberger.API.REST.Events;
 using AndreasReitberger.API.REST.Interfaces;
-using Newtonsoft.Json;
 using RestSharp;
+using System.Text.Json;
 
 namespace Print3dServer.Core.Test
 {
