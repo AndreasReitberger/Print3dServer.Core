@@ -86,7 +86,7 @@ namespace AndreasReitberger.API.Print3dServer.Core
                        )
                     .ConfigureAwait(false);
                 //return GetObjectFromJsonSystem<List<IWebCamConfig>>(result?.Result, DefaultJsonSerializerSettings) ?? resultObject;
-                return JsonConvertHelper.ToObject<List<IWebCamConfig>>(result?.Result, settings: Print3dCoreSourceGenerationContext.Default) ?? resultObject;
+                return JsonConvertHelper.ToObject<List<IWebCamConfig>>(result?.Result, context: Print3dCoreSourceGenerationContext.Default) ?? resultObject;
             }
             catch (JsonException jecx)
             {
